@@ -11,7 +11,7 @@
         <result column="component" property="component" />
         <result column="perms" property="perms" />
         <result column="icon" property="icon" />
-        <result column="sort" property="sort" />
+        <result column="order_num" property="orderNum" />
         <result column="status" property="status" />
         <result column="visible" property="visible" />
         <result column="cacheable" property="cacheable" />
@@ -24,7 +24,7 @@
 
     <!-- 基础SQL片段 -->
     <sql id="Base_Column_List">
-        id, menu_name, parent_id, menu_type, path, component, perms, icon, sort, status, visible, 
+        id, menu_name, parent_id, menu_type, path, component, perms, icon, order_num, status, visible, 
         cacheable, create_by, create_time, update_by, update_time, remark
     </sql>
 
@@ -69,7 +69,7 @@
         <include refid="Base_Column_List" />
         FROM sys_menu
         <include refid="Query_Condition" />
-        ORDER BY parent_id, sort
+        ORDER BY parent_id, order_num
     </select>
 
     <!-- 查询菜单总数 -->
@@ -83,11 +83,11 @@
     <insert id="insert" parameterType="com.staoo.system.domain.Menu" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_menu (
             menu_name, parent_id, menu_type, path, component, perms, icon, 
-            sort, status, visible, cacheable, create_by, create_time, 
+            order_num, status, visible, cacheable, create_by, create_time, 
             update_by, update_time, remark
         ) VALUES (
             #{menuName}, #{parentId}, #{menuType}, #{path}, #{component}, #{perms}, #{icon}, 
-            #{sort}, #{status}, #{visible}, #{cacheable}, #{createBy}, #{createTime}, 
+            #{orderNum}, #{status}, #{visible}, #{cacheable}, #{createBy}, #{createTime}, 
             #{updateBy}, #{updateTime}, #{remark}
         )
     </insert>
@@ -117,8 +117,8 @@
             <if test="icon != null and icon != ''">
                 icon = #{icon},
             </if>
-            <if test="sort != null">
-                sort = #{sort},
+            <if test="orderNum != null">
+                order_num = #{orderNum},
             </if>
             <if test="status != null">
                 status = #{status},
@@ -175,7 +175,7 @@
         INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
         WHERE rm.role_id = #{roleId}
         AND m.status = 1
-        ORDER BY m.parent_id, m.sort
+        ORDER BY m.parent_id, m.order_num
     </select>
 
     <!-- 根据用户ID查询菜单列表 -->
@@ -190,7 +190,7 @@
         WHERE ur.user_id = #{userId}
         AND m.status = 1
         AND m.visible = 1
-        ORDER BY m.parent_id, m.sort
+        ORDER BY m.parent_id, m.order_num
     </select>
 
     <!-- 根据用户ID查询权限标识列表 -->
@@ -220,7 +220,7 @@
         <include refid="Base_Column_List" />
         FROM sys_menu
         <include refid="Query_Condition" />
-        ORDER BY parent_id, sort
+        ORDER BY parent_id, order_num
     </select>
 
     <!-- 查询角色菜单树结构 -->

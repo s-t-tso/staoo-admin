@@ -32,7 +32,7 @@ public class RoleRequest {
     /**
      * 角色排序
      */
-    private Integer sort;
+    private Integer orderNum;
 
     /**
      * 备注
@@ -81,12 +81,12 @@ public class RoleRequest {
         this.status = status;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getOrderNum() {
+        return orderNum;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
     }
 
     public String getRemark() {

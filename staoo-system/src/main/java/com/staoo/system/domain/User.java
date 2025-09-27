@@ -67,6 +67,10 @@ public class User implements Serializable {
      */
     private String remark;
 
+    /**
+     * 是否为管理员
+     * 0-否，1-是
+     */
     private Integer admin;
 
     /**

@@ -35,15 +35,15 @@ public class Department implements Serializable {
     /**
      * 部门排序
      */
-    private Integer sort;
+    private Integer orderNum;
 
     /**
-     * 部门负责人ID
+     * 负责人ID
      */
     private Long leaderId;
 
     /**
-     * 部门负责人姓名
+     * 负责人名称
      */
     private String leaderName;
 
@@ -64,9 +64,19 @@ public class Department implements Serializable {
     private String remark;
 
     /**
+     * 创建者
+     */
+    private Long createBy;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 更新者
+     */
+    private Long updateBy;
 
     /**
      * 更新时间
@@ -111,12 +121,12 @@ public class Department implements Serializable {
         this.parentId = parentId;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getOrderNum() {
+        return orderNum;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
     }
 
     public Long getLeaderId() {
@@ -149,6 +159,22 @@ public class Department implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Long getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(Long createBy) {
+        this.createBy = createBy;
+    }
+
+    public Long getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(Long updateBy) {
+        this.updateBy = updateBy;
     }
 
     public String getRemark() {
@@ -190,7 +216,13 @@ public class Department implements Serializable {
                 ", tenantId=" + tenantId +
                 ", deptName='" + deptName + '\'' +
                 ", parentId=" + parentId +
+                ", orderNum=" + orderNum +
+                ", leaderId=" + leaderId +
+                ", leaderName='" + leaderName + '\'' +
+                ", phone='" + phone + '\'' +
                 ", status=" + status +
+                ", createBy=" + createBy +
+                ", updateBy=" + updateBy +
                 '}';
     }
 }

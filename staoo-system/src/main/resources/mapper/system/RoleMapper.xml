@@ -8,7 +8,7 @@
         <id property="id" column="id"/>
         <result property="tenantId" column="tenant_id"/>
         <result property="roleName" column="role_name"/>
-        <result property="roleSort" column="sort"/>
+        <result property="orderNum" column="order_num"/>
         <result property="dataScope" column="data_scope"/>
         <result property="status" column="status"/>
         <result property="createBy" column="create_by"/>
@@ -23,7 +23,7 @@
         id,
         tenant_id,
         role_name,
-        sort,
+        order_num,
         data_scope,
         status,
         create_by,
@@ -79,7 +79,7 @@
         <include refid="Base_Column_List"/>
         FROM sys_role
         <include refid="Query_Condition"/>
-        ORDER BY role_sort ASC
+        ORDER BY order_num ASC
     </select>
 
     <!-- 查询角色总数 -->
@@ -92,7 +92,7 @@
     <!-- 新增角色 -->
     <insert id="insert" parameterType="com.staoo.system.domain.Role">
         INSERT INTO sys_role (tenant_id, role_name, role_key, role_sort, data_scope, menu_check_strictly, dept_check_strictly, status, is_admin, create_by, create_time, update_by, update_time, remark)
-        VALUES (#{tenantId}, #{roleName}, #{roleKey}, #{roleSort}, #{dataScope}, #{menuCheckStrictly}, #{deptCheckStrictly}, #{status}, #{isAdmin}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{remark})
+        VALUES (#{tenantId}, #{roleName}, #{roleKey}, #{orderNum}, #{dataScope}, #{menuCheckStrictly}, #{deptCheckStrictly}, #{status}, #{isAdmin}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{remark})
     </insert>
 
     <!-- 更新角色 -->
@@ -109,7 +109,7 @@
                 role_key = #{roleKey},
             </if>
             <if test="roleSort != null">
-                role_sort = #{roleSort},
+                order_num = #{orderNum},
             </if>
             <if test="dataScope != null">
                 data_scope = #{dataScope},
@@ -192,7 +192,7 @@
                         sr.tenant_id,
                         sr.role_name,
                         sr.role_key,
-                        sr.role_sort,
+                        sr.order_num,
                         sr.data_scope,
                         sr.menu_check_strictly,
                         sr.dept_check_strictly,

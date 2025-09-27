@@ -61,7 +61,7 @@ public class Menu implements Serializable {
     /**
      * 菜单排序
      */
-    private Integer sort;
+    private Integer orderNum;
 
     /**
      * 菜单状态
@@ -70,14 +70,36 @@ public class Menu implements Serializable {
     private Integer status;
 
     /**
+     * 菜单可见性
+     * 0-不可见，1-可见
+     */
+    private Integer visible;
+
+    /**
+     * 是否缓存
+     * 0-不缓存，1-缓存
+     */
+    private Integer cacheable;
+
+    /**
      * 备注
      */
     private String remark;
 
     /**
+     * 创建者
+     */
+    private Long createBy;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 更新者
+     */
+    private Long updateBy;
 
     /**
      * 更新时间
@@ -162,12 +184,12 @@ public class Menu implements Serializable {
         this.perms = perms;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getOrderNum() {
+        return orderNum;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
     }
 
     public Integer getStatus() {
@@ -176,6 +198,38 @@ public class Menu implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Integer visible) {
+        this.visible = visible;
+    }
+
+    public Integer getCacheable() {
+        return cacheable;
+    }
+
+    public void setCacheable(Integer cacheable) {
+        this.cacheable = cacheable;
+    }
+
+    public Long getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(Long createBy) {
+        this.createBy = createBy;
+    }
+
+    public Long getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(Long updateBy) {
+        this.updateBy = updateBy;
     }
 
     public String getRemark() {
@@ -219,7 +273,14 @@ public class Menu implements Serializable {
                 ", parentId=" + parentId +
                 ", menuType=" + menuType +
                 ", path='" + path + '\'' +
+                ", component='" + component + '\'' +
+                ", perms='" + perms + '\'' +
+                ", orderNum=" + orderNum +
                 ", status=" + status +
+                ", visible=" + visible +
+                ", cacheable=" + cacheable +
+                ", createBy=" + createBy +
+                ", updateBy=" + updateBy +
                 '}';
     }
 }

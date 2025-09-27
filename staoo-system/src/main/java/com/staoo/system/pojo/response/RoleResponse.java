@@ -24,6 +24,11 @@ public class RoleResponse {
     private String roleName;
 
     /**
+     * 角色标识
+     */
+    private String roleKey;
+
+    /**
      * 角色状态
      * 0-禁用，1-启用
      */
@@ -32,7 +37,7 @@ public class RoleResponse {
     /**
      * 角色排序
      */
-    private Integer sort;
+    private Integer orderNum;
 
     /**
      * 备注
@@ -48,6 +53,16 @@ public class RoleResponse {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 创建者
+     */
+    private Long createBy;
+
+    /**
+     * 更新者
+     */
+    private Long updateBy;
 
     /**
      * 菜单ID列表
@@ -90,6 +105,30 @@ public class RoleResponse {
         this.roleName = roleName;
     }
 
+    public String getRoleKey() {
+        return roleKey;
+    }
+
+    public void setRoleKey(String roleKey) {
+        this.roleKey = roleKey;
+    }
+
+    public Long getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(Long createBy) {
+        this.createBy = createBy;
+    }
+
+    public Long getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(Long updateBy) {
+        this.updateBy = updateBy;
+    }
+
     public Integer getStatus() {
         return status;
     }
@@ -98,12 +137,12 @@ public class RoleResponse {
         this.status = status;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getOrderNum() {
+        return orderNum;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
     }
 
     public String getRemark() {

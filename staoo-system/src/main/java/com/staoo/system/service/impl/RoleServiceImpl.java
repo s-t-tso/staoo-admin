@@ -414,7 +414,7 @@ public class RoleServiceImpl implements RoleService {
         }
         // 角色类中没有roleKey属性，移除相关验证
         // 可以根据实际需要添加其他必要的验证
-        if (role.getSort() == null || role.getSort() <= 0) {
+        if (role.getOrderNum() == null || role.getOrderNum() <= 0) {
             logger.error("角色排序为空或无效");
             throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
         }

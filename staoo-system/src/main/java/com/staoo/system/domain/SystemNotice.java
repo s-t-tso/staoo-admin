@@ -205,9 +205,15 @@ public class SystemNotice implements Serializable {
                 "id=" + id +
                 ", tenantId=" + tenantId +
                 ", title='" + title + '\'' +
+                ", content='" + (content != null ? content.substring(0, Math.min(50, content.length())) : "null") + "...'" +
                 ", type=" + type +
+                ", level=" + level +
                 ", status=" + status +
                 ", publishTime=" + publishTime +
+                ", createBy=" + createBy +
+                ", updateBy=" + updateBy +
+                ", isTop=" + isTop +
+                ", readStatus=" + readStatus +
                 '}';
     }
 }

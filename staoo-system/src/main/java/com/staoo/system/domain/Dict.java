@@ -43,9 +43,19 @@ public class Dict implements Serializable {
     private Integer status;
 
     /**
+     * 创建者
+     */
+    private Long createBy;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 更新者
+     */
+    private Long updateBy;
 
     /**
      * 更新时间
@@ -114,12 +124,28 @@ public class Dict implements Serializable {
         this.createTime = createTime;
     }
 
+    public Long getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(Long createBy) {
+        this.createBy = createBy;
+    }
+
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Long getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(Long updateBy) {
+        this.updateBy = updateBy;
     }
 
     public List<DictItem> getDictItems() {
@@ -138,6 +164,8 @@ public class Dict implements Serializable {
                 ", dictType='" + dictType + '\'' +
                 ", dictName='" + dictName + '\'' +
                 ", status=" + status +
+                ", createBy=" + createBy +
+                ", updateBy=" + updateBy +
                 '}';
     }
 
@@ -189,9 +217,19 @@ public class Dict implements Serializable {
         private String remark;
 
         /**
+         * 创建者
+         */
+        private Long createBy;
+
+        /**
          * 创建时间
          */
         private LocalDateTime createTime;
+
+        /**
+         * 更新者
+         */
+        private Long updateBy;
 
         /**
          * 更新时间
@@ -271,12 +309,28 @@ public class Dict implements Serializable {
             this.createTime = createTime;
         }
 
+        public Long getCreateBy() {
+            return createBy;
+        }
+
+        public void setCreateBy(Long createBy) {
+            this.createBy = createBy;
+        }
+
         public LocalDateTime getUpdateTime() {
             return updateTime;
         }
 
         public void setUpdateTime(LocalDateTime updateTime) {
             this.updateTime = updateTime;
+        }
+
+        public Long getUpdateBy() {
+            return updateBy;
+        }
+
+        public void setUpdateBy(Long updateBy) {
+            this.updateBy = updateBy;
         }
 
         @Override
@@ -289,6 +343,8 @@ public class Dict implements Serializable {
                     ", itemValue='" + itemValue + '\'' +
                     ", sort=" + sort +
                     ", status=" + status +
+                    ", createBy=" + createBy +
+                    ", updateBy=" + updateBy +
                     '}';
         }
     }

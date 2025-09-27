@@ -34,7 +34,7 @@ public class DepartmentResponse implements Serializable {
     /**
      * 部门排序
      */
-    private Integer sort;
+    private Integer orderNum;
 
     /**
      * 部门负责人ID
@@ -124,12 +124,12 @@ public class DepartmentResponse implements Serializable {
         this.parentId = parentId;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getOrderNum() {
+        return orderNum;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
     }
 
     public Long getLeaderId() {

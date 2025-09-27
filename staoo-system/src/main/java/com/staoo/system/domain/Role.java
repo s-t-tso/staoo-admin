@@ -40,12 +40,27 @@ public class Role implements Serializable {
     /**
      * 角色排序
      */
-    private Integer sort;
+    private Integer orderNum;
+
+    /**
+     * 角色标识
+     */
+    private String roleKey;
+
+    /**
+     * 创建者
+     */
+    private Long createBy;
 
     /**
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 更新者
+     */
+    private Long updateBy;
 
     /**
      * 更新时间
@@ -109,12 +124,12 @@ public class Role implements Serializable {
         this.status = status;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getOrderNum() {
+        return orderNum;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
     }
 
     public LocalDateTime getCreateTime() {
@@ -125,12 +140,28 @@ public class Role implements Serializable {
         this.createTime = createTime;
     }
 
+    public Long getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(Long createBy) {
+        this.createBy = createBy;
+    }
+
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Long getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(Long updateBy) {
+        this.updateBy = updateBy;
     }
 
     public List<Long> getMenuIds() {
@@ -157,14 +188,25 @@ public class Role implements Serializable {
         this.dataScopeOrgIds = dataScopeOrgIds;
     }
 
+    public String getRoleKey() {
+        return roleKey;
+    }
+
+    public void setRoleKey(String roleKey) {
+        this.roleKey = roleKey;
+    }
+
     @Override
     public String toString() {
         return "Role{" +
                 "id=" + id +
                 ", tenantId=" + tenantId +
                 ", roleName='" + roleName + '\'' +
+                ", roleKey='" + roleKey + '\'' +
                 ", status=" + status +
-                ", sort=" + sort +
+                ", orderNum=" + orderNum +
+                ", createBy=" + createBy +
+                ", updateBy=" + updateBy +
                 '}';
     }
 }

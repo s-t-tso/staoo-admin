@@ -493,7 +493,7 @@ public class MenuServiceImpl implements MenuService {
             logger.error("父菜单ID为空");
             throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
         }
-        if (menu.getSort() == null || menu.getSort() <= 0) {
+        if (menu.getOrderNum() == null || menu.getOrderNum() <= 0) {
             logger.error("菜单排序为空或无效");
             throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
         }

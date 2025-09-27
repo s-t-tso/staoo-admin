@@ -1,21 +1,21 @@
 <template>
   <div class="staoo-layout">
     <!-- 侧边栏 -->
-    <aside 
-      class="staoo-sidebar" 
+    <aside
+      class="staoo-sidebar"
       :class="{ 'collapsed': systemStore.sidebarCollapsed }"
     >
       <div class="sidebar-header">
         <div class="logo">Staoo Admin</div>
-        <el-button 
-          class="collapse-btn" 
+        <el-button
+          class="collapse-btn"
           icon="el-icon-menu-fold"
           @click="toggleSidebar"
           size="small"
           circle
         />
       </div>
-      
+
       <nav class="sidebar-menu">
         <el-menu
           :default-active="activeMenu"
@@ -33,7 +33,7 @@
                 </el-icon>
                 <span>{{ route.meta?.title }}</span>
               </template>
-              
+
               <template v-for="child in route.children" :key="child.name">
                 <el-menu-item v-if="child.meta?.hidden !== true" :index="child.path">
                   <el-icon v-if="child.meta?.icon"><component :is="child.meta.icon" /></el-icon>
@@ -41,7 +41,7 @@
                 </el-menu-item>
               </template>
             </el-sub-menu>
-            
+
             <!-- 无子路由的菜单 -->
             <el-menu-item v-else :index="route.path">
               <el-icon>
@@ -53,20 +53,20 @@
         </el-menu>
       </nav>
     </aside>
-    
+
     <!-- 主内容区域 -->
     <div class="staoo-main">
       <!-- 顶部导航栏 -->
       <header class="staoo-header">
         <div class="header-left">
-          <el-button 
+          <el-button
             class="toggle-btn"
             icon="el-icon-menu"
             @click="toggleSidebar"
             size="small"
             circle
           />
-          
+
           <!-- 面包屑导航 -->
           <el-breadcrumb v-if="systemStore.breadcrumbList.length > 0" separator-class="el-icon-arrow-right">
             <el-breadcrumb-item v-for="(item, index) in systemStore.breadcrumbList" :key="index">
@@ -77,7 +77,7 @@
             </el-breadcrumb-item>
           </el-breadcrumb>
         </div>
-        
+
         <div class="header-right">
           <!-- 搜索框 -->
           <el-input
@@ -87,7 +87,7 @@
             size="small"
             class="search-input"
           />
-          
+
           <!-- 通知 -->
           <el-dropdown size="small">
             <span class="el-dropdown-link">
@@ -103,7 +103,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          
+
           <!-- 用户信息 -->
           <el-dropdown size="small">
             <span class="el-dropdown-link user-info">
@@ -124,7 +124,7 @@
           </el-dropdown>
         </div>
       </header>
-      
+
       <!-- 内容区域 -->
       <main class="staoo-content">
         <router-view />
@@ -156,8 +156,9 @@ const activeMenu = computed(() => {
 // 获取非Layout的路由，且过滤掉hidden为true的路由
 const routes = computed(() => {
   const layoutRoute = router.options.routes.find((route: any) => route.name === 'Layout')
+  console.log("路由",layoutRoute)
   if (layoutRoute && layoutRoute.children) {
-    return layoutRoute.children.filter((child: any) => 
+    return layoutRoute.children.filter((child: any) =>
       child.path !== '/' && child.meta?.hidden !== true
     )
   }
@@ -179,7 +180,7 @@ const handleLogout = () => {
 onMounted(() => {
   // 加载token
   userStore.loadToken()
-  
+
   // 更新面包屑
   updateBreadcrumb()
 })

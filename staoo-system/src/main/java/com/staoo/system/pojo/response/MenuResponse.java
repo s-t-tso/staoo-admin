@@ -58,7 +58,7 @@ public class MenuResponse {
     /**
      * 菜单排序
      */
-    private Integer sort;
+    private Integer orderNum;
 
     /**
      * 菜单状态
@@ -159,12 +159,12 @@ public class MenuResponse {
         this.perms = perms;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getOrderNum() {
+        return orderNum;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
     }
 
     public Integer getStatus() {
