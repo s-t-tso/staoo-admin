@@ -13,13 +13,16 @@ public class TriggerFlowEventRequest {
     
     @NotBlank(message = "流程实例ID不能为空")
     @Size(max = 64, message = "流程实例ID长度不能超过64个字符")
-    private String processInstanceId;  // 流程实例ID
+    // 流程实例ID
+    private String processInstanceId;
     
     @NotBlank(message = "事件类型不能为空")
     @Size(max = 64, message = "事件类型长度不能超过64个字符")
-    private String eventType;  // 事件类型
+    // 事件类型
+    private String eventType;
     
-    private Map<String, Object> eventData;  // 事件数据
+    // 事件数据
+    private Map<String, Object> eventData;
     
     // Getters and Setters
     public String getProcessInstanceId() {

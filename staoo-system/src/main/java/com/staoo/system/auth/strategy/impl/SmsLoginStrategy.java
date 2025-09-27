@@ -70,7 +70,8 @@ public class SmsLoginStrategy extends AbstractLoginStrategy {
     @Override
     protected User authenticate(LoginRequest request) {
         String phoneNumber = request.getUsername();
-        String code = request.getPassword(); // 在短信登录中，密码字段用于存储验证码
+        // 在短信登录中，密码字段用于存储验证码
+        String code = request.getPassword();
         String ip = request.getIp();
         String userAgent = request.getUserAgent();
 

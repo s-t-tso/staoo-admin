@@ -8,31 +8,40 @@ import jakarta.validation.constraints.Size;
  * 用于接收表单模板相关的请求参数
  */
 public class FormTemplateRequest {
-    private Long id;                 // 模板ID
+    // 模板ID
+    private Long id;
     
     @NotBlank(message = "表单标识不能为空")
     @Size(max = 64, message = "表单标识长度不能超过64个字符")
-    private String formKey;          // 表单唯一标识
+    // 表单唯一标识
+    private String formKey;
     
     @NotBlank(message = "表单名称不能为空")
     @Size(max = 128, message = "表单名称长度不能超过128个字符")
-    private String formName;         // 表单名称
+    // 表单名称
+    private String formName;
     
     @Size(max = 512, message = "描述长度不能超过512个字符")
-    private String description;      // 描述
+    // 描述
+    private String description;
     
     @NotBlank(message = "表单配置不能为空")
-    private String formConfig;       // 表单配置JSON
+    // 表单配置JSON
+    private String formConfig;
     
     @Size(max = 10, message = "状态长度不能超过10个字符")
-    private String status;           // 状态（草稿、已发布）
+    // 状态（草稿、已发布）
+    private String status;
     
-    private Integer version;         // 版本号
+    // 版本号
+    private Integer version;
     
     @NotBlank(message = "租户ID不能为空")
-    private Long tenantId;           // 租户ID
+    // 租户ID
+    private Long tenantId;
     
-    private Long createBy;           // 创建人ID
+    // 创建人ID
+    private Long createBy;
     
     // Getters and Setters
     public Long getId() {

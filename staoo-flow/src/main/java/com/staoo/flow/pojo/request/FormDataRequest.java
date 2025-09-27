@@ -9,30 +9,40 @@ import jakarta.validation.constraints.Size;
  * 用于接收表单数据相关的请求参数
  */
 public class FormDataRequest {
-    private Long id;                 // 数据ID
+    // 数据ID
+    private Long id;
     
     @NotBlank(message = "表单标识不能为空")
     @Size(max = 64, message = "表单标识长度不能超过64个字符")
-    private String formKey;          // 表单标识
+    // 表单标识
+    private String formKey;
     
     @NotNull(message = "表单模板ID不能为空")
-    private Long templateId;         // 表单模板ID
+    // 表单模板ID
+    private Long templateId;
     
     @NotBlank(message = "表单数据不能为空")
-    private String formData;         // 表单数据JSON
+    // 表单数据JSON
+    private String formData;
     
     @Size(max = 10, message = "数据状态长度不能超过10个字符")
-    private String status;           // 数据状态
+    // 数据状态
+    private String status;
     
     @NotNull(message = "租户ID不能为空")
-    private Long tenantId;           // 租户ID
+    // 租户ID
+    private Long tenantId;
     
-    private Long createBy;           // 创建人ID
-    private String creatorName;      // 创建人名称
-    private String processInstanceId;// 关联的流程实例ID
+    // 创建人ID
+    private Long createBy;
+    // 创建人名称
+    private String creatorName;
+    // 关联的流程实例ID
+    private String processInstanceId;
     
     @Size(max = 64, message = "业务键长度不能超过64个字符")
-    private String businessKey;      // 业务键
+    // 业务键
+    private String businessKey;
     
     // Getters and Setters
     public Long getId() {

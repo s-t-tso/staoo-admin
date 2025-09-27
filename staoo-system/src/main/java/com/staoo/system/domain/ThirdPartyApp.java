@@ -7,19 +7,32 @@ import java.util.List;
  * 第三方应用实体类
  */
 public class ThirdPartyApp {
-    private Long id;                  // 应用ID
-    private String appName;           // 应用名称
-    private String appKey;            // 应用标识
-    private String appSecret;         // 应用密钥（加密存储）
-    private String appIcon;           // 应用图标
-    private String appDomain;         // 应用域名
-    private String status;            // 应用状态（0：启用，1：禁用）
-    private String remark;            // 备注
-    private Date createTime;          // 创建时间
-    private Date updateTime;          // 更新时间
-    private List<String> callbackUrls;// 回调地址列表
-    private List<String> permissions; // 权限列表
-    private List<Long> tenantIds;     // 可访问的租户ID列表
+    // 应用ID
+    private Long id;
+    // 应用名称
+    private String appName;
+    // 应用标识
+    private String appKey;
+    // 应用密钥（加密存储）
+    private String appSecret;
+    // 应用图标
+    private String appIcon;
+    // 应用域名
+    private String appDomain;
+    // 应用状态（0：启用，1：禁用）
+    private String status;
+    // 备注
+    private String remark;
+    // 创建时间
+    private Date createTime;
+    // 更新时间
+    private Date updateTime;
+    // 回调地址列表
+    private List<String> callbackUrls;
+    // 权限列表
+    private List<String> permissions;
+    // 可访问的租户ID列表
+    private List<Long> tenantIds;
 
     // Getter and Setter methods
     public Long getId() {

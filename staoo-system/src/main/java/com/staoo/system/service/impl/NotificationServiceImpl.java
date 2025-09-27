@@ -112,7 +112,8 @@ public class NotificationServiceImpl implements NotificationService {
             message.setChangeType(status);
             // 时间字段由MyBatis拦截器自动填充，无需手动设置
             // message.setSendTime(new Date());
-            message.setAppKey("flow-system"); // 流程系统自身
+            // 流程系统自身
+            message.setAppKey("flow-system");
 
             // 发送消息到流程变更队列
             // 临时注释掉RabbitMQ相关代码，因为依赖问题

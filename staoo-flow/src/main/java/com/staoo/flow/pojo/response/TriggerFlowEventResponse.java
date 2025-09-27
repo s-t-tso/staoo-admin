@@ -10,10 +10,14 @@ public class TriggerFlowEventResponse implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
-    private String processInstanceId;  // 流程实例ID
-    private String eventType;  // 事件类型
-    private String status;  // 处理状态
-    private String message;  // 处理消息
+    // 流程实例ID
+    private String processInstanceId;
+    // 事件类型
+    private String eventType;
+    // 处理状态
+    private String status;
+    // 处理消息
+    private String message;
     
     // Getters and Setters
     public String getProcessInstanceId() {

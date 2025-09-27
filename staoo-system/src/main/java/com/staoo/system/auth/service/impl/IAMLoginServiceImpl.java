@@ -137,7 +137,8 @@ public class IAMLoginServiceImpl implements ThirdPartyLoginService {
             user.setUsername(username);
             user.setNickname((String) iamUserInfo.get("nickname"));
             user.setEmail((String) iamUserInfo.get("email"));
-            user.setStatus(1); // 启用状态
+            // 启用状态
+            user.setStatus(1);
             
             // 保存用户
             userService.save(user);

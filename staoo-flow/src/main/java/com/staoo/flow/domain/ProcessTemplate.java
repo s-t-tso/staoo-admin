@@ -9,19 +9,32 @@ import com.staoo.common.annotation.AutoFill;
  */
 @AutoFill
 public class ProcessTemplate {
-    private Long id;                 // 模板ID
-    private String processKey;       // 流程唯一标识
-    private String processName;      // 流程名称
-    private String description;      // 描述
-    private String bpmnXml;          // BPMN XML定义
-    private String status;           // 状态（草稿、已发布）
-    private Integer version;         // 版本号
-    private Long tenantId;           // 租户ID
-    private Date createTime;         // 创建时间
-    private Date updateTime;         // 更新时间
-    private Long createBy;           // 创建人ID
-    private String category;         // 流程分类
-    private String formKey;          // 关联的表单标识
+    // 模板ID
+    private Long id;
+    // 流程唯一标识
+    private String processKey;
+    // 流程名称
+    private String processName;
+    // 描述
+    private String description;
+    // BPMN XML定义
+    private String bpmnXml;
+    // 状态（草稿、已发布）
+    private String status;
+    // 版本号
+    private Integer version;
+    // 租户ID
+    private Long tenantId;
+    // 创建时间
+    private Date createTime;
+    // 更新时间
+    private Date updateTime;
+    // 创建人ID
+    private Long createBy;
+    // 流程分类
+    private String category;
+    // 关联的表单标识
+    private String formKey;
 
     // Getters and Setters
     public Long getId() {

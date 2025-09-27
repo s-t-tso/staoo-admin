@@ -7,14 +7,22 @@ import java.util.Date;
  * 用于封装数据变更的通知消息内容
  */
 public class NotificationMessage {
-    private String messageId;         // 消息ID，用于幂等性处理
-    private String appKey;            // 应用标识
-    private String dataType;          // 数据类型
-    private Long tenantId;            // 租户ID
-    private Object data;              // 变更数据
-    private String changeType;        // 变更类型（ADD：新增，UPDATE：更新，DELETE：删除）
-    private Date sendTime;            // 发送时间
-    private String callbackUrl;       // 回调地址
+    // 消息ID，用于幂等性处理
+    private String messageId;
+    // 应用标识
+    private String appKey;
+    // 数据类型
+    private String dataType;
+    // 租户ID
+    private Long tenantId;
+    // 变更数据
+    private Object data;
+    // 变更类型（ADD：新增，UPDATE：更新，DELETE：删除）
+    private String changeType;
+    // 发送时间
+    private Date sendTime;
+    // 回调地址
+    private String callbackUrl;
 
     // Getter and Setter methods
     public String getMessageId() {

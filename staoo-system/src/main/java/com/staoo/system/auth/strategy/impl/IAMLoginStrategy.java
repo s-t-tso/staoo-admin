@@ -62,8 +62,10 @@ public class IAMLoginStrategy implements LoginStrategy {
      */
     private ThirdPartyLoginRequest convertToThirdPartyRequest(LoginRequest request) {
         ThirdPartyLoginRequest thirdPartyRequest = new ThirdPartyLoginRequest();
-        thirdPartyRequest.setAppId(request.getUsername()); // 在IAM登录中，username字段用于存储appId
-        thirdPartyRequest.setAuthCode(request.getPassword()); // 在IAM登录中，password字段用于存储授权码
+        // 在IAM登录中，username字段用于存储appId
+        thirdPartyRequest.setAppId(request.getUsername());
+        // 在IAM登录中，password字段用于存储授权码
+        thirdPartyRequest.setAuthCode(request.getPassword());
         thirdPartyRequest.setUserAgent(request.getUserAgent());
         
         // 设置自定义参数

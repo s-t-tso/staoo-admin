@@ -27,7 +27,8 @@ public class OAuthController {
         Map<String, String> result = new java.util.HashMap<>();
         result.put("access_token", token);
         result.put("token_type", "Bearer");
-        result.put("expires_in", "3600"); // 假设令牌有效期为1小时
+        // 假设令牌有效期为1小时
+        result.put("expires_in", "3600");
         return AjaxResult.success(result);
     }
 

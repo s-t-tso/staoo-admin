@@ -199,10 +199,10 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
         
         // 更新通知状态为已发布，并设置发布时间
+        // 注意：publishTime和updateTime字段将由MyBatis拦截器自动填充
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
         systemNotice.setStatus(NoticeStatusEnum.PUBLISHED.getCode());
-        // 注意：publishTime和updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
         return count > 0;
@@ -227,10 +227,10 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
         
         // 更新通知状态为已撤回
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
         systemNotice.setStatus(NoticeStatusEnum.RECALLED.getCode());
-        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
         return count > 0;
@@ -255,10 +255,10 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
         
         // 更新通知阅读状态为已读
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
         systemNotice.setReadStatus(ReadStatusEnum.READ.getCode());
-        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
         return count > 0;

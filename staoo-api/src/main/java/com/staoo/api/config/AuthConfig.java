@@ -161,6 +161,7 @@ public class AuthConfig implements WebMvcConfigurer {
         registry.addInterceptor(userContextInterceptor)
                 .addPathPatterns("/**") // 拦截所有请求
                 .excludePathPatterns("/" + apiPrefixConfig.getPrefix() + "/auth/login", "/" + apiPrefixConfig.getPrefix() + "/auth/logout", "/" + apiPrefixConfig.getPrefix() + "/auth/refresh", "/" + apiPrefixConfig.getPrefix() + "/public/") // 排除认证相关接口
-                .excludePathPatterns("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs", "/webjars/**"); // 排除Swagger相关接口
+                // 排除Swagger相关接口
+                .excludePathPatterns("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs", "/webjars/**");
     }
 }

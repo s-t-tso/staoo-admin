@@ -26,8 +26,10 @@ public class MyBatisTenantPlugin implements Interceptor {
 
     // 不需要进行租户隔离的表
     private static final Set<String> IGNORE_TABLES = new HashSet<>(Arrays.asList(
-            "sys_tenant", // 租户表本身不需要租户过滤
-            "sys_config" // 系统配置表
+            // 租户表本身不需要租户过滤
+            "sys_tenant", 
+            // 系统配置表
+            "sys_config"
     ));
 
     // 不需要进行租户隔离的SQL ID前缀

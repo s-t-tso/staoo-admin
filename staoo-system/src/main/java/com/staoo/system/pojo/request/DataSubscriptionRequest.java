@@ -13,21 +13,26 @@ public class DataSubscriptionRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;                  // 订阅ID
+    // 订阅ID
+    private Long id;
 
+    // 应用标识
     @NotBlank(message = "应用标识不能为空")
     @Size(max = 64, message = "应用标识不能超过64个字符")
-    private String appKey;            // 应用标识
+    private String appKey;
 
+    // 数据类型（ORG：组织架构，USER：用户，FLOW：流程）
     @NotBlank(message = "数据类型不能为空")
     @Size(max = 64, message = "数据类型不能超过64个字符")
-    private String dataType;          // 数据类型（ORG：组织架构，USER：用户，FLOW：流程）
+    private String dataType;
 
+    // 回调地址
     @NotBlank(message = "回调地址不能为空")
     @Size(max = 512, message = "回调地址不能超过512个字符")
-    private String callbackUrl;       // 回调地址
+    private String callbackUrl;
 
-    private String status;            // 状态（0：启用，1：禁用）
+    // 状态（0：启用，1：禁用）
+    private String status;
     
     public Long getId() {
         return id;

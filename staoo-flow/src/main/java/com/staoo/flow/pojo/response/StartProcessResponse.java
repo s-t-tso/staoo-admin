@@ -10,10 +10,14 @@ public class StartProcessResponse implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
-    private String processInstanceId;  // 流程实例ID
-    private String processDefinitionId;  // 流程定义ID
-    private String processDefinitionKey;  // 流程定义Key
-    private Long tenantId;  // 租户ID
+    // 流程实例ID
+    private String processInstanceId;
+    // 流程定义ID
+    private String processDefinitionId;
+    // 流程定义Key
+    private String processDefinitionKey;
+    // 租户ID
+    private Long tenantId;
     
     // Getters and Setters
     public String getProcessInstanceId() {

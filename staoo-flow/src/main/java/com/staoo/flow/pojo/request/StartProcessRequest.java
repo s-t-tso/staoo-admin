@@ -14,12 +14,15 @@ public class StartProcessRequest {
     
     @NotBlank(message = "流程定义Key不能为空")
     @Size(max = 64, message = "流程定义Key长度不能超过64个字符")
-    private String processDefinitionKey;  // 流程定义Key
+    // 流程定义Key
+    private String processDefinitionKey;
     
     @NotNull(message = "租户ID不能为空")
-    private Long tenantId;  // 租户ID
+    // 租户ID
+    private Long tenantId;
     
-    private Map<String, Object> variables;  // 流程变量
+    // 流程变量
+    private Map<String, Object> variables;
     
     // Getters and Setters
     public String getProcessDefinitionKey() {

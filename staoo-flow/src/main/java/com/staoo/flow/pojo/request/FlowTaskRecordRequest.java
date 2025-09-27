@@ -9,33 +9,42 @@ import jakarta.validation.constraints.Size;
  * 用于接收流程任务记录相关的请求参数
  */
 public class FlowTaskRecordRequest {
-    private Long id;            // 主键ID
+    // 主键ID
+    private Long id;
     
     @NotBlank(message = "流程实例ID不能为空")
     @Size(max = 64, message = "流程实例ID长度不能超过64个字符")
-    private String processInstanceId;  // 流程实例ID
+    // 流程实例ID
+    private String processInstanceId;
     
     @NotBlank(message = "任务ID不能为空")
     @Size(max = 64, message = "任务ID长度不能超过64个字符")
-    private String taskId;      // 任务ID
+    // 任务ID
+    private String taskId;
     
     @Size(max = 128, message = "任务名称长度不能超过128个字符")
-    private String taskName;    // 任务名称
+    // 任务名称
+    private String taskName;
     
-    private Long assigneeId;    // 处理人ID
+    // 处理人ID
+    private Long assigneeId;
     
     @Size(max = 128, message = "处理人姓名长度不能超过128个字符")
-    private String assigneeName; // 处理人姓名
+    // 处理人姓名
+    private String assigneeName;
     
     @NotBlank(message = "处理动作不能为空")
     @Size(max = 64, message = "处理动作长度不能超过64个字符")
-    private String action;      // 处理动作：APPROVE-审批通过，REJECT-拒绝，CLAIM-认领，ASSIGN-指派
+    // 处理动作：APPROVE-审批通过，REJECT-拒绝，CLAIM-认领，ASSIGN-指派
+    private String action;
     
     @Size(max = 512, message = "处理意见长度不能超过512个字符")
-    private String comment;     // 处理意见
+    // 处理意见
+    private String comment;
     
     @NotNull(message = "租户ID不能为空")
-    private Long tenantId;      // 租户ID
+    // 租户ID
+    private Long tenantId;
     
     // Getters and Setters
     public Long getId() {

@@ -11,26 +11,36 @@ public class ThirdPartyAppQueryRequest extends PageQuery {
     
     private static final long serialVersionUID = 1L;
 
-    private Long id;                  // 应用ID
+    // 应用ID
+    private Long id;
     
-    private String appName;           // 应用名称
+    // 应用名称
+    private String appName;
     
-    private String appKey;            // 应用标识
+    // 应用标识
+    private String appKey;
     
     @Size(max = 255, message = "应用图标不能超过255个字符")
-    private String appIcon;           // 应用图标
+    // 应用图标
+    private String appIcon;
     
     @Size(max = 255, message = "应用域名不能超过255个字符")
-    private String appDomain;         // 应用域名
+    // 应用域名
+    private String appDomain;
     
-    private String status;            // 应用状态（0：启用，1：禁用）
+    // 应用状态（0：启用，1：禁用）
+    private String status;
     
     @Size(max = 500, message = "备注不能超过500个字符")
-    private String remark;            // 备注
+    // 备注
+    private String remark;
     
-    private List<String> callbackUrls;// 回调地址列表
-    private List<String> permissions; // 权限列表
-    private List<Long> tenantIds;     // 可访问的租户ID列表
+    // 回调地址列表
+    private List<String> callbackUrls;
+    // 权限列表
+    private List<String> permissions;
+    // 可访问的租户ID列表
+    private List<Long> tenantIds;
     
     public Long getId() {
         return id;

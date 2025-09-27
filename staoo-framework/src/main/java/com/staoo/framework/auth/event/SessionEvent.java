@@ -29,10 +29,14 @@ public class SessionEvent extends ApplicationEvent {
 
     // 会话事件类型枚举
     public enum EventType {
-        SESSION_CREATED,     // 会话创建
-        SESSION_EXPIRED,     // 会话过期
-        SESSION_INVALIDATED, // 会话无效化
-        SESSION_RENEWED      // 会话续期
+        // 会话创建
+        SESSION_CREATED,
+        // 会话过期
+        SESSION_EXPIRED,
+        // 会话无效化
+        SESSION_INVALIDATED,
+        // 会话续期
+        SESSION_RENEWED
     }
 
     // Getters

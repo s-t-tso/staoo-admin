@@ -72,13 +72,15 @@ public class AuthProperties {
 
         /**
          * 访问令牌过期时间(毫秒)
+         * 1小时
          */
-        private long expiration = 3600000; // 1小时
+        private long expiration = 3600000;
 
         /**
          * 刷新令牌过期时间(毫秒)
+         * 24小时
          */
-        private long refreshExpiration = 86400000; // 24小时
+        private long refreshExpiration = 86400000;
 
         /**
          * 令牌前缀

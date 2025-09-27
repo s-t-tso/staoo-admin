@@ -13,13 +13,16 @@ public class SubscriptionQueryRequest extends PageQuery implements Serializable 
 
     private static final long serialVersionUID = 1L;
 
+    // 应用标识
     @Size(max = 64, message = "应用标识不能超过64个字符")
-    private String appKey;            // 应用标识
+    private String appKey;
 
+    // 数据类型（ORG：组织架构，USER：用户，FLOW：流程）
     @Size(max = 64, message = "数据类型不能超过64个字符")
-    private String dataType;          // 数据类型（ORG：组织架构，USER：用户，FLOW：流程）
+    private String dataType;
 
-    private String status;            // 状态（0：启用，1：禁用）
+    // 状态（0：启用，1：禁用）
+    private String status;
 
     public String getAppKey() {
         return appKey;

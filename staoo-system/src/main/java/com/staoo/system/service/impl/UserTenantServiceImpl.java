@@ -33,13 +33,18 @@ public class UserTenantServiceImpl implements UserTenantService {
     private UserTenantMapper userTenantMapper;
 
     // 租户内角色类型常量
-    public static final Integer ROLE_TYPE_CREATOR = 1; // 创建者
-    public static final Integer ROLE_TYPE_MANAGER = 2;  // 管理者
-    public static final Integer ROLE_TYPE_NORMAL = 3;   // 普通用户
+    // 创建者
+    public static final Integer ROLE_TYPE_CREATOR = 1;
+    // 管理者
+    public static final Integer ROLE_TYPE_MANAGER = 2;
+    // 普通用户
+    public static final Integer ROLE_TYPE_NORMAL = 3;
 
     // 状态常量
-    public static final Integer STATUS_ENABLE = 0;  // 启用
-    public static final Integer STATUS_DISABLE = 1; // 禁用
+    // 启用
+    public static final Integer STATUS_ENABLE = 0;
+    // 禁用
+    public static final Integer STATUS_DISABLE = 1;
 
     /**
      * 新增用户-租户关联

@@ -26,14 +26,22 @@ public class AccountEvent extends ApplicationEvent {
 
     // 账号事件类型枚举
     public enum EventType {
-        ACCOUNT_LOCKED,     // 账号锁定
-        ACCOUNT_UNLOCKED,   // 账号解锁
-        PASSWORD_CHANGED,   // 密码修改
-        PROFILE_UPDATED,    // 资料更新
-        ACCOUNT_CREATED,    // 账号创建
-        ACCOUNT_DELETED,    // 账号删除
-        ACCOUNT_ENABLED,    // 账号启用
-        ACCOUNT_DISABLED    // 账号禁用
+        // 账号锁定
+        ACCOUNT_LOCKED,
+        // 账号解锁
+        ACCOUNT_UNLOCKED,
+        // 密码修改
+        PASSWORD_CHANGED,
+        // 资料更新
+        PROFILE_UPDATED,
+        // 账号创建
+        ACCOUNT_CREATED,
+        // 账号删除
+        ACCOUNT_DELETED,
+        // 账号启用
+        ACCOUNT_ENABLED,
+        // 账号禁用
+        ACCOUNT_DISABLED
     }
 
     // Getters

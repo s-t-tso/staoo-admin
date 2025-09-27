@@ -7,22 +7,38 @@ import java.util.Date;
  * 用于返回流程模板相关的响应数据
  */
 public class ProcessTemplateResponse {
-    private Long id;                 // 模板ID
-    private String processKey;       // 流程唯一标识
-    private String processName;      // 流程名称
-    private String description;      // 描述
-    private String bpmnXml;          // BPMN XML定义
-    private String status;           // 状态（草稿、已发布）
-    private String statusDesc;       // 状态描述
-    private Integer version;         // 版本号
-    private Long tenantId;           // 租户ID
-    private Date createTime;         // 创建时间
-    private Date updateTime;         // 更新时间
-    private Long createBy;           // 创建人ID
-    private String createByName;     // 创建人姓名
-    private String category;         // 流程分类
-    private String formKey;          // 关联的表单标识
-    private String formName;         // 关联的表单名称
+    // 模板ID
+    private Long id;
+    // 流程唯一标识
+    private String processKey;
+    // 流程名称
+    private String processName;
+    // 描述
+    private String description;
+    // BPMN XML定义
+    private String bpmnXml;
+    // 状态（草稿、已发布）
+    private String status;
+    // 状态描述
+    private String statusDesc;
+    // 版本号
+    private Integer version;
+    // 租户ID
+    private Long tenantId;
+    // 创建时间
+    private Date createTime;
+    // 更新时间
+    private Date updateTime;
+    // 创建人ID
+    private Long createBy;
+    // 创建人姓名
+    private String createByName;
+    // 流程分类
+    private String category;
+    // 关联的表单标识
+    private String formKey;
+    // 关联的表单名称
+    private String formName;
     
     // Getters and Setters
     public Long getId() {

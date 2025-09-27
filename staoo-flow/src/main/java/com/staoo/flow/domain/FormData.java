@@ -7,18 +7,30 @@ import java.util.Date;
  * 用于存储表单填写的实际数据
  */
 public class FormData {
-    private Long id;                 // 数据ID
-    private String formKey;          // 表单标识
-    private Long templateId;         // 表单模板ID
-    private String formData;         // 表单数据JSON
-    private String status;           // 数据状态
-    private Long tenantId;           // 租户ID
-    private Date createTime;         // 创建时间
-    private Date updateTime;         // 更新时间
-    private Long createBy;           // 创建人ID
-    private String creatorName;      // 创建人名称
-    private String processInstanceId;// 关联的流程实例ID
-    private String businessKey;      // 业务键
+    // 数据ID
+    private Long id;
+    // 表单标识
+    private String formKey;
+    // 表单模板ID
+    private Long templateId;
+    // 表单数据JSON
+    private String formData;
+    // 数据状态
+    private String status;
+    // 租户ID
+    private Long tenantId;
+    // 创建时间
+    private Date createTime;
+    // 更新时间
+    private Date updateTime;
+    // 创建人ID
+    private Long createBy;
+    // 创建人名称
+    private String creatorName;
+    // 关联的流程实例ID
+    private String processInstanceId;
+    // 业务键
+    private String businessKey;
 
     // Getters and Setters
     public Long getId() {

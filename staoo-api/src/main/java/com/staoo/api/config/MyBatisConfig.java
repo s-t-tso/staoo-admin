@@ -18,7 +18,8 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableTransactionManagement
-@MapperScan("com.staoo.**.mapper") // 扫描所有模块下的mapper接口
+// 扫描所有模块下的mapper接口
+@MapperScan("com.staoo.**.mapper")
 public class MyBatisConfig {
 
     /**
@@ -42,8 +43,10 @@ public class MyBatisConfig {
         if (sqlSessionFactory != null) {
             // 配置MyBatis的其他属性
             org.apache.ibatis.session.Configuration configuration = sqlSessionFactory.getConfiguration();
-            configuration.setMapUnderscoreToCamelCase(true); // 开启下划线转驼峰
-            configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class); // 设置日志实现
+            // 开启下划线转驼峰
+            configuration.setMapUnderscoreToCamelCase(true);
+            // 设置日志实现
+            configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
         }
         
         return sqlSessionFactory;

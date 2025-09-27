@@ -7,17 +7,28 @@ import java.util.Date;
  * 用于存储流程任务的处理记录信息
  */
 public class FlowTaskRecord {
-    private Long id;            // 主键ID
-    private String processInstanceId;  // 流程实例ID
-    private String taskId;      // 任务ID
-    private String taskName;    // 任务名称
-    private Long assigneeId;    // 处理人ID
-    private String assigneeName; // 处理人姓名
-    private String action;      // 处理动作：APPROVE-审批通过，REJECT-拒绝，CLAIM-认领，ASSIGN-指派
-    private String comment;     // 处理意见
-    private Date createTime;    // 创建时间
-    private Date completeTime;  // 完成时间
-    private Long tenantId;      // 租户ID
+    // 主键ID
+    private Long id;
+    // 流程实例ID
+    private String processInstanceId;
+    // 任务ID
+    private String taskId;
+    // 任务名称
+    private String taskName;
+    // 处理人ID
+    private Long assigneeId;
+    // 处理人姓名
+    private String assigneeName;
+    // 处理动作：APPROVE-审批通过，REJECT-拒绝，CLAIM-认领，ASSIGN-指派
+    private String action;
+    // 处理意见
+    private String comment;
+    // 创建时间
+    private Date createTime;
+    // 完成时间
+    private Date completeTime;
+    // 租户ID
+    private Long tenantId;
 
     // Getters and Setters
     public Long getId() {
