@@ -1,5 +1,7 @@
 package com.staoo.common.domain;
 
+import com.github.pagehelper.Page;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +51,53 @@ public class TableResult<T> implements Serializable {
         this.row = row;
     }
 
+    /**
+     * 空表格结果
+     *
+     * @param <T> 数据类型
+     * @return 空表格结果
+     */
+    public static <T> TableResult<T> empty() {
+        return new TableResult<>(0L, Collections.emptyList());
+    }
+
+    /**
+     * 构建表格结果
+     *
+     * @param total 总记录数
+     * @param row   数据列表
+     * @param <T>   数据类型
+     * @return 表格结果
+     */
+    public static <T> TableResult<T> build(Long total, List<T> row) {
+        return new TableResult<>(total, row);
+    }
+
+    /**
+     * 构建表格结果
+     *
+     * @param row 数据列表
+     * @param <T> 数据类型
+     * @return 表格结果
+     */
+    public static <T> TableResult<T> build(Page<T> row) {
+        return new TableResult<>(row.getTotal(), row.getPageNum(), row.getPageSize(), row.getResult());
+    }
+
+    /**
+     * 构建表格结果
+     *
+     * @param total    总记录数
+     * @param page     当前页码
+     * @param pagesize 每页条数
+     * @param row      数据列表
+     * @param <T>      数据类型
+     * @return 表格结果
+     */
+    public static <T> TableResult<T> build(Long total, Integer page, Integer pagesize, List<T> row) {
+        return new TableResult<>(total, page, pagesize, row);
+    }
+
     // getter and setter methods
     public Long getTotal() {
         return total;
@@ -80,39 +129,6 @@ public class TableResult<T> implements Serializable {
 
     public void setPagesize(Integer pagesize) {
         this.pagesize = pagesize;
-    }
-
-    /**
-     * 空表格结果
-     * @param <T> 数据类型
-     * @return 空表格结果
-     */
-    public static <T> TableResult<T> empty() {
-        return new TableResult<>(0L, Collections.emptyList());
-    }
-
-    /**
-     * 构建表格结果
-     * @param total 总记录数
-     * @param row 数据列表
-     * @param <T> 数据类型
-     * @return 表格结果
-     */
-    public static <T> TableResult<T> build(Long total, List<T> row) {
-        return new TableResult<>(total, row);
-    }
-
-    /**
-     * 构建表格结果
-     * @param total 总记录数
-     * @param page 当前页码
-     * @param pagesize 每页条数
-     * @param row 数据列表
-     * @param <T> 数据类型
-     * @return 表格结果
-     */
-    public static <T> TableResult<T> build(Long total, Integer page, Integer pagesize, List<T> row) {
-        return new TableResult<>(total, page, pagesize, row);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.staoo.system.service;
 
+import com.staoo.common.domain.TableResult;
 import com.staoo.system.domain.LoginLog;
+import com.staoo.system.pojo.request.LoginLogQueryRequest;
 
 import java.util.List;
 
@@ -39,4 +41,11 @@ public interface LoginLogService {
      * @return 登录日志列表
      */
     List<LoginLog> getRecentLoginLogsByUsername(String username, int limit);
+    
+    /**
+     * 分页查询登录日志列表
+     * @param request 查询条件和分页参数
+     * @return 分页结果
+     */
+    TableResult<LoginLog> getPage(LoginLogQueryRequest request);
 }

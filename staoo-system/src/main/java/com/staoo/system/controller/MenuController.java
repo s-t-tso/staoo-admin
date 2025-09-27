@@ -3,10 +3,10 @@ package com.staoo.system.controller;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.system.domain.Menu;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.service.MenuService;
 import com.staoo.system.mapstruct.IMenuMapper;
 import com.staoo.system.pojo.request.MenuRequest;
+import com.staoo.system.pojo.request.MenuQueryRequest;
 import com.staoo.system.pojo.response.MenuResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,29 +49,28 @@ public class MenuController {
 
     /**
      * 查询菜单列表
-     * @param menuRequest 查询条件
+     * @param request 查询条件
      * @return 菜单列表
      */
     @GetMapping("/list")
     @Operation(summary = "查询菜单列表", description = "查询菜单列表信息")
     @PreAuthorize("hasAnyAuthority('system:menu:query')")
-    public AjaxResult<List<MenuResponse>> getList(MenuRequest menuRequest) {
-        Menu menu = menuMapper.toEntity(menuRequest);
-        List<Menu> list = menuService.getList(menu);
+    public AjaxResult<List<MenuResponse>> getList(MenuQueryRequest request) {
+        List<Menu> list = menuService.getList(request);
         List<MenuResponse> responseList = menuMapper.toResponseList(list);
         return AjaxResult.success(responseList);
     }
 
     /**
      * 分页查询菜单
-     * @param query 分页查询条件
+     * @param request 分页查询条件
      * @return 菜单分页结果
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询菜单", description = "分页查询菜单列表信息")
     @PreAuthorize("hasAnyAuthority('system:menu:query')")
-    public AjaxResult<TableResult<MenuResponse>> getPage(PageQuery query) {
-        TableResult<Menu> page = menuService.getPage(query);
+    public AjaxResult<TableResult<MenuResponse>> getPage(MenuQueryRequest request) {
+        TableResult<Menu> page = menuService.getPage(request);
         List<MenuResponse> responseList = menuMapper.toResponseList(page.getRow());
         TableResult<MenuResponse> responsePage = TableResult.build(page.getTotal(), page.getPage(), page.getPagesize(), responseList);
         return AjaxResult.success(responsePage);

@@ -1,6 +1,8 @@
 package com.staoo.system.service;
 
+import com.github.pagehelper.Page;
 import com.staoo.system.domain.Department;
+import com.staoo.system.pojo.request.DepartmentQueryRequest;
 import com.staoo.system.pojo.request.DepartmentRequest;
 
 import java.util.List;
@@ -16,6 +18,20 @@ public interface IDepartmentService {
      * @return 部门列表
      */
     List<Department> getDepartmentList(Department department);
+
+    /**
+     * 根据查询请求获取部门列表
+     * @param request 查询请求参数
+     * @return 部门列表
+     */
+    List<Department> getList(DepartmentQueryRequest request);
+
+    /**
+     * 分页查询部门
+     * @param request 部门分页查询参数
+     * @return 部门分页结果
+     */
+    Page<Department> getPage(DepartmentQueryRequest request);
 
     /**
      * 根据ID获取部门信息

@@ -73,10 +73,10 @@ service.interceptors.response.use(
 
 // 导出常用的请求方法
 export const request = {
-  get: <T = any>(url: string, params?: any): Promise<T> => service.get(url, { params }),
+  get: <T = any>(url: string, params?: any): Promise<T> => service.get(url, params),
   post: <T = any>(url: string, data?: any, params?: any): Promise<T> => service.post(url, data, { params }),
   put: <T = any>(url: string, data?: any): Promise<T> => service.put(url, data),
-  delete: <T = any>(url: string, params?: any): Promise<T> => service.delete(url, { params }),
+  delete: <T = any>(url: string, params?: any): Promise<T> => service.delete(url, params),
   upload: <T = any>(url: string, file: File, params?: any): Promise<T> => {
     const formData = new FormData()
     formData.append('file', file)

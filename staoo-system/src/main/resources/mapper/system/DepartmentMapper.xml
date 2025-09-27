@@ -126,6 +126,31 @@
         </if>
     </select>
 
+    <!-- 根据请求参数查询部门列表 -->
+    <select id="getListByRequest" resultMap="DepartmentResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_dept
+        <where>
+            <if test="request.tenantId != null">
+                AND tenant_id = #{request.tenantId}
+            </if>
+            <if test="request.deptName != null and request.deptName != ''">
+                AND dept_name LIKE CONCAT('%', #{request.deptName}, '%')
+            </if>
+            <if test="request.parentId != null">
+                AND parent_id = #{request.parentId}
+            </if>
+            <if test="request.status != null">
+                AND status = #{request.status}
+            </if>
+            <if test="request.leaderName != null and request.leaderName != ''">
+                AND leader_name LIKE CONCAT('%', #{request.leaderName}, '%')
+            </if>
+        </where>
+        ORDER BY parent_id, order_num ASC
+    </select>
+
     <!-- 获取部门树形结构 -->
     <select id="getDepartmentTree" resultMap="DepartmentResultMap">
         SELECT

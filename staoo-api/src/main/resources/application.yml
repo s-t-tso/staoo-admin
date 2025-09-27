@@ -112,3 +112,11 @@ system:
   file:
     upload-path: /data/upload
     max-size: 104857600 # 100MB
+
+
+pagehelper:
+  helper-dialect: mysql          # 数据库方言（如 mysql, postgresql, oracle 等）
+  reasonable: true                # 分页合理化（如 pageNum < 1 时自动设为 1）
+  support-methods-arguments: false
+  params: count=countSql         # 指定 count 查询的参数名
+  page-size-zero: false          # true 时 pageSize=0 也执行分页

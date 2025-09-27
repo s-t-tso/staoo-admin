@@ -2,8 +2,8 @@ package com.staoo.system.service;
 
 import com.staoo.common.domain.OperationLogBase;
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.common.service.OperationLogService;
+import com.staoo.system.pojo.request.OperationLogQueryRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,10 +29,10 @@ public interface SystemOperationLogService extends OperationLogService {
 
     /**
      * 分页查询操作日志
-     * @param query 分页查询参数
+     * @param request 操作日志查询请求
      * @return 分页结果
      */
-    TableResult<OperationLogBase> getPage(PageQuery query);
+    TableResult<OperationLogBase> getPage(OperationLogQueryRequest request);
 
     /**
      * 新增操作日志

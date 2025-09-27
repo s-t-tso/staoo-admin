@@ -1,8 +1,12 @@
 package com.staoo.system.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.staoo.common.domain.TableResult;
 import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.common.exception.BusinessException;
 import com.staoo.system.domain.DataSubscription;
+import com.staoo.system.pojo.request.SubscriptionQueryRequest;
 import com.staoo.system.mapper.DataSubscriptionMapper;
 import com.staoo.system.service.SubscriptionService;
 import org.slf4j.Logger;
@@ -10,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
@@ -148,6 +153,62 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         // 简单验证URL格式
         if (!callbackUrl.startsWith("http://") && !callbackUrl.startsWith("https://")) {
             throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "回调地址格式无效");
+        }
+    }
+    
+    @Override
+    public List<DataSubscription> getList(SubscriptionQueryRequest request) {
+        try {
+            if (request == null) {
+                request = new SubscriptionQueryRequest();
+            }
+            
+            // 参数校验
+            validateQueryParams(request);
+            
+            // 调用Mapper层方法查询列表
+            return dataSubscriptionMapper.selectListByRequest(request);
+        } catch (Exception e) {
+            logger.error("查询订阅列表失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
+    
+    @Override
+    public TableResult<DataSubscription> getPage(SubscriptionQueryRequest request) {
+        try {
+            if (request == null) {
+                request = new SubscriptionQueryRequest();
+            }
+            
+            // 设置分页参数
+            PageHelper.startPage(request.getPageNum(), request.getPageSize());
+            
+            // 调用新的getList方法获取数据
+            List<DataSubscription> list = getList(request);
+            Page<DataSubscription> pageList = (Page<DataSubscription>) list;
+            
+            // 构建分页结果
+            return TableResult.build(pageList.getTotal(), request.getPageNum(), request.getPageSize(), list);
+        } catch (Exception e) {
+            logger.error("分页查询订阅列表失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
+    
+    /**
+     * 验证查询参数
+     */
+    private void validateQueryParams(SubscriptionQueryRequest request) {
+        // 可以根据需要添加查询参数的验证逻辑
+        if (request.getPageNum() < 1) {
+            request.setPageNum(1);
+        }
+        if (request.getPageSize() < 1) {
+            request.setPageSize(10);
+        }
+        if (request.getPageSize() > 1000) {
+            request.setPageSize(1000);
         }
     }
 }

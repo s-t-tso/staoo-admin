@@ -1,8 +1,10 @@
 package com.staoo.system.service;
 
+import com.github.pagehelper.Page;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.User;
+import com.staoo.system.pojo.request.UserQueryRequest;
 
 import java.util.List;
 
@@ -30,14 +32,14 @@ public interface UserService {
      * @param user 查询条件
      * @return 用户列表
      */
-    List<User> getList(User user);
+    List<User> getList(UserQueryRequest user);
 
     /**
      * 分页查询用户
      * @param query 分页查询参数
      * @return 分页结果
      */
-    TableResult<User> getPage(PageQuery query);
+    Page<User> getPage(UserQueryRequest query);
 
     /**
      * 新增用户

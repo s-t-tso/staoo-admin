@@ -1,6 +1,8 @@
 package com.staoo.system.service;
 
 import com.staoo.system.domain.UserTenant;
+import com.staoo.system.pojo.request.UserTenantQueryRequest;
+import com.staoo.common.domain.TableResult;
 import java.util.List;
 
 /**
@@ -160,4 +162,18 @@ public interface UserTenantService {
      * @return 是否具有
      */
     boolean checkUserIsNormalInTenant(Long userId, Long tenantId);
+
+    /**
+     * 查询用户-租户关联列表
+     * @param request 查询请求
+     * @return 用户-租户关联列表
+     */
+    List<UserTenant> getList(UserTenantQueryRequest request);
+
+    /**
+     * 分页查询用户-租户关联列表
+     * @param request 查询请求
+     * @return 分页结果
+     */
+    TableResult<UserTenant> getPage(UserTenantQueryRequest request);
 }

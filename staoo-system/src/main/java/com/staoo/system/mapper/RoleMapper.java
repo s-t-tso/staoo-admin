@@ -1,6 +1,7 @@
 package com.staoo.system.mapper;
 
 import com.staoo.system.domain.Role;
+import com.staoo.system.pojo.request.RoleQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -32,6 +33,13 @@ public interface RoleMapper {
      * @return 角色列表
      */
     List<Role> getList(Role role);
+    
+    /**
+     * 根据查询请求查询角色列表
+     * @param request 查询请求
+     * @return 角色列表
+     */
+    List<Role> selectListByRequest(RoleQueryRequest request);
 
     /**
      * 新增角色

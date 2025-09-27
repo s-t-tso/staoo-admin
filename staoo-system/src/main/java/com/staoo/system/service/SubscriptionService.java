@@ -1,6 +1,8 @@
 package com.staoo.system.service;
 
+import com.staoo.common.domain.TableResult;
 import com.staoo.system.domain.DataSubscription;
+import com.staoo.system.pojo.request.SubscriptionQueryRequest;
 
 import java.util.List;
 
@@ -47,4 +49,18 @@ public interface SubscriptionService {
      * @return 是否操作成功
      */
     boolean changeSubscriptionStatus(Long subscriptionId, String status);
+    
+    /**
+     * 分页查询所有订阅列表
+     * @param request 分页查询参数
+     * @return 分页结果
+     */
+    TableResult<DataSubscription> getPage(SubscriptionQueryRequest request);
+
+    /**
+     * 根据查询参数获取数据订阅列表
+     * @param request 查询请求参数
+     * @return 数据订阅列表
+     */
+    List<DataSubscription> getList(SubscriptionQueryRequest request);
 }

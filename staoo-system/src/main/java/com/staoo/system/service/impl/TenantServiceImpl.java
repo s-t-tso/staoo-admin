@@ -1,11 +1,14 @@
 package com.staoo.system.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.PageQuery;
 import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.common.exception.BusinessException;
 import com.staoo.system.domain.Tenant;
 import com.staoo.system.mapper.TenantMapper;
+import com.staoo.system.pojo.request.TenantQueryRequest;
 import com.staoo.system.service.TenantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,15 +55,35 @@ public class TenantServiceImpl implements TenantService {
         }
         return tenantMapper.getList(tenant);
     }
+    
+    @Override
+    public List<Tenant> getList(TenantQueryRequest request) {
+        if (request == null) {
+            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "查询参数不能为空");
+        }
+        return tenantMapper.getListByRequest(request);
+    }
 
     @Override
-    public TableResult<Tenant> getPage(PageQuery pageQuery) {
-        if (pageQuery == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
+    public TableResult<Tenant> getPage(TenantQueryRequest request) {
+        try {
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
+            }
+            
+            // 设置分页参数
+            PageHelper.startPage(request.getPageNum(), request.getPageSize());
+            
+            // 直接调用getList方法获取数据
+            List<Tenant> list = getList(request);
+            Page<Tenant> pageList = (Page<Tenant>) list;
+            
+            // 构建返回结果
+            return TableResult.build(pageList.getTotal(), request.getPageNum(), request.getPageSize(), list);
+        } catch (Exception e) {
+            logger.error("分页查询租户失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
-        List<Tenant> list = tenantMapper.getPage(pageQuery);
-        int total = tenantMapper.count(new Tenant());
-        return TableResult.build((long) total, pageQuery.getPageNum(), pageQuery.getPageSize(), list);
     }
 
     @Override
@@ -75,10 +99,7 @@ public class TenantServiceImpl implements TenantService {
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "租户名称已存在");
         }
         
-        // 设置创建和更新时间
-        LocalDateTime now = LocalDateTime.now();
-        tenant.setCreateTime(now);
-        tenant.setUpdateTime(now);
+        // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
         
         return tenantMapper.insert(tenant);
     }
@@ -104,8 +125,7 @@ public class TenantServiceImpl implements TenantService {
             }
         }
         
-        // 设置更新时间
-        tenant.setUpdateTime(LocalDateTime.now());
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         return tenantMapper.update(tenant);
     }
@@ -165,7 +185,7 @@ public class TenantServiceImpl implements TenantService {
         Tenant tenant = new Tenant();
         tenant.setId(id);
         tenant.setStatus(status);
-        tenant.setUpdateTime(LocalDateTime.now());
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         return tenantMapper.update(tenant);
     }

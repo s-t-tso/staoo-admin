@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.staoo.common.domain.PageQuery;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.system.domain.ThirdPartyApp;
 import com.staoo.system.mapstruct.IThirdPartyAppMapper;
 import com.staoo.system.pojo.request.ThirdPartyAppRequest;
+import com.staoo.system.pojo.request.ThirdPartyAppQueryRequest;
 import com.staoo.system.pojo.response.ThirdPartyAppResponse;
 import com.staoo.system.service.ThirdPartyAppService;
 
@@ -59,9 +59,8 @@ public class ThirdPartyAppController {
 
     @Operation(summary = "分页查询应用", description = "分页查询应用列表")
     @GetMapping("/page")
-    public AjaxResult<TableResult<ThirdPartyAppResponse>> getPage(ThirdPartyAppRequest request, PageQuery pageQuery) {
-        ThirdPartyApp app = thirdPartyAppMapper.toEntity(request);
-        TableResult<ThirdPartyApp> tableResult = thirdPartyAppService.getPage(app, pageQuery);
+    public AjaxResult<TableResult<ThirdPartyAppResponse>> getPage(ThirdPartyAppQueryRequest request) {
+        TableResult<ThirdPartyApp> tableResult = thirdPartyAppService.getPage(request);
         
         // 转换TableResult中的实体列表
         List<ThirdPartyAppResponse> responseList = thirdPartyAppMapper.toResponseList(tableResult.getRow());

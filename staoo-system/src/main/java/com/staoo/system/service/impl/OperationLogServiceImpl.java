@@ -2,7 +2,7 @@ package com.staoo.system.service.impl;
 
 import com.staoo.common.domain.OperationLogBase;
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
+import com.staoo.system.pojo.request.OperationLogQueryRequest;
 import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.common.exception.BusinessException;
 import com.staoo.system.mapper.OperationLogMapper;
@@ -53,16 +53,30 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     }
 
     @Override
-    public TableResult<OperationLogBase> getPage(PageQuery query) {
+    public TableResult<OperationLogBase> getPage(OperationLogQueryRequest request) {
         try {
+            // 参数校验
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
+            }
+            
             // 构建查询条件
             OperationLogBase operationLogBase = new OperationLogBase();
+            
+            // 从请求对象中设置查询条件
+            operationLogBase.setTenantId(request.getTenantId());
+            operationLogBase.setModule(request.getModule());
+            operationLogBase.setOperationType(request.getOperationType());
+            operationLogBase.setUserId(request.getUserId());
+            operationLogBase.setUsername(request.getUsername());
+            operationLogBase.setStatus(request.getStatus());
+            operationLogBase.setIp(request.getIp());
+            
             // 如果有搜索关键词，可以设置到查询条件中
-            if (StringUtils.hasText(query.getKeyword())) {
-                // 这里可以根据业务需求设置不同的搜索字段
-                operationLogBase.setModule(query.getKeyword());
-                operationLogBase.setContent(query.getKeyword());
-                operationLogBase.setUsername(query.getKeyword());
+            if (StringUtils.hasText(request.getKeyword())) {
+                operationLogBase.setModule(request.getKeyword());
+                operationLogBase.setContent(request.getKeyword());
+                operationLogBase.setUsername(request.getKeyword());
             }
 
             // 查询总数
@@ -72,12 +86,12 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
             }
 
             // 计算分页参数
-            Integer startIndex = query.getStartIndex();
-            Integer pageSize = query.getPageSize();
+            Integer startIndex = request.getStartIndex();
+            Integer pageSize = request.getPageSize();
 
             // 查询列表
             List<OperationLogBase> list = operationLogMapper.getPageList(operationLogBase, startIndex, pageSize);
-            return TableResult.build((long) total, query.getPageNum(), pageSize, list);
+            return TableResult.build((long) total, request.getPageNum(), pageSize, list);
         } catch (Exception e) {
             logger.error("分页查询操作日志失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
@@ -93,14 +107,7 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
                 throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
             }
 
-            // 设置操作时间
-            LocalDateTime now = LocalDateTime.now();
-            if (operationLogBase.getCreateTime() == null) {
-                operationLogBase.setCreateTime(now);
-            }
-            if (operationLogBase.getUpdateTime() == null) {
-                operationLogBase.setUpdateTime(now);
-            }
+            // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
             int result = operationLogMapper.insert(operationLogBase);
             return result > 0;
@@ -122,16 +129,7 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
                 throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
             }
 
-            // 设置操作时间
-            LocalDateTime now = LocalDateTime.now();
-            for (OperationLogBase operationLogBase : operationLogBases) {
-                if (operationLogBase.getCreateTime() == null) {
-                    operationLogBase.setCreateTime(now);
-                }
-                if (operationLogBase.getUpdateTime() == null) {
-                    operationLogBase.setUpdateTime(now);
-                }
-            }
+            // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
             int result = operationLogMapper.insertBatch(operationLogBases);
             return result > 0;

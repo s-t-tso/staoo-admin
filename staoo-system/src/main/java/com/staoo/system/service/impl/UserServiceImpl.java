@@ -1,24 +1,27 @@
 package com.staoo.system.service.impl;
 
-import com.staoo.common.domain.TableResult;
-import com.staoo.common.exception.BusinessException;
-import com.staoo.common.enums.StatusCodeEnum;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.staoo.common.domain.PageQuery;
+import com.staoo.common.domain.TableResult;
+import com.staoo.common.enums.StatusCodeEnum;
+import com.staoo.common.exception.BusinessException;
+import com.staoo.common.util.UserUtils;
 import com.staoo.system.domain.User;
 import com.staoo.system.domain.UserTenant;
 import com.staoo.system.mapper.UserMapper;
+import com.staoo.system.pojo.request.UserQueryRequest;
+import com.staoo.system.service.IUserDeptService;
 import com.staoo.system.service.UserService;
 import com.staoo.system.service.UserTenantService;
-import com.staoo.system.service.IUserDeptService;
-import com.staoo.common.util.UserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,10 +40,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private UserTenantService userTenantService;
-    
+
     @Autowired
     private IUserDeptService userDeptService;
 
@@ -80,10 +83,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getList(User user) {
+    public List<User> getList(UserQueryRequest user) {
         try {
             List<User> users;
             // 构建查询条件时考虑部门筛选
+
             if (user != null && user.getDeptId() != null) {
                 // 使用SQL JOIN查询直接获取部门下的用户，避免多次查询和Java代码过滤
                 users = userMapper.getListByDeptId(user);
@@ -91,20 +95,20 @@ public class UserServiceImpl implements UserService {
                 // 没有部门筛选时，直接查询
                 users = userMapper.getList(user);
             }
-            
+
             // 为每个用户加载租户关联信息和部门信息
             if (users != null && !users.isEmpty()) {
                 // 优化：可以考虑批量加载关联数据，但根据当前需求先保持原有逻辑
                 for (User u : users) {
                     List<UserTenant> userTenants = userTenantService.getUserTenantsByUserId(u.getId());
                     u.setUserTenants(userTenants);
-                    
+
                     // 加载用户关联的所有部门ID
                     List<Long> deptIds = userDeptService.getDeptIdsByUserId(u.getId());
                     u.setDeptIds(deptIds);
                 }
             }
-            
+
             return users != null ? users : Collections.emptyList();
         } catch (Exception e) {
             logger.error("查询用户列表失败", e);
@@ -113,37 +117,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public TableResult<User> getPage(PageQuery query) {
+    public Page<User> getPage(UserQueryRequest query) {
         try {
-            // 构建查询条件
-            User user = new User();
-            // 如果有搜索关键词，可以设置到查询条件中
-            if (StringUtils.hasText(query.getKeyword())) {
-                // 这里可以根据业务需求设置不同的搜索字段
-                user.setUsername(query.getKeyword());
-                user.setNickname(query.getKeyword());
-                user.setEmail(query.getKeyword());
-                user.setPhone(query.getKeyword());
-            }
 
-            // 查询总数
-            int total = userMapper.getCount(user);
-            if (total == 0) {
-                return TableResult.empty();
-            }
-
-            // 计算分页参数
-            query.getStartIndex(); // 使用已有的getStartIndex方法
             // TODO: 这里需要设置分页参数到mybatis的分页插件或查询条件中
-
+            PageHelper.startPage(query.getPageNum(), query.getPageSize());
+            List<User> userList = userMapper.getList(query);
             // 查询列表
-            List<User> list = userMapper.getList(user);
+            Page<User> list = (Page<User>)  userList;
             // 为每个用户加载租户关联信息
             for (User u : list) {
                 List<UserTenant> userTenants = userTenantService.getUserTenantsByUserId(u.getId());
                 u.setUserTenants(userTenants);
             }
-            return TableResult.build((long) total, query.getPageNum(), query.getPageSize(), list);
+            return list;
         } catch (Exception e) {
             logger.error("分页查询用户失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
@@ -169,10 +156,7 @@ public class UserServiceImpl implements UserService {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
 
-            // 设置创建时间和更新时间
-            LocalDateTime now = LocalDateTime.now();
-            user.setCreateTime(now);
-            user.setUpdateTime(now);
+            // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
             
             // 设置租户ID
             if (user.getTenantId() == null) {
@@ -181,22 +165,23 @@ public class UserServiceImpl implements UserService {
 
             // 保存用户信息
             int result = userMapper.insert(user);
-            
+
             // 如果用户有租户关联信息，保存用户-租户关系
             if (result > 0 && user.getUserTenants() != null && !user.getUserTenants().isEmpty()) {
                 for (UserTenant userTenant : user.getUserTenants()) {
                     userTenant.setUserId(user.getId());
-                    userTenant.setCreateTime(now);
-                    userTenant.setUpdateTime(now);
+                    // 时间字段由MyBatis拦截器自动填充，无需手动设置
+                    // userTenant.setCreateTime(now);
+                    // userTenant.setUpdateTime(now);
                     userTenantService.addUserTenant(userTenant);
                 }
             }
-            
+
             // 如果用户有部门关联信息，保存用户-部门关系
             if (result > 0 && user.getDeptIds() != null && !user.getDeptIds().isEmpty()) {
                 userDeptService.batchSaveUserDept(user.getId(), user.getDeptIds());
             }
-            
+
             return result > 0;
         } catch (BusinessException e) {
             // 业务异常直接抛出
@@ -232,11 +217,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
 
-            // 保留现有updateTime，如果没有显式设置
-            if (user.getUpdateTime() == null) {
-                user.setUpdateTime(LocalDateTime.now());
-            }
-            
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
+
             // 设置租户ID（如果未设置）
             if (user.getTenantId() == null) {
                 user.setTenantId(UserUtils.getCurrentTenantId());
@@ -244,26 +226,26 @@ public class UserServiceImpl implements UserService {
 
             // 更新用户信息
             int result = userMapper.update(user);
-            
+
             // 如果有用户-租户关系信息，处理用户-租户关系
             if (result > 0 && user.getUserTenants() != null) {
                 // 先删除该用户的所有租户关联
                 userTenantService.batchDeleteUserTenantByUserIds(new Long[]{user.getId()});
                 // 然后重新添加新的租户关联
-                LocalDateTime now = LocalDateTime.now();
                 for (UserTenant userTenant : user.getUserTenants()) {
                     userTenant.setUserId(user.getId());
-                    userTenant.setCreateTime(now);
-                    userTenant.setUpdateTime(now);
+                    // 时间字段由MyBatis拦截器自动填充，无需手动设置
+                    // userTenant.setCreateTime(now);
+                    // userTenant.setUpdateTime(now);
                     userTenantService.addUserTenant(userTenant);
                 }
             }
-            
+
             // 如果用户有部门关联信息，更新用户-部门关系
             if (result > 0 && user.getDeptIds() != null) {
                 userDeptService.batchSaveUserDept(user.getId(), user.getDeptIds());
             }
-            
+
             return result > 0;
         } catch (BusinessException e) {
             // 业务异常直接抛出
@@ -292,14 +274,14 @@ public class UserServiceImpl implements UserService {
 
             // 删除用户角色关系
             userMapper.deleteUserRoles(id);
-            
+
             // 删除用户-租户关系
             userTenantService.batchDeleteUserTenantByUserIds(new Long[]{id});
-            
+
             // 删除用户-部门关系
-              List<Long> userIds = new ArrayList<>();
-              userIds.add(id);
-              userDeptService.batchDeleteByUserIds(userIds);
+            List<Long> userIds = new ArrayList<>();
+            userIds.add(id);
+            userDeptService.batchDeleteByUserIds(userIds);
 
             // 删除用户
             int result = userMapper.deleteById(id);
@@ -392,7 +374,7 @@ public class UserServiceImpl implements UserService {
             User updateUser = new User();
             updateUser.setId(id);
             updateUser.setPassword(encodedPassword);
-            updateUser.setUpdateTime(LocalDateTime.now());
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
 
             int result = userMapper.update(updateUser);
             return result > 0;
@@ -429,7 +411,7 @@ public class UserServiceImpl implements UserService {
             User updateUser = new User();
             updateUser.setId(id);
             // updateUser.setAvatar(avatar); // 方法不存在
-            updateUser.setUpdateTime(LocalDateTime.now());
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
 
             int result = userMapper.update(updateUser);
             return result > 0;
@@ -458,8 +440,7 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException(StatusCodeEnum.USER_NOT_FOUND);
             }
 
-            // 设置更新时间
-            user.setUpdateTime(LocalDateTime.now());
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
             // 不允许修改密码、用户名、状态等关键信息
             user.setPassword(null);
             user.setUsername(null);
@@ -515,7 +496,7 @@ public class UserServiceImpl implements UserService {
             User updateUser = new User();
             updateUser.setId(userId);
             updateUser.setPassword(encodedPassword);
-            updateUser.setUpdateTime(LocalDateTime.now());
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
 
             int result = userMapper.update(updateUser);
             return result > 0;
@@ -591,6 +572,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 验证用户信息
+     *
      * @param user 用户信息
      */
     private void validateUser(User user) {

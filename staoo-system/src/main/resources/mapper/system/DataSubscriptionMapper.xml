@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.staoo.system.mapper.DataSubscriptionMapper">
+    <!-- 结果映射 -->
+    <resultMap id="DataSubscriptionResultMap" type="com.staoo.system.domain.DataSubscription">
+        <id property="id" column="id"/>
+        <result property="appKey" column="app_key"/>
+        <result property="dataType" column="data_type"/>
+        <result property="callbackUrl" column="callback_url"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 基础SQL片段 -->
+    <sql id="Base_Column_List">
+        id, app_key, data_type, callback_url, status, create_time, update_time
+    </sql>
+
+    <!-- 查询条件SQL片段 -->
+    <sql id="Query_Condition">
+        <where>
+            <if test="appKey != null and appKey != ''">
+                AND app_key = #{appKey}
+            </if>
+            <if test="dataType != null and dataType != ''">
+                AND data_type = #{dataType}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 根据ID查询数据订阅 -->
+    <select id="selectById" resultMap="DataSubscriptionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM data_subscription
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据应用标识和数据类型查询订阅 -->
+    <select id="selectByAppKeyAndDataType" resultMap="DataSubscriptionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM data_subscription
+        WHERE app_key = #{appKey}
+        AND data_type = #{dataType}
+    </select>
+
+    <!-- 查询应用的所有订阅 -->
+    <select id="selectByAppKey" resultMap="DataSubscriptionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM data_subscription
+        WHERE app_key = #{appKey}
+    </select>
+
+    <!-- 查询指定数据类型的所有订阅 -->
+    <select id="selectByDataType" resultMap="DataSubscriptionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM data_subscription
+        WHERE data_type = #{dataType}
+    </select>
+
+    <!-- 根据请求参数查询数据订阅列表 -->
+    <select id="selectListByRequest" resultMap="DataSubscriptionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM data_subscription
+        <where>
+            <if test="request.appKey != null and request.appKey != ''">
+                AND app_key = #{request.appKey}
+            </if>
+            <if test="request.dataType != null and request.dataType != ''">
+                AND data_type = #{request.dataType}
+            </if>
+            <if test="request.status != null and request.status != ''">
+                AND status = #{request.status}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                <bind name="pattern" value="'%' + request.keyword + '%'"/>
+                AND (
+                    app_key LIKE #{pattern}
+                    OR data_type LIKE #{pattern}
+                )
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 通用查询方法 - 用于兼容ServiceImpl中的selectAll调用 -->
+    <select id="selectAll" resultMap="DataSubscriptionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM data_subscription
+        <include refid="Query_Condition"/>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 新增数据订阅 -->
+    <insert id="insert" parameterType="com.staoo.system.domain.DataSubscription" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO data_subscription (
+            app_key,
+            data_type,
+            callback_url,
+            status,
+            create_time,
+            update_time
+        ) VALUES (
+            #{appKey},
+            #{dataType},
+            #{callbackUrl},
+            #{status},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <!-- 更新数据订阅 -->
+    <update id="update" parameterType="com.staoo.system.domain.DataSubscription">
+        UPDATE data_subscription
+        <set>
+            <if test="appKey != null and appKey != ''">
+                app_key = #{appKey},
+            </if>
+            <if test="dataType != null and dataType != ''">
+                data_type = #{dataType},
+            </if>
+            <if test="callbackUrl != null and callbackUrl != ''">
+                callback_url = #{callbackUrl},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID删除数据订阅 -->
+    <delete id="deleteById">
+        DELETE FROM data_subscription WHERE id = #{id}
+    </delete>
+
+    <!-- 根据应用标识和数据类型删除订阅 -->
+    <delete id="deleteByAppKeyAndDataType">
+        DELETE FROM data_subscription
+        WHERE app_key = #{appKey}
+        AND data_type = #{dataType}
+    </delete>
+
+    <!-- 更新订阅状态 -->
+    <update id="updateStatus">
+        UPDATE data_subscription
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>

@@ -1,11 +1,13 @@
 package com.staoo.system.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.exception.BusinessException;
 import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.system.domain.Menu;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.mapper.MenuMapper;
+import com.staoo.system.pojo.request.MenuQueryRequest;
 import com.staoo.system.service.MenuService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,31 +59,36 @@ public class MenuServiceImpl implements MenuService {
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
+    
+    @Override
+    public List<Menu> getList(MenuQueryRequest request) {
+        try {
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "查询参数不能为空");
+            }
+            return menuMapper.getListByRequest(request);
+        } catch (Exception e) {
+            logger.error("根据请求参数查询菜单列表失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
 
     @Override
-    public TableResult<Menu> getPage(PageQuery query) {
+    public TableResult<Menu> getPage(MenuQueryRequest request) {
         try {
-            // 构建查询条件
-            Menu menu = new Menu();
-            // 如果有搜索关键词，可以设置到查询条件中
-            if (StringUtils.hasText(query.getKeyword())) {
-                menu.setMenuName(query.getKeyword());
-                menu.setPath(query.getKeyword());
-                menu.setPerms(query.getKeyword());
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
             }
 
-            // 查询总数
-            int total = menuMapper.getCount(menu);
-            if (total == 0) {
-                return TableResult.empty();
-            }
-
-            // 分页参数已由PageQuery自动处理
-            // TODO: 这里需要设置分页参数到mybatis的分页插件或查询条件中
+            // 设置分页参数
+            PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
             // 查询列表
-            List<Menu> list = menuMapper.getList(menu);
-            return TableResult.build((long)total, query.getPageNum(), query.getPageSize(), list);
+            List<Menu> list = getList(request);
+            Page<Menu> pageList = (Page<Menu>) list;
+
+            // 构建返回结果
+            return TableResult.build(pageList.getTotal(), request.getPageNum(), request.getPageSize(), list);
         } catch (Exception e) {
             logger.error("分页查询菜单失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
@@ -119,10 +126,7 @@ public class MenuServiceImpl implements MenuService {
                 throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
             }
 
-            // 设置创建时间和更新时间
-            LocalDateTime now = LocalDateTime.now();
-            menu.setCreateTime(now);
-            menu.setUpdateTime(now);
+            // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
             // 保存菜单信息
             int result = menuMapper.insert(menu);
@@ -153,38 +157,37 @@ public class MenuServiceImpl implements MenuService {
             }
 
             // 检查菜单名称唯一性
-            if (!existingMenu.getMenuName().equals(menu.getMenuName()) && 
+            if (!existingMenu.getMenuName().equals(menu.getMenuName()) &&
                 checkMenuNameUnique(menu.getMenuName(), menu.getParentId(), menu.getId())) {
                 logger.error("菜单名称已存在: {}", menu.getMenuName());
                 throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
             }
 
             // 检查菜单权限唯一性
-            if (StringUtils.hasText(menu.getPerms()) && 
-                !menu.getPerms().equals(existingMenu.getPerms()) && 
+            if (StringUtils.hasText(menu.getPerms()) &&
+                !menu.getPerms().equals(existingMenu.getPerms()) &&
                 checkMenuPermsUnique(menu.getPerms(), menu.getId())) {
                 logger.error("菜单权限已存在: {}", menu.getPerms());
                 throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
             }
 
             // 检查菜单路由唯一性
-            if (StringUtils.hasText(menu.getPath()) && 
-                !menu.getPath().equals(existingMenu.getPath()) && 
+            if (StringUtils.hasText(menu.getPath()) &&
+                !menu.getPath().equals(existingMenu.getPath()) &&
                 checkMenuPathUnique(menu.getPath(), menu.getId())) {
                 logger.error("菜单路由已存在: {}", menu.getPath());
                 throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
             }
 
             // 检查菜单组件唯一性
-            if (StringUtils.hasText(menu.getComponent()) && 
-                !menu.getComponent().equals(existingMenu.getComponent()) && 
+            if (StringUtils.hasText(menu.getComponent()) &&
+                !menu.getComponent().equals(existingMenu.getComponent()) &&
                 checkMenuComponentUnique(menu.getComponent(), menu.getId())) {
                 logger.error("菜单组件已存在: {}", menu.getComponent());
                 throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
             }
 
-            // 设置更新时间
-            menu.setUpdateTime(LocalDateTime.now());
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
 
             // 更新菜单信息
             int result = menuMapper.update(menu);

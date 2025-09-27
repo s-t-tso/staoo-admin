@@ -1,5 +1,6 @@
 package com.staoo.system.domain;
 
+import com.staoo.common.annotation.AutoFill;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
  * 用户实体类
  * 对应数据库中的sys_user表
  */
+@AutoFill
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 

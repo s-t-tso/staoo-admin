@@ -1,5 +1,6 @@
 package com.staoo.flow.service.impl;
 
+import com.staoo.common.util.UserUtils;
 import com.staoo.flow.domain.FlowTaskRecord;
 import com.staoo.flow.mapper.FlowTaskRecordMapper;
 import com.staoo.flow.service.FlowTaskRecordService;
@@ -49,8 +50,12 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
             logger.warn("查询流程实例的任务记录时流程实例ID为空");
             return null;
         }
-        // 这里假设获取当前租户ID的逻辑，实际应该从当前登录用户或上下文获取
-        Long tenantId = 1L; // 临时值，实际项目中需要替换为正确的获取租户ID的逻辑
+        // 从当前登录用户获取租户ID
+        Long tenantId = UserUtils.getCurrentTenantId();
+        if (tenantId == null) {
+            logger.warn("获取当前租户ID失败，租户ID为空");
+            return null;
+        }
         return flowTaskRecordMapper.getListByProcessInstanceId(processInstanceId, tenantId);
     }
 
@@ -65,8 +70,12 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
             logger.warn("查询任务记录时任务ID为空");
             return null;
         }
-        // 这里假设获取当前租户ID的逻辑，实际应该从当前登录用户或上下文获取
-        Long tenantId = 1L; // 临时值，实际项目中需要替换为正确的获取租户ID的逻辑
+        // 从当前登录用户获取租户ID
+        Long tenantId = UserUtils.getCurrentTenantId();
+        if (tenantId == null) {
+            logger.warn("获取当前租户ID失败，租户ID为空");
+            return null;
+        }
         return flowTaskRecordMapper.getByTaskId(taskId, tenantId);
     }
 
@@ -80,8 +89,12 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
         if (flowTaskRecord == null) {
             flowTaskRecord = new FlowTaskRecord();
         }
-        // 这里假设获取当前租户ID的逻辑，实际应该从当前登录用户或上下文获取
-        Long tenantId = 1L; // 临时值，实际项目中需要替换为正确的获取租户ID的逻辑
+        // 从当前登录用户获取租户ID
+        Long tenantId = UserUtils.getCurrentTenantId();
+        if (tenantId == null) {
+            logger.warn("获取当前租户ID失败，租户ID为空");
+            return java.util.Collections.emptyList();
+        }
         flowTaskRecord.setTenantId(tenantId);
         return flowTaskRecordMapper.getList(flowTaskRecord);
     }
@@ -96,8 +109,12 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
         if (flowTaskRecord == null) {
             flowTaskRecord = new FlowTaskRecord();
         }
-        // 这里假设获取当前租户ID的逻辑，实际应该从当前登录用户或上下文获取
-        Long tenantId = 1L; // 临时值，实际项目中需要替换为正确的获取租户ID的逻辑
+        // 从当前登录用户获取租户ID
+        Long tenantId = UserUtils.getCurrentTenantId();
+        if (tenantId == null) {
+            logger.warn("获取当前租户ID失败，租户ID为空");
+            return 0;
+        }
         flowTaskRecord.setTenantId(tenantId);
         return flowTaskRecordMapper.getCount(flowTaskRecord);
     }
@@ -113,8 +130,12 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
             logger.warn("保存流程任务记录时参数为空");
             return false;
         }
-        // 这里假设获取当前租户ID的逻辑，实际应该从当前登录用户或上下文获取
-        Long tenantId = 1L; // 临时值，实际项目中需要替换为正确的获取租户ID的逻辑
+        // 从当前登录用户获取租户ID
+        Long tenantId = UserUtils.getCurrentTenantId();
+        if (tenantId == null) {
+            logger.warn("获取当前租户ID失败，租户ID为空");
+            return false;
+        }
         flowTaskRecord.setTenantId(tenantId);
         flowTaskRecord.setCreateTime(new Date());
         try {
@@ -201,8 +222,12 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
             logger.warn("查询处理人的任务记录时处理人ID为空或无效: {}", assigneeId);
             return null;
         }
-        // 这里假设获取当前租户ID的逻辑，实际应该从当前登录用户或上下文获取
-        Long tenantId = 1L; // 临时值，实际项目中需要替换为正确的获取租户ID的逻辑
+        // 从当前登录用户获取租户ID
+        Long tenantId = UserUtils.getCurrentTenantId();
+        if (tenantId == null) {
+            logger.warn("获取当前租户ID失败，租户ID为空");
+            return null;
+        }
         return flowTaskRecordMapper.getListByAssigneeId(assigneeId, tenantId);
     }
 
@@ -232,8 +257,12 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
             record.setAssigneeName(assigneeName);
             record.setAction(action);
             record.setComment(comment);
-            // 这里假设获取当前租户ID的逻辑，实际应该从当前登录用户或上下文获取
-            Long tenantId = 1L; // 临时值，实际项目中需要替换为正确的获取租户ID的逻辑
+            // 从当前登录用户获取租户ID
+            Long tenantId = UserUtils.getCurrentTenantId();
+            if (tenantId == null) {
+                logger.warn("获取当前租户ID失败，租户ID为空");
+                return false;
+            }
             record.setTenantId(tenantId);
             record.setCreateTime(new Date());
             record.setCompleteTime(new Date());

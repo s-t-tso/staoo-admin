@@ -54,29 +54,5 @@ public class DataController {
         }
     }
 
-    /**
-     * 获取用户列表数据
-     * 根据租户ID获取用户列表信息
-     * 支持分页、排序和多条件筛选
-     * @param request 用户列表数据请求参数
-     * @return 用户列表数据
-     */
-    @PreAuthorize("hasAuthority('data:user:list')")
-    @LogOperation(module = "数据查询", operationType = "查询", content = "用户列表数据查询")
-    @GetMapping("/users")
-    public AjaxResult<TableResult<UserResponse>> getUserListData(@Valid UserListDataRequest request) {
-        try {
-            // 参数校验
-            if (request.getTenantId() == null || request.getTenantId() <= 0) {
-                return AjaxResult.error("租户ID不能为空");
-            }
 
-            // 调用服务层获取用户列表数据
-            TableResult<UserResponse> tableResult = dataService.getUserListData(request);
-
-            return AjaxResult.success(tableResult);
-        } catch (Exception e) {
-            return AjaxResult.error("获取用户列表数据失败: " + e.getMessage());
-        }
-    }
 }

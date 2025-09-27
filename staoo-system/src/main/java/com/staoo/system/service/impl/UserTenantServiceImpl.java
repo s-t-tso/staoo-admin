@@ -1,8 +1,14 @@
 package com.staoo.system.service.impl;
 
+import com.staoo.common.exception.BusinessException;
+import com.staoo.common.domain.TableResult;
+import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.system.domain.UserTenant;
 import com.staoo.system.mapper.UserTenantMapper;
+import com.staoo.system.pojo.request.UserTenantQueryRequest;
 import com.staoo.system.service.UserTenantService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Collections;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 用户-租户关联Service实现类
@@ -52,12 +60,7 @@ public class UserTenantServiceImpl implements UserTenantService {
             if (userTenant.getStatus() == null) {
                 userTenant.setStatus(STATUS_ENABLE);
             }
-            if (userTenant.getCreateTime() == null) {
-                userTenant.setCreateTime(LocalDateTime.now());
-            }
-            if (userTenant.getUpdateTime() == null) {
-                userTenant.setUpdateTime(LocalDateTime.now());
-            }
+            // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
             int result = userTenantMapper.insert(userTenant);
             log.info("新增用户[{}]与租户[{}]关联成功", userTenant.getUserId(), userTenant.getTenantId());
@@ -83,7 +86,6 @@ public class UserTenantServiceImpl implements UserTenantService {
             }
 
             // 设置默认值并检查冲突
-            LocalDateTime now = LocalDateTime.now();
             for (UserTenant userTenant : userTenantList) {
                 if (checkUserBelongsToTenant(userTenant.getUserId(), userTenant.getTenantId())) {
                     log.warn("用户[{}]已属于租户[{}]，跳过该关联", userTenant.getUserId(), userTenant.getTenantId());
@@ -93,12 +95,7 @@ public class UserTenantServiceImpl implements UserTenantService {
                 if (userTenant.getStatus() == null) {
                     userTenant.setStatus(STATUS_ENABLE);
                 }
-                if (userTenant.getCreateTime() == null) {
-                    userTenant.setCreateTime(now);
-                }
-                if (userTenant.getUpdateTime() == null) {
-                    userTenant.setUpdateTime(now);
-                }
+                // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
                 userTenantMapper.insert(userTenant);
             }
@@ -263,8 +260,7 @@ public class UserTenantServiceImpl implements UserTenantService {
                 return false;
             }
 
-            // 设置更新时间
-            userTenant.setUpdateTime(LocalDateTime.now());
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
 
             int result = userTenantMapper.update(userTenant);
             log.info("更新用户-租户关联ID[{}]成功", userTenant.getId());
@@ -506,5 +502,64 @@ public class UserTenantServiceImpl implements UserTenantService {
         return status != null && 
                (status.equals(STATUS_ENABLE) || 
                 status.equals(STATUS_DISABLE));
+    }
+
+    /**
+     * 查询用户-租户关联列表
+     * @param request 查询请求
+     * @return 用户-租户关联列表
+     */
+    @Override
+    public List<UserTenant> getList(UserTenantQueryRequest request) {
+        try {
+            if (request == null) {
+                return Collections.emptyList();
+            }
+            
+            // 使用统一的mapper方法根据查询请求条件获取列表
+            return userTenantMapper.getListByRequest(request);
+        } catch (Exception e) {
+            log.error("查询用户-租户关联列表失败", e);
+            throw new RuntimeException("查询用户-租户关联列表失败", e);
+        }
+    }
+
+    /**
+     * 分页查询用户-租户关联列表
+     * @param request 查询请求
+     * @return 分页结果
+     */
+    @Override
+    public TableResult<UserTenant> getPage(UserTenantQueryRequest request) {
+        try {
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
+            }
+
+            // 设置分页参数
+            int pageNum = request.getPageNum() != null ? request.getPageNum() : 1;
+            int pageSize = request.getPageSize() != null ? request.getPageSize() : 10;
+            PageHelper.startPage(pageNum, pageSize);
+
+            // 直接使用getList方法获取数据，复用列表查询逻辑
+            List<UserTenant> list = getList(request);
+
+            // 处理分页结果
+            Page<UserTenant> pageList = (Page<UserTenant>) list;
+            
+            // 确保参数类型正确匹配TableResult.build方法的要求
+            return TableResult.build(
+                pageList.getTotal(),  // 保持long类型
+                pageNum,             // int自动装箱为Integer
+                pageSize,            // int自动装箱为Integer
+                pageList.getResult()
+            );
+        } catch (BusinessException e) {
+            // 直接抛出业务异常
+            throw e;
+        } catch (Exception e) {
+            log.error("分页查询用户-租户关联列表失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
     }
 }

@@ -1,9 +1,11 @@
 package com.staoo.system.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.common.exception.BusinessException;
-import com.staoo.common.domain.PageQuery;
+import com.staoo.system.pojo.request.SystemNoticeQueryRequest;
 import com.staoo.system.domain.SystemNotice;
 import com.staoo.system.mapper.SystemNoticeMapper;
 import com.staoo.system.service.SystemNoticeService;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
@@ -45,27 +48,38 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
     public List<SystemNotice> getList(SystemNotice systemNotice) {
         return systemNoticeMapper.selectList(systemNotice);
     }
+    
+    @Override
+    public List<SystemNotice> getList(SystemNoticeQueryRequest request) {
+        // 参数校验
+        if (request == null) {
+            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "查询参数不能为空");
+        }
+        
+        return systemNoticeMapper.selectListByRequest(request);
+    }
 
     @Override
-    public TableResult<SystemNotice> getPage(PageQuery query) {
-        if (query == null) {
-            query = new PageQuery();
+    public TableResult<SystemNotice> getPage(SystemNoticeQueryRequest request) {
+        try {
+            // 参数校验
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
+            }
+            
+            // 设置分页参数
+            PageHelper.startPage(request.getPageNum(), request.getPageSize());
+            
+            // 直接使用新的getList方法获取数据
+            List<SystemNotice> list = getList(request);
+            Page<SystemNotice> pageList = (Page<SystemNotice>) list;
+            
+            // 构建分页结果
+            return TableResult.build(pageList.getTotal(), request.getPageNum(), request.getPageSize(), list);
+        } catch (Exception e) {
+            logger.error("分页查询系统通知失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
-        // 构建查询条件
-        SystemNotice systemNotice = new SystemNotice();
-        // 这里可以根据需要设置查询条件
-        
-        // 查询总数
-        Long total = systemNoticeMapper.selectCount(systemNotice);
-        if (total == 0) {
-            return TableResult.empty();
-        }
-        
-        // 查询列表
-        List<SystemNotice> list = systemNoticeMapper.selectList(systemNotice);
-        
-        // 构建分页结果
-        return TableResult.build(total, query.getPageNum(), query.getPageSize(), list);
     }
 
     @Override
@@ -77,10 +91,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         // 参数校验
         validateSystemNotice(systemNotice);
         
-        // 设置创建时间和更新时间
-        LocalDateTime now = LocalDateTime.now();
-        systemNotice.setCreateTime(now);
-        systemNotice.setUpdateTime(now);
+        // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.insert(systemNotice);
         return count > 0;
@@ -102,8 +113,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         // 参数校验
         validateSystemNotice(systemNotice);
         
-        // 设置更新时间
-        systemNotice.setUpdateTime(LocalDateTime.now());
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
         return count > 0;
@@ -190,8 +200,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
         systemNotice.setStatus(1);
-        systemNotice.setPublishTime(LocalDateTime.now());
-        systemNotice.setUpdateTime(LocalDateTime.now());
+        // 注意：publishTime和updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
         return count > 0;
@@ -219,7 +228,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
         systemNotice.setStatus(2);
-        systemNotice.setUpdateTime(LocalDateTime.now());
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
         return count > 0;
@@ -247,7 +256,7 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
         systemNotice.setReadStatus(1);
-        systemNotice.setUpdateTime(LocalDateTime.now());
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
         return count > 0;

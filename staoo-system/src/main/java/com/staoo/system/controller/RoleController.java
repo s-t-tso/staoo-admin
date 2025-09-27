@@ -2,9 +2,9 @@ package com.staoo.system.controller;
 
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.AjaxResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.Role;
 import com.staoo.system.pojo.request.RoleRequest;
+import com.staoo.system.pojo.request.RoleQueryRequest;
 import com.staoo.system.pojo.response.RoleResponse;
 import com.staoo.system.service.RoleService;
 import com.staoo.system.mapstruct.IRoleMapper;
@@ -49,29 +49,28 @@ public class RoleController {
 
     /**
      * 查询角色列表
-     * @param roleRequest 查询条件
+     * @param request 查询条件
      * @return 角色列表
      */
     @GetMapping("/list")
     @Operation(summary = "查询角色列表", description = "查询角色列表信息")
     @PreAuthorize("hasAnyAuthority('system:role:query')")
-    public AjaxResult<List<RoleResponse>> getList(RoleRequest roleRequest) {
-        Role role = roleMapper.toEntity(roleRequest);
-        List<Role> list = roleService.getList(role);
+    public AjaxResult<List<RoleResponse>> getList(RoleQueryRequest request) {
+        List<Role> list = roleService.getList(request);
         List<RoleResponse> responseList = roleMapper.toResponseList(list);
         return AjaxResult.success(responseList);
     }
 
     /**
      * 分页查询角色
-     * @param query 分页查询条件
+     * @param request 分页查询条件
      * @return 角色分页结果
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询角色", description = "分页查询角色列表信息")
     @PreAuthorize("hasAnyAuthority('system:role:query')")
-    public AjaxResult<TableResult<RoleResponse>> getPage(PageQuery query) {
-        TableResult<Role> page = roleService.getPage(query);
+    public AjaxResult<TableResult<RoleResponse>> getPage(RoleQueryRequest request) {
+        TableResult<Role> page = roleService.getPage(request);
         List<RoleResponse> responseList = roleMapper.toResponseList(page.getRow());
         TableResult<RoleResponse> responsePage = TableResult.build(page.getTotal(), page.getPage(), page.getPagesize(), responseList);
         return AjaxResult.success(responsePage);

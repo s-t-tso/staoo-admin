@@ -1,6 +1,7 @@
 package com.staoo.system.mapper;
 
 import com.staoo.system.domain.UserTenant;
+import com.staoo.system.pojo.request.UserTenantQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -103,4 +104,11 @@ public interface UserTenantMapper {
      * @return 是否存在关联
      */
     boolean existsByUserAndTenant(@Param("userId") Long userId, @Param("tenantId") Long tenantId);
+    
+    /**
+     * 根据查询请求条件查询用户-租户关联列表
+     * @param request 查询请求对象
+     * @return 用户-租户关联列表
+     */
+    List<UserTenant> getListByRequest(UserTenantQueryRequest request);
 }

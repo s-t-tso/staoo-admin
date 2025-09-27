@@ -126,4 +126,31 @@
             where user_id = #{userId} and tenant_id = #{tenantId}
         )
     </select>
+    
+    <!-- 根据查询请求条件查询用户-租户关联列表 -->
+    <select id="getListByRequest" parameterType="com.staoo.system.pojo.request.UserTenantQueryRequest" resultMap="UserTenantResult">
+        <include refid="selectUserTenantVo"/>
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="roleType != null">
+                and role_type = #{roleType}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (user_id like concat('%', #{keyword}, '%') 
+                     or tenant_id like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by create_time desc
+    </select>
 </mapper>

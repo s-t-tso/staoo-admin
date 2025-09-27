@@ -71,6 +71,44 @@
         <include refid="Query_Condition" />
         ORDER BY parent_id, order_num
     </select>
+    
+    <!-- 根据请求参数查询菜单列表 -->
+    <select id="getListByRequest" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_menu
+        <where>
+            <if test="request.tenantId != null">
+                AND tenant_id = #{request.tenantId}
+            </if>
+            <if test="request.menuName != null and request.menuName != ''">
+                AND menu_name LIKE CONCAT('%', #{request.menuName}, '%')
+            </if>
+            <if test="request.parentId != null">
+                AND parent_id = #{request.parentId}
+            </if>
+            <if test="request.menuType != null">
+                AND menu_type = #{request.menuType}
+            </if>
+            <if test="request.status != null">
+                AND status = #{request.status}
+            </if>
+            <if test="request.visible != null">
+                AND visible = #{request.visible}
+            </if>
+            <if test="request.perms != null and request.perms != ''">
+                AND perms LIKE CONCAT('%', #{request.perms}, '%')
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                AND (
+                    menu_name LIKE CONCAT('%', #{request.keyword}, '%')
+                    OR path LIKE CONCAT('%', #{request.keyword}, '%')
+                    OR perms LIKE CONCAT('%', #{request.keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY parent_id, order_num
+    </select>
 
     <!-- 查询菜单总数 -->
     <select id="getCount" resultType="int">

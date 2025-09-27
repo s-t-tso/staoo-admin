@@ -1,5 +1,6 @@
 package com.staoo.system.domain;
 
+import com.staoo.common.annotation.AutoFill;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
  * 部门实体类
  * 对应数据库中的sys_dept表
  */
+@AutoFill
 public class Department implements Serializable {
     private static final long serialVersionUID = 1L;
 

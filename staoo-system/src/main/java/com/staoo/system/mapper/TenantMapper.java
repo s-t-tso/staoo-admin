@@ -2,6 +2,7 @@ package com.staoo.system.mapper;
 
 import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.Tenant;
+import com.staoo.system.pojo.request.TenantQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
@@ -73,4 +74,11 @@ public interface TenantMapper {
      * @return 租户总数
      */
     int count(Tenant tenant);
+    
+    /**
+     * 根据请求参数查询租户列表
+     * @param request 租户查询请求参数
+     * @return 租户列表
+     */
+    List<Tenant> getListByRequest(TenantQueryRequest request);
 }

@@ -90,6 +90,47 @@
         FROM sys_notice
         <include refid="Query_Condition" />
     </select>
+    
+    <!-- 根据请求参数查询列表 -->
+    <select id="selectListByRequest" parameterType="com.staoo.system.pojo.request.SystemNoticeQueryRequest" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_notice
+        <where>
+            <if test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+            <if test="level != null">
+                AND level = #{level}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="isTop != null">
+                AND is_top = #{isTop}
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <bind name="keywordPattern" value="'%' + keyword + '%'" />
+                AND (
+                    title LIKE #{keywordPattern}
+                    OR content LIKE #{keywordPattern}
+                )
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
 
     <!-- 新增 -->
     <insert id="insert" parameterType="com.staoo.system.domain.SystemNotice">

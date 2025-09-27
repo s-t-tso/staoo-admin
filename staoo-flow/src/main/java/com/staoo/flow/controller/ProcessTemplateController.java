@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.staoo.common.annotation.LogOperation;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.flow.domain.ProcessTemplate;
+import com.staoo.flow.pojo.request.ProcessTemplateRequest;
 import com.staoo.flow.service.ProcessTemplateService;
 
 /**
@@ -88,18 +89,31 @@ public class ProcessTemplateController {
 
     /**
      * 新增流程模板
-     * @param processTemplate 流程模板信息
+     * @param request 流程模板请求信息
      * @return 操作结果
      */
     @PreAuthorize("hasAuthority('process:template:add')")
     @LogOperation(module = "流程管理", operationType = "新增", content = "新增流程模板")
     @PostMapping
-    public AjaxResult<Integer> add(@RequestBody ProcessTemplate processTemplate) {
+    public AjaxResult<Integer> add(@RequestBody ProcessTemplateRequest request) {
         try {
             // 验证流程标识唯一性
-            if (!processTemplateService.checkProcessKeyUnique(processTemplate.getProcessKey(), processTemplate.getTenantId(), null)) {
+            if (!processTemplateService.checkProcessKeyUnique(request.getProcessKey(), request.getTenantId(), null)) {
                 return AjaxResult.error("流程标识已存在");
             }
+            
+            // 转换请求对象为实体对象
+            ProcessTemplate processTemplate = new ProcessTemplate();
+            processTemplate.setProcessKey(request.getProcessKey());
+            processTemplate.setProcessName(request.getProcessName());
+            processTemplate.setDescription(request.getDescription());
+            processTemplate.setBpmnXml(request.getBpmnXml());
+            processTemplate.setStatus(request.getStatus());
+            processTemplate.setVersion(request.getVersion());
+            processTemplate.setTenantId(request.getTenantId());
+            processTemplate.setCategory(request.getCategory());
+            processTemplate.setFormKey(request.getFormKey());
+            
             int result = processTemplateService.save(processTemplate);
             return AjaxResult.success(result);
         } catch (Exception e) {
@@ -109,18 +123,32 @@ public class ProcessTemplateController {
 
     /**
      * 更新流程模板
-     * @param processTemplate 流程模板信息
+     * @param request 流程模板请求信息
      * @return 操作结果
      */
     @PreAuthorize("hasAuthority('process:template:edit')")
     @LogOperation(module = "流程管理", operationType = "更新", content = "更新流程模板")
     @PutMapping
-    public AjaxResult<Integer> update(@RequestBody ProcessTemplate processTemplate) {
+    public AjaxResult<Integer> update(@RequestBody ProcessTemplateRequest request) {
         try {
             // 验证流程标识唯一性
-            if (!processTemplateService.checkProcessKeyUnique(processTemplate.getProcessKey(), processTemplate.getTenantId(), processTemplate.getId())) {
+            if (!processTemplateService.checkProcessKeyUnique(request.getProcessKey(), request.getTenantId(), request.getId())) {
                 return AjaxResult.error("流程标识已存在");
             }
+            
+            // 转换请求对象为实体对象
+            ProcessTemplate processTemplate = new ProcessTemplate();
+            processTemplate.setId(request.getId());
+            processTemplate.setProcessKey(request.getProcessKey());
+            processTemplate.setProcessName(request.getProcessName());
+            processTemplate.setDescription(request.getDescription());
+            processTemplate.setBpmnXml(request.getBpmnXml());
+            processTemplate.setStatus(request.getStatus());
+            processTemplate.setVersion(request.getVersion());
+            processTemplate.setTenantId(request.getTenantId());
+            processTemplate.setCategory(request.getCategory());
+            processTemplate.setFormKey(request.getFormKey());
+            
             int result = processTemplateService.update(processTemplate);
             return AjaxResult.success(result);
         } catch (Exception e) {

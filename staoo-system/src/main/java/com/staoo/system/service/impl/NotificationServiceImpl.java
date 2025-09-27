@@ -53,13 +53,14 @@ public class NotificationServiceImpl implements NotificationService {
 
         try {
             // 构建通知消息
-            NotificationMessage message = new NotificationMessage();
-            message.setMessageId(UUID.randomUUID().toString());
-            message.setDataType(dataType);
-            message.setTenantId(tenantId);
-            message.setData(data);
-            message.setChangeType(changeType);
-            message.setSendTime(new Date());
+        NotificationMessage message = new NotificationMessage();
+        message.setMessageId(UUID.randomUUID().toString());
+        message.setDataType(dataType);
+        message.setTenantId(tenantId);
+        message.setData(data);
+        message.setChangeType(changeType);
+        // 时间字段由MyBatis拦截器自动填充，无需手动设置
+        // message.setSendTime(new Date());
 
             // 获取订阅该数据类型的应用
             List<DataSubscription> subscriptions = subscriptionService.getSubscriptionsByDataType(dataType);
@@ -109,7 +110,8 @@ public class NotificationServiceImpl implements NotificationService {
             message.setDataType("FLOW");
             message.setData(result);
             message.setChangeType(status);
-            message.setSendTime(new Date());
+            // 时间字段由MyBatis拦截器自动填充，无需手动设置
+            // message.setSendTime(new Date());
             message.setAppKey("flow-system"); // 流程系统自身
 
             // 发送消息到流程变更队列

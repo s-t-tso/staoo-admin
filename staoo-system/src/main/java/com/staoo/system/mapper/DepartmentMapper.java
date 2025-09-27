@@ -1,6 +1,7 @@
 package com.staoo.system.mapper;
 
 import com.staoo.system.domain.Department;
+import com.staoo.system.pojo.request.DepartmentQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -68,6 +69,13 @@ public interface DepartmentMapper {
      * @return 部门数量
      */
     int checkDeptNameUnique(@Param("deptName") String deptName, @Param("parentId") Long parentId);
+
+    /**
+     * 根据请求参数查询部门列表
+     * @param request 查询请求参数
+     * @return 部门列表
+     */
+    List<Department> getListByRequest(@Param("request") DepartmentQueryRequest request);
 
     /**
      * 获取部门树形结构

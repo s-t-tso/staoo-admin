@@ -1,6 +1,7 @@
 package com.staoo.system.mapper;
 
 import com.staoo.system.domain.DataSubscription;
+import com.staoo.system.pojo.request.SubscriptionQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -77,4 +78,11 @@ public interface DataSubscriptionMapper {
      * @return 影响行数
      */
     int updateStatus(@Param("id") Long id, @Param("status") String status);
+
+    /**
+     * 根据请求参数查询数据订阅列表
+     * @param request 查询请求参数
+     * @return 数据订阅列表
+     */
+    List<DataSubscription> selectListByRequest(SubscriptionQueryRequest request);
 }

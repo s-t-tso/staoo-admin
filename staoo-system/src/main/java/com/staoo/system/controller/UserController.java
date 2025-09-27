@@ -1,9 +1,11 @@
 package com.staoo.system.controller;
 
+import com.github.pagehelper.Page;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.User;
+import com.staoo.system.pojo.request.UserQueryRequest;
 import com.staoo.system.service.UserService;
 import com.staoo.system.pojo.request.UserRequest;
 import com.staoo.system.pojo.request.PasswordResetRequest;
@@ -30,10 +32,10 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private IUserMapper userMapper;
-    
+
     @Autowired
     private PasswordComplexityValidator passwordComplexityValidator;
 
@@ -66,32 +68,17 @@ public class UserController {
     }
 
     /**
-     * 查询用户列表
-     * @param user 查询条件
-     * @return 统一响应
-     */
-    @GetMapping("/list")
-    @Operation(summary = "查询用户列表")
-    @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<List<UserResponse>> getList(User user) {
-        List<User> list = userService.getList(user);
-        List<UserResponse> responseList = userMapper.toResponseList(list);
-        return AjaxResult.success(responseList);
-    }
-
-    /**
      * 分页查询用户
      * @param query 分页查询参数
      * @return 统一响应
      */
-    @GetMapping("/page")
+    @GetMapping("/list")
     @Operation(summary = "分页查询用户")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<TableResult<UserResponse>> getPage(PageQuery query) {
-        TableResult<User> tableResult = userService.getPage(query);
-        List<UserResponse> responseList = userMapper.toResponseList(tableResult.getRow());
-        TableResult<UserResponse> responseResult = TableResult.build(tableResult.getTotal(), tableResult.getPage(), tableResult.getPagesize(), responseList);
-        return AjaxResult.success(responseResult);
+    public TableResult<UserResponse> getPage(UserQueryRequest query) {
+        Page<User> tableResult = userService.getPage(query);
+        List<UserResponse> responseList = userMapper.toResponseList(tableResult.getResult());
+        return TableResult.build(tableResult.getTotal(), tableResult.getPages(), tableResult.getPageSize(), responseList);
     }
 
     /**
@@ -176,7 +163,7 @@ public class UserController {
         if (!passwordComplexityValidator.validate(request.getPassword())) {
             return AjaxResult.error(passwordComplexityValidator.getErrorMessage());
         }
-        
+
         boolean result = userService.resetPassword(id, request.getPassword());
         return AjaxResult.success(result);
     }
@@ -219,7 +206,7 @@ public class UserController {
         if (!passwordComplexityValidator.validate(request.getNewPassword())) {
             return AjaxResult.error(passwordComplexityValidator.getErrorMessage());
         }
-        
+
         boolean result = userService.changePassword(request.getUserId(), request.getOldPassword(), request.getNewPassword());
         return AjaxResult.success(result);
     }

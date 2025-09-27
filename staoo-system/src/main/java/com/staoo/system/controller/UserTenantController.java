@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.staoo.common.domain.AjaxResult;
 import com.staoo.common.domain.PageQuery;
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.AjaxResult;
 import com.staoo.system.domain.UserTenant;
 import com.staoo.system.mapstruct.IUserTenantMapper;
+import com.staoo.system.pojo.request.UserTenantQueryRequest;
 import com.staoo.system.pojo.request.UserTenantRequest;
 import com.staoo.system.pojo.response.UserTenantResponse;
 import com.staoo.system.service.UserTenantService;
@@ -281,34 +282,29 @@ public class UserTenantController {
 
     /**
      * 查询用户-租户关联列表
-     * @param userTenant 查询条件
+     * @param request 查询条件
      * @return 统一响应
      */
     @GetMapping("/list")
     @Operation(summary = "查询用户-租户关联列表")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<List<UserTenantResponse>> getList(UserTenant userTenant) {
-        // TODO: 根据条件查询用户-租户关联列表
-        // 临时实现：如果有租户ID则根据租户ID查询，否则返回空列表
-        if (userTenant != null && userTenant.getTenantId() != null) {
-            List<UserTenant> list = userTenantService.getUserTenantsByTenantId(userTenant.getTenantId());
-            List<UserTenantResponse> responseList = userTenantMapper.toResponseList(list);
-            return AjaxResult.success(responseList);
-        }
-        return AjaxResult.success(Collections.emptyList());
+    public AjaxResult<List<UserTenantResponse>> getList(UserTenantQueryRequest request) {
+        // 使用新的Service方法，基于UserTenantQueryRequest参数查询列表
+        List<UserTenant> list = userTenantService.getList(request);
+        List<UserTenantResponse> responseList = userTenantMapper.toResponseList(list);
+        return AjaxResult.success(responseList);
     }
 
     /**
      * 分页查询用户-租户关联列表
-     * @param pageQuery 分页参数
+     * @param request 分页查询请求
      * @return 统一响应
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询用户-租户关联列表")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<TableResult<UserTenantResponse>> getPage(PageQuery pageQuery) {
-        // TODO: 实现分页查询功能
-        TableResult<UserTenant> tableResult = TableResult.build(0L, pageQuery.getPageNum(), pageQuery.getPageSize(), Collections.emptyList());
+    public AjaxResult<TableResult<UserTenantResponse>> getPage(UserTenantQueryRequest request) {
+        TableResult<UserTenant> tableResult = userTenantService.getPage(request);
         List<UserTenantResponse> responseList = userTenantMapper.toResponseList(tableResult.getRow());
         TableResult<UserTenantResponse> finalResult = TableResult.build(
             tableResult.getTotal(), 

@@ -2,9 +2,11 @@ package com.staoo.system.controller;
 
 import com.staoo.common.annotation.LogOperation;
 import com.staoo.common.domain.AjaxResult;
+import com.staoo.common.domain.TableResult;
 import com.staoo.system.domain.DataSubscription;
 import com.staoo.system.mapstruct.IDataSubscriptionMapper;
 import com.staoo.system.pojo.request.DataSubscriptionRequest;
+import com.staoo.system.pojo.request.SubscriptionQueryRequest;
 import com.staoo.system.pojo.response.DataSubscriptionResponse;
 import com.staoo.system.service.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +123,29 @@ public class SubscriptionController {
             }
         } catch (Exception e) {
             return AjaxResult.error("状态修改失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 分页查询订阅列表
+     * @param request 分页查询参数
+     * @return 分页结果
+     */
+    @PreAuthorize("hasAuthority('subscription:list')")
+    @LogOperation(module = "数据订阅", operationType = "查询", content = "分页查询订阅列表")
+    @GetMapping("/page")
+    public AjaxResult<TableResult<DataSubscriptionResponse>> getPage(SubscriptionQueryRequest request) {
+        try {
+            TableResult<DataSubscription> tableResult = subscriptionService.getPage(request);
+            List<DataSubscriptionResponse> responses = dataSubscriptionMapper.toResponseList(tableResult.getRow());
+            TableResult<DataSubscriptionResponse> result = new TableResult<>();
+            result.setTotal(tableResult.getTotal());
+            result.setPage(tableResult.getPage());
+            result.setPagesize(tableResult.getPagesize());
+            result.setRow(responses);
+            return AjaxResult.success(result);
+        } catch (Exception e) {
+            return AjaxResult.error("分页查询订阅列表失败: " + e.getMessage());
         }
     }
 }

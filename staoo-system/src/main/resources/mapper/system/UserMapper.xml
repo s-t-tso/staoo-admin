@@ -49,7 +49,7 @@
                 AND status = #{status}
             </if>
             <if test="admin != null">
-                AND is_admin = #{admin}
+                AND is_admin = #{adminadmin}
             </if>
             <if test="tenantId != null">
                 AND tenant_id = #{tenantId}

@@ -3,10 +3,10 @@ package com.staoo.system.service.impl;
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.exception.BusinessException;
 import com.staoo.common.enums.StatusCodeEnum;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.Role;
 import com.staoo.system.mapper.RoleMapper;
 import com.staoo.system.service.RoleService;
+import com.staoo.system.pojo.request.RoleQueryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.Page;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -63,32 +65,41 @@ public class RoleServiceImpl implements RoleService {
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
+    
+    @Override
+    public List<Role> getList(RoleQueryRequest request) {
+        try {
+            if (request == null) {
+                logger.error("查询请求参数为空");
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
+            }
+            return roleMapper.selectListByRequest(request);
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("查询角色列表失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
 
     @Override
-    public TableResult<Role> getPage(PageQuery query) {
+    public TableResult<Role> getPage(RoleQueryRequest request) {
         try {
-            // 构建查询条件
-            Role role = new Role();
-            // 如果有搜索关键词，可以设置到查询条件中
-            if (StringUtils.hasText(query.getKeyword())) {
-                role.setRoleName(query.getKeyword());
-                // 注释掉setRoleKey，因为Role类中没有这个方法
-                // role.setRoleKey(query.getKeyword());
+            // 参数校验
+            if (request == null) {
+                logger.error("分页查询请求参数为空");
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
             }
-
-            // 查询总数
-            int total = roleMapper.getCount(role);
-            if (total == 0) {
-                return TableResult.empty();
-            }
-
-            // 获取分页起始位置
-            Integer startIndex = query.getStartIndex();
-            // TODO: 这里需要设置分页参数到mybatis的分页插件或查询条件中
+            
+            // 设置分页参数
+            PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
             // 查询列表
-            List<Role> list = roleMapper.getList(role);
-            return TableResult.build((long)total, query.getPageNum(), query.getPageSize(), list);
+            List<Role> list = getList(request);
+            Page<Role> pageList = (Page<Role>) list;
+            
+            // 构建返回结果
+            return TableResult.build(pageList.getTotal(), request.getPageNum(), request.getPageSize(), list);
         } catch (Exception e) {
             logger.error("分页查询角色失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
@@ -111,10 +122,7 @@ public class RoleServiceImpl implements RoleService {
             // 注释掉角色权限检查，因为Role类中没有roleKey属性
             // 实际项目中可以根据实际需求添加这个属性或使用其他方式实现
 
-            // 设置创建时间和更新时间
-            LocalDateTime now = LocalDateTime.now();
-            role.setCreateTime(now);
-            role.setUpdateTime(now);
+            // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
             // 保存角色信息
             int result = roleMapper.insert(role);
@@ -153,8 +161,7 @@ public class RoleServiceImpl implements RoleService {
             // 注释掉角色权限检查，因为Role类中没有roleKey属性
             // 实际项目中可以根据实际需求添加这个属性或使用其他方式实现
 
-            // 设置更新时间
-            role.setUpdateTime(LocalDateTime.now());
+            // 注意：updateTime字段将由MyBatis拦截器自动填充
 
             // 更新角色信息
             int result = roleMapper.update(role);

@@ -1,8 +1,11 @@
 package com.staoo.system.controller;
 
 import com.staoo.common.domain.AjaxResult;
+import com.staoo.common.domain.TableResult;
+import com.github.pagehelper.PageInfo;
 import com.staoo.system.domain.Department;
 import com.staoo.system.mapstruct.IDepartmentMapper;
+import com.staoo.system.pojo.request.DepartmentQueryRequest;
 import com.staoo.system.pojo.request.DepartmentRequest;
 import com.staoo.system.pojo.response.DepartmentResponse;
 import com.staoo.system.service.IDepartmentService;
@@ -45,16 +48,29 @@ public class DepartmentController {
 
     /**
      * 获取部门列表
-     * @param request 部门请求对象
+     * @param request 部门查询请求参数
      * @return 响应结果
      */
     @GetMapping("/list")
     @Operation(summary = "获取部门列表", description = "根据条件获取部门列表")
-    public AjaxResult<List<DepartmentResponse>> getDepartmentList(DepartmentRequest request) {
-        Department department = departmentMapper.toEntity(request);
-        List<Department> departments = departmentService.getDepartmentList(department);
+    public AjaxResult<List<DepartmentResponse>> getDepartmentList(DepartmentQueryRequest request) {
+        List<Department> departments = departmentService.getList(request);
         List<DepartmentResponse> responses = departmentMapper.toResponseList(departments);
         return AjaxResult.success(responses);
+    }
+
+    /**
+     * 分页查询部门
+     * @param request 部门分页查询参数
+     * @return 部门分页结果
+     */
+    @GetMapping("/page")
+    @Operation(summary = "分页查询部门", description = "分页查询部门列表")
+    public AjaxResult<TableResult<DepartmentResponse>> getPage(DepartmentQueryRequest request) {
+        PageInfo<Department> pageInfo = new PageInfo<>(departmentService.getPage(request));
+        List<DepartmentResponse> responses = departmentMapper.toResponseList(pageInfo.getList());
+        TableResult<DepartmentResponse> result = TableResult.build(pageInfo.getTotal(), responses);
+        return AjaxResult.success(result);
     }
 
     /**

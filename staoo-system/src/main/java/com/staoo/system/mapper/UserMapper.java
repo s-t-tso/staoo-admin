@@ -1,6 +1,7 @@
 package com.staoo.system.mapper;
 
 import com.staoo.system.domain.User;
+import com.staoo.system.pojo.request.UserQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,14 +32,14 @@ public interface UserMapper {
      * @param user 查询条件
      * @return 用户列表
      */
-    List<User> getList(User user);
+    List<User> getList(UserQueryRequest user);
 
     /**
      * 根据部门ID查询用户列表
      * @param user 查询条件
      * @return 用户列表
      */
-    List<User> getListByDeptId(User user);
+    List<User> getListByDeptId(UserQueryRequest user);
 
     /**
      * 新增用户

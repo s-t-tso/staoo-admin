@@ -1,8 +1,8 @@
 package com.staoo.system.service;
 
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.ThirdPartyApp;
+import com.staoo.system.pojo.request.ThirdPartyAppQueryRequest;
 
 import java.util.List;
 
@@ -33,11 +33,10 @@ public interface ThirdPartyAppService {
 
     /**
      * 分页查询应用
-     * @param app 查询条件
-     * @param pageQuery 分页参数
+     * @param request 查询条件和分页参数
      * @return 分页结果
      */
-    TableResult<ThirdPartyApp> getPage(ThirdPartyApp app, PageQuery pageQuery);
+    TableResult<ThirdPartyApp> getPage(ThirdPartyAppQueryRequest request);
 
     /**
      * 新增应用

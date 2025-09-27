@@ -44,9 +44,7 @@ public class UserDeptServiceImpl implements IUserDeptService {
         UserDept userDept = new UserDept();
         userDept.setUserId(userId);
         userDept.setDeptId(deptId);
-        LocalDateTime now = LocalDateTime.now();
-        userDept.setCreateTime(now);
-        userDept.setUpdateTime(now);
+        // createTime和updateTime字段由MyBatis拦截器自动填充
 
         return userDeptMapper.insert(userDept) > 0;
     }
@@ -68,8 +66,7 @@ public class UserDeptServiceImpl implements IUserDeptService {
                 UserDept userDept = new UserDept();
                 userDept.setUserId(userId);
                 userDept.setDeptId(deptId);
-                userDept.setCreateTime(now);
-                userDept.setUpdateTime(now);
+                // createTime和updateTime字段由MyBatis拦截器自动填充
                 userDepts.add(userDept);
             }
         }

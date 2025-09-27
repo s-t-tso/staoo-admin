@@ -2,7 +2,7 @@ package com.staoo.system.controller;
 
 import com.staoo.common.domain.OperationLogBase;
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
+import com.staoo.system.pojo.request.OperationLogQueryRequest;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.system.service.SystemOperationLogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +50,12 @@ public class OperationLogController {
 
     /**
      * 分页查询操作日志
-     * @param query 分页查询参数
+     * @param request 操作日志查询请求
      * @return 分页结果
      */
     @GetMapping("/page")
-    public AjaxResult<TableResult<OperationLogBase>> getPage(PageQuery query) {
-        TableResult<OperationLogBase> tableResult = operationLogService.getPage(query);
+    public AjaxResult<TableResult<OperationLogBase>> getPage(OperationLogQueryRequest request) {
+        TableResult<OperationLogBase> tableResult = operationLogService.getPage(request);
         return AjaxResult.success(tableResult);
     }
 

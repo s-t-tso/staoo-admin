@@ -1,8 +1,8 @@
 package com.staoo.system.service;
 
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.Role;
+import com.staoo.system.pojo.request.RoleQueryRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -32,13 +32,20 @@ public interface RoleService {
      * @return 角色列表
      */
     List<Role> getList(Role role);
+    
+    /**
+     * 根据查询请求查询角色列表
+     * @param request 查询请求
+     * @return 角色列表
+     */
+    List<Role> getList(RoleQueryRequest request);
 
     /**
      * 分页查询角色
-     * @param query 分页查询参数
+     * @param request 分页查询参数
      * @return 分页结果
      */
-    TableResult<Role> getPage(PageQuery query);
+    TableResult<Role> getPage(RoleQueryRequest request);
 
     /**
      * 新增角色

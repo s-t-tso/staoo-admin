@@ -180,4 +180,40 @@
         FROM sys_tenant
         <include refid="Query_Condition" />
     </select>
-</mapper>
+    
+    <!-- 根据请求参数查询租户列表 -->
+    <select id="getListByRequest" parameterType="com.staoo.system.pojo.request.TenantQueryRequest" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_tenant
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="tenantName != null and tenantName != ''">
+                AND tenant_name LIKE CONCAT('%', #{tenantName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="contactPerson != null and contactPerson != ''">
+                AND contact_name LIKE CONCAT('%', #{contactPerson}, '%')
+            </if>
+            <if test="contactPhone != null and contactPhone != ''">
+                AND contact_phone LIKE CONCAT('%', #{contactPhone}, '%')
+            </if>
+            <if test="contactEmail != null and contactEmail != ''">
+                AND contact_email LIKE CONCAT('%', #{contactEmail}, '%')
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    tenant_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR contact_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR contact_phone LIKE CONCAT('%', #{keyword}, '%')
+                    OR contact_email LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+183| </mapper>

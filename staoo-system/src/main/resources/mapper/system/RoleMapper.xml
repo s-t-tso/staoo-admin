@@ -51,9 +51,6 @@
             <if test="status != null">
                 AND status = #{status}
             </if>
-            <if test="isAdmin != null">
-                AND is_admin = #{isAdmin}
-            </if>
         </where>
     </sql>
 
@@ -88,11 +85,44 @@
         FROM sys_role
         <include refid="Query_Condition"/>
     </select>
+    
+    <!-- 根据查询请求查询角色列表 -->
+    <select id="selectListByRequest" parameterType="com.staoo.system.pojo.request.RoleQueryRequest" resultMap="RoleResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_role
+        <where>
+            <if test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </if>
+            <if test="roleName != null and roleName != ''">
+                AND role_name like concat('%', #{roleName}, '%')
+            </if>
+            <if test="roleKey != null and roleKey != ''">
+                AND role_key like concat('%', #{roleKey}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="dataScope != null">
+                AND data_scope = #{dataScope}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <bind name="keywordPattern" value="'%' + keyword + '%'" />
+                AND (
+                    role_name like #{keywordPattern} OR
+                    role_key like #{keywordPattern} OR
+                    remark like #{keywordPattern}
+                )
+            </if>
+        </where>
+        ORDER BY order_num ASC
+    </select>
 
     <!-- 新增角色 -->
     <insert id="insert" parameterType="com.staoo.system.domain.Role">
-        INSERT INTO sys_role (tenant_id, role_name, role_key, role_sort, data_scope, menu_check_strictly, dept_check_strictly, status, is_admin, create_by, create_time, update_by, update_time, remark)
-        VALUES (#{tenantId}, #{roleName}, #{roleKey}, #{orderNum}, #{dataScope}, #{menuCheckStrictly}, #{deptCheckStrictly}, #{status}, #{isAdmin}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{remark})
+        INSERT INTO sys_role (tenant_id, role_name, role_key, role_sort, data_scope, status, create_by, create_time, update_by, update_time, remark)
+        VALUES (#{tenantId}, #{roleName}, #{roleKey}, #{orderNum}, #{dataScope},  #{status},  #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{remark})
     </insert>
 
     <!-- 更新角色 -->
@@ -114,17 +144,8 @@
             <if test="dataScope != null">
                 data_scope = #{dataScope},
             </if>
-            <if test="menuCheckStrictly != null">
-                menu_check_strictly = #{menuCheckStrictly},
-            </if>
-            <if test="deptCheckStrictly != null">
-                dept_check_strictly = #{deptCheckStrictly},
-            </if>
             <if test="status != null">
                 status = #{status},
-            </if>
-            <if test="isAdmin != null">
-                is_admin = #{isAdmin},
             </if>
             <if test="updateBy != null">
                 update_by = #{updateBy},
@@ -197,7 +218,6 @@
                         sr.menu_check_strictly,
                         sr.dept_check_strictly,
                         sr.status,
-                        sr.is_admin,
                         sr.create_by,
                         sr.create_time,
                         sr.update_by,

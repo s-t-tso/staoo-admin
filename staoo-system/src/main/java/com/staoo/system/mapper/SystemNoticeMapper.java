@@ -1,6 +1,7 @@
 package com.staoo.system.mapper;
 
 import com.staoo.system.domain.SystemNotice;
+import com.staoo.system.pojo.request.SystemNoticeQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -69,4 +70,11 @@ public interface SystemNoticeMapper {
      * @return 总数
      */
     Long selectCount(SystemNotice systemNotice);
+
+    /**
+     * 根据请求参数查询系统通知列表
+     * @param request 查询请求
+     * @return 系统通知列表
+     */
+    List<SystemNotice> selectListByRequest(SystemNoticeQueryRequest request);
 }

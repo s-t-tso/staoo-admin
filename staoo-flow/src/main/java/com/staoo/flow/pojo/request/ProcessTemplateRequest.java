@@ -33,8 +33,6 @@ public class ProcessTemplateRequest {
     @NotNull(message = "租户ID不能为空")
     private Long tenantId;           // 租户ID
     
-    private Long createBy;           // 创建人ID
-    
     @Size(max = 64, message = "流程分类长度不能超过64个字符")
     private String category;         // 流程分类
     

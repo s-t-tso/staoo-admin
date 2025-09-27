@@ -1,8 +1,8 @@
 package com.staoo.system.service;
 
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.Tenant;
+import com.staoo.system.pojo.request.TenantQueryRequest;
 import java.util.List;
 
 /**
@@ -30,13 +30,20 @@ public interface TenantService {
      * @return 租户列表
      */
     List<Tenant> getList(Tenant tenant);
+    
+    /**
+     * 根据请求参数查询租户列表
+     * @param request 租户查询请求
+     * @return 租户列表
+     */
+    List<Tenant> getList(TenantQueryRequest request);
 
     /**
      * 分页查询租户
-     * @param pageQuery 分页查询条件
+     * @param request 租户查询请求
      * @return 租户分页结果
      */
-    TableResult<Tenant> getPage(PageQuery pageQuery);
+    TableResult<Tenant> getPage(TenantQueryRequest request);
 
     /**
      * 新增租户

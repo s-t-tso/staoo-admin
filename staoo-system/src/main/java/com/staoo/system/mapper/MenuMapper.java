@@ -1,6 +1,7 @@
 package com.staoo.system.mapper;
 
 import com.staoo.system.domain.Menu;
+import com.staoo.system.pojo.request.MenuQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,6 +25,13 @@ public interface MenuMapper {
      * @return 菜单列表
      */
     List<Menu> getList(Menu menu);
+    
+    /**
+     * 根据请求参数查询菜单列表
+     * @param request 查询请求参数
+     * @return 菜单列表
+     */
+    List<Menu> getListByRequest(MenuQueryRequest request);
 
     /**
      * 查询菜单总数

@@ -1,12 +1,20 @@
 package com.staoo.system.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.staoo.common.enums.StatusCodeEnum;
+import com.staoo.common.exception.BusinessException;
 import com.staoo.system.domain.Department;
 import com.staoo.system.mapper.DepartmentMapper;
+import com.staoo.system.pojo.request.DepartmentQueryRequest;
 import com.staoo.system.service.IDepartmentService;
 import com.staoo.system.service.IUserDeptService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -18,6 +26,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DepartmentServiceImpl implements IDepartmentService {
+    private static final Logger logger = LoggerFactory.getLogger(DepartmentServiceImpl.class);
 
     @Autowired
     private DepartmentMapper departmentMapper;
@@ -33,6 +42,40 @@ public class DepartmentServiceImpl implements IDepartmentService {
     }
 
     @Override
+    public List<Department> getList(DepartmentQueryRequest request) {
+        // 参数校验
+        if (request == null) {
+            return new ArrayList<>();
+        }
+        
+        // 调用departmentMapper查询数据库获取部门列表
+        List<Department> departments = departmentMapper.getListByRequest(request);
+        return departments != null ? departments : new ArrayList<>();
+    }
+
+    @Override
+    public Page<Department> getPage(DepartmentQueryRequest request) {
+        try {
+            // 参数校验
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
+            }
+            
+            // 设置分页参数
+            PageHelper.startPage(request.getPageNum(), request.getPageSize());
+            
+            // 复用getList方法进行查询
+            List<Department> departmentList = getList(request);
+            Page<Department> pageList = (Page<Department>) departmentList;
+            
+            return pageList;
+        } catch (Exception e) {
+            logger.error("分页查询部门失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
+
+    @Override
     public Department getDepartmentById(Long deptId) {
         // 调用departmentMapper查询数据库获取部门信息
         Department department = departmentMapper.getById(deptId);
@@ -44,9 +87,7 @@ public class DepartmentServiceImpl implements IDepartmentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createDepartment(Department department) {
-        // 设置创建时间和更新时间
-        department.setCreateTime(LocalDateTime.now());
-        department.setUpdateTime(LocalDateTime.now());
+        // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
         
         // 调用departmentMapper插入数据
         int rows = departmentMapper.insert(department);
@@ -56,8 +97,7 @@ public class DepartmentServiceImpl implements IDepartmentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateDepartment(Department department) {
-        // 设置更新时间
-        department.setUpdateTime(LocalDateTime.now());
+        // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         // 调用departmentMapper更新数据
         int rows = departmentMapper.update(department);

@@ -1,11 +1,13 @@
 package com.staoo.flow.domain;
 
 import java.util.Date;
+import com.staoo.common.annotation.AutoFill;
 
 /**
  * 流程模板实体类
  * 用于存储流程模板的基本信息和配置
  */
+@AutoFill
 public class ProcessTemplate {
     private Long id;                 // 模板ID
     private String processKey;       // 流程唯一标识

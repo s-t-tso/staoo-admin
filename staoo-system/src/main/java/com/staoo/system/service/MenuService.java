@@ -2,7 +2,7 @@ package com.staoo.system.service;
 
 import com.staoo.common.domain.TableResult;
 import com.staoo.system.domain.Menu;
-import com.staoo.common.domain.PageQuery;
+import com.staoo.system.pojo.request.MenuQueryRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -25,13 +25,20 @@ public interface MenuService {
      * @return 菜单列表
      */
     List<Menu> getList(Menu menu);
+    
+    /**
+     * 根据请求参数查询菜单列表
+     * @param request 查询请求参数
+     * @return 菜单列表
+     */
+    List<Menu> getList(MenuQueryRequest request);
 
     /**
      * 分页查询菜单
-     * @param query 分页查询条件
+     * @param request 查询条件和分页参数
      * @return 菜单分页结果
      */
-    TableResult<Menu> getPage(PageQuery query);
+    TableResult<Menu> getPage(MenuQueryRequest request);
 
     /**
      * 新增菜单

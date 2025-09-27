@@ -1,11 +1,11 @@
 package com.staoo.system.controller;
 
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.system.domain.Tenant;
 import com.staoo.system.mapstruct.ITenantMapper;
 import com.staoo.system.pojo.request.TenantRequest;
+import com.staoo.system.pojo.request.TenantQueryRequest;
 import com.staoo.system.pojo.response.TenantResponse;
 import com.staoo.system.service.TenantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,27 +57,26 @@ public class TenantController {
 
     /**
      * 查询租户列表
-     * @param request 租户请求对象
+     * @param request 租户查询请求
      * @return 响应结果
      */
     @GetMapping("/list")
     @Operation(summary = "查询租户列表", description = "根据条件查询租户列表")
-    public AjaxResult<List<TenantResponse>> getList(TenantRequest request) {
-        Tenant tenant = tenantMapper.toEntity(request);
-        List<Tenant> list = tenantService.getList(tenant);
+    public AjaxResult<List<TenantResponse>> getList(TenantQueryRequest request) {
+        List<Tenant> list = tenantService.getList(request);
         List<TenantResponse> responseList = tenantMapper.toResponseList(list);
         return AjaxResult.success(responseList);
     }
 
     /**
      * 分页查询租户
-     * @param pageQuery 分页查询条件
+     * @param request 租户查询请求
      * @return 响应结果
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询租户", description = "分页查询租户列表")
-    public AjaxResult<TableResult<TenantResponse>> getPage(PageQuery pageQuery) {
-        TableResult<Tenant> tableResult = tenantService.getPage(pageQuery);
+    public AjaxResult<TableResult<TenantResponse>> getPage(TenantQueryRequest request) {
+        TableResult<Tenant> tableResult = tenantService.getPage(request);
         TableResult<TenantResponse> responseResult = TableResult.build(
             tableResult.getTotal(), 
             tableResult.getPage(), 

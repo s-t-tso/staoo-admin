@@ -2,7 +2,7 @@ package com.staoo.system.controller;
 
 import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.AjaxResult;
-import com.staoo.common.domain.PageQuery;
+import com.staoo.system.pojo.request.SystemNoticeQueryRequest;
 import com.staoo.system.domain.SystemNotice;
 import com.staoo.system.service.SystemNoticeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,27 +39,27 @@ public class SystemNoticeController {
 
     /**
      * 查询系统通知列表
-     * @param systemNotice 查询条件
+     * @param request 查询请求
      * @return 统一响应
      */
     @GetMapping("/list")
     @Operation(summary = "查询系统通知列表")
     @PreAuthorize("@ss.hasPermi('system:notice:query')")
-    public AjaxResult<List<SystemNotice>> getList(SystemNotice systemNotice) {
-        List<SystemNotice> list = systemNoticeService.getList(systemNotice);
+    public AjaxResult<List<SystemNotice>> getList(SystemNoticeQueryRequest request) {
+        List<SystemNotice> list = systemNoticeService.getList(request);
         return AjaxResult.success(list);
     }
 
     /**
      * 分页查询系统通知
-     * @param query 分页查询参数
+     * @param request 系统通知查询请求
      * @return 统一响应
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询系统通知")
     @PreAuthorize("@ss.hasPermi('system:notice:query')")
-    public AjaxResult<TableResult<SystemNotice>> getPage(PageQuery query) {
-        TableResult<SystemNotice> tableResult = systemNoticeService.getPage(query);
+    public AjaxResult<TableResult<SystemNotice>> getPage(SystemNoticeQueryRequest request) {
+        TableResult<SystemNotice> tableResult = systemNoticeService.getPage(request);
         return AjaxResult.success(tableResult);
     }
 

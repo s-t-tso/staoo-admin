@@ -1,10 +1,16 @@
 package com.staoo.system.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
+import com.staoo.common.enums.StatusCodeEnum;
+import com.staoo.common.exception.BusinessException;
 import com.staoo.system.domain.ThirdPartyApp;
 import com.staoo.system.mapper.ThirdPartyAppMapper;
+import com.staoo.system.pojo.request.ThirdPartyAppQueryRequest;
 import com.staoo.system.service.ThirdPartyAppService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -22,6 +28,7 @@ import java.util.Base64;
  */
 @Service
 public class ThirdPartyAppServiceImpl implements ThirdPartyAppService {
+    private static final Logger logger = LoggerFactory.getLogger(ThirdPartyAppServiceImpl.class);
 
     @Autowired
     private ThirdPartyAppMapper thirdPartyAppMapper;
@@ -56,16 +63,51 @@ public class ThirdPartyAppServiceImpl implements ThirdPartyAppService {
     }
 
     @Override
-    public TableResult<ThirdPartyApp> getPage(ThirdPartyApp app, PageQuery pageQuery) {
-        Long total = thirdPartyAppMapper.getCount(app);
-        if (total == 0) {
-            return TableResult.empty();
+    public TableResult<ThirdPartyApp> getPage(ThirdPartyAppQueryRequest request) {
+        try {
+            if (request == null) {
+                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
+            }
+            
+            // 设置分页参数
+            PageHelper.startPage(request.getPageNum(), request.getPageSize());
+            
+            // 创建查询条件对象
+            ThirdPartyApp app = new ThirdPartyApp();
+            
+            // 从请求对象中设置查询条件
+            app.setId(request.getId());
+            app.setAppName(request.getAppName());
+            app.setAppKey(request.getAppKey());
+            app.setAppIcon(request.getAppIcon());
+            app.setAppDomain(request.getAppDomain());
+            app.setStatus(request.getStatus());
+            app.setRemark(request.getRemark());
+            app.setCallbackUrls(request.getCallbackUrls());
+            app.setPermissions(request.getPermissions());
+            app.setTenantIds(request.getTenantIds());
+            
+            // 如果有搜索关键词，设置到查询条件中
+            if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
+                app.setAppName(request.getKeyword());
+                app.setAppKey(request.getKeyword());
+            }
+            
+            // 查询列表
+            List<ThirdPartyApp> list = thirdPartyAppMapper.getList(app);
+            Page<ThirdPartyApp> pageList = (Page<ThirdPartyApp>) list;
+            
+            // 加载关联数据
+            for (ThirdPartyApp thirdPartyApp : list) {
+                loadRelatedData(thirdPartyApp);
+            }
+            
+            // 构建返回结果
+            return TableResult.build(pageList.getTotal(), request.getPageNum(), request.getPageSize(), list);
+        } catch (Exception e) {
+            logger.error("分页查询第三方应用失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
-        List<ThirdPartyApp> list = thirdPartyAppMapper.getPage(app, (long)pageQuery.getStartIndex(), (long)pageQuery.getPageSize());
-        for (ThirdPartyApp thirdPartyApp : list) {
-            loadRelatedData(thirdPartyApp);
-        }
-        return TableResult.build(total, pageQuery.getPageNum(), pageQuery.getPageSize(), list);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -82,8 +124,9 @@ public class ThirdPartyAppServiceImpl implements ThirdPartyAppService {
         if (app.getAppKey() == null || app.getAppKey().isEmpty()) {
             app.setAppKey(generateAppKey());
         }
-        app.setCreateTime(new Date());
-        app.setUpdateTime(new Date());
+        // 时间字段由MyBatis拦截器自动填充，无需手动设置
+        // app.setCreateTime(new Date());
+        // app.setUpdateTime(new Date());
         thirdPartyAppMapper.insert(app);
         
         // 保存关联数据
@@ -94,7 +137,8 @@ public class ThirdPartyAppServiceImpl implements ThirdPartyAppService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int update(ThirdPartyApp app) {
-        app.setUpdateTime(new Date());
+        // 时间字段由MyBatis拦截器自动填充，无需手动设置
+        // app.setUpdateTime(new Date());
         int result = thirdPartyAppMapper.update(app);
         
         // 更新关联数据
@@ -155,7 +199,8 @@ public class ThirdPartyAppServiceImpl implements ThirdPartyAppService {
         ThirdPartyApp app = new ThirdPartyApp();
         app.setId(id);
         app.setAppSecret(md5Encode(newSecret));
-        app.setUpdateTime(new Date());
+        // 时间字段由MyBatis拦截器自动填充，无需手动设置
+        // app.setUpdateTime(new Date());
         thirdPartyAppMapper.update(app);
         return newSecret; // 返回未加密的密钥
     }
@@ -165,7 +210,8 @@ public class ThirdPartyAppServiceImpl implements ThirdPartyAppService {
         ThirdPartyApp app = new ThirdPartyApp();
         app.setId(id);
         app.setStatus(status);
-        app.setUpdateTime(new Date());
+        // 时间字段由MyBatis拦截器自动填充，无需手动设置
+        // app.setUpdateTime(new Date());
         return thirdPartyAppMapper.update(app);
     }
 

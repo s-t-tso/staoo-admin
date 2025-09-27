@@ -2,12 +2,14 @@ package com.staoo.system.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import com.staoo.common.annotation.AutoFill;
 
 /**
  * 系统通知实体类
  * 对应数据库中的sys_notice表
  * 支持批量删除功能
  */
+@AutoFill
 public class SystemNotice implements Serializable {
     private static final long serialVersionUID = 1L;
 

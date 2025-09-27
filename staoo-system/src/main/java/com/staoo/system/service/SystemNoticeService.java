@@ -1,8 +1,8 @@
 package com.staoo.system.service;
 
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.system.domain.SystemNotice;
+import com.staoo.system.pojo.request.SystemNoticeQueryRequest;
 
 import java.util.List;
 
@@ -24,13 +24,20 @@ public interface SystemNoticeService {
      * @return 系统通知列表
      */
     List<SystemNotice> getList(SystemNotice systemNotice);
+    
+    /**
+     * 查询系统通知列表
+     * @param request 查询请求
+     * @return 系统通知列表
+     */
+    List<SystemNotice> getList(SystemNoticeQueryRequest request);
 
     /**
      * 分页查询系统通知
-     * @param query 分页查询参数
+     * @param request 系统通知查询请求
      * @return 分页结果
      */
-    TableResult<SystemNotice> getPage(PageQuery query);
+    TableResult<SystemNotice> getPage(SystemNoticeQueryRequest request);
 
     /**
      * 新增系统通知
