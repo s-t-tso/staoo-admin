@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.staoo.system.mapper.UserDeptMapper">
+    <!-- 结果映射 -->
+    <resultMap id="UserDeptResultMap" type="com.staoo.system.domain.UserDept">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 基础SQL片段 -->
+    <sql id="Base_Column_List">
+        id, user_id, dept_id, create_time, update_time
+    </sql>
+
+    <!-- 根据ID查询用户部门关联 -->
+    <select id="getById" resultMap="UserDeptResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user_dept
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据用户ID查询部门ID列表 -->
+    <select id="getDeptIdsByUserId" resultType="java.lang.Long">
+        SELECT dept_id
+        FROM sys_user_dept
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据部门ID查询用户ID列表 -->
+    <select id="getUserIdsByDeptId" resultType="java.lang.Long">
+        SELECT user_id
+        FROM sys_user_dept
+        WHERE dept_id = #{deptId}
+    </select>
+
+    <!-- 保存用户部门关联 -->
+    <insert id="insert" parameterType="com.staoo.system.domain.UserDept">
+        INSERT INTO sys_user_dept (
+            user_id, 
+            dept_id, 
+            create_time, 
+            update_time
+        ) VALUES (
+            #{userId}, 
+            #{deptId}, 
+            #{createTime}, 
+            #{updateTime}
+        )
+    </insert>
+
+    <!-- 批量保存用户部门关联 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO sys_user_dept (
+            user_id, 
+            dept_id, 
+            create_time, 
+            update_time
+        ) VALUES
+        <foreach collection="userDepts" item="item" separator=",">
+            (
+                #{item.userId}, 
+                #{item.deptId}, 
+                #{item.createTime}, 
+                #{item.updateTime}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 根据用户ID删除用户部门关联 -->
+    <delete id="deleteByUserId">
+        DELETE FROM sys_user_dept
+        WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 根据部门ID删除用户部门关联 -->
+    <delete id="deleteByDeptId">
+        DELETE FROM sys_user_dept
+        WHERE dept_id = #{deptId}
+    </delete>
+
+    <!-- 根据用户ID和部门ID删除用户部门关联 -->
+    <delete id="deleteByUserIdAndDeptId">
+        DELETE FROM sys_user_dept
+        WHERE user_id = #{userId} AND dept_id = #{deptId}
+    </delete>
+
+    <!-- 批量根据用户ID删除用户部门关联 -->
+    <delete id="batchDeleteByUserIds">
+        DELETE FROM sys_user_dept
+        WHERE user_id IN
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 批量根据部门ID删除用户部门关联 -->
+    <delete id="batchDeleteByDeptIds">
+        DELETE FROM sys_user_dept
+        WHERE dept_id IN
+        <foreach collection="deptIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 查询用户是否与指定部门关联 -->
+    <select id="existsByUserIdAndDeptId" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM sys_user_dept
+            WHERE user_id = #{userId} AND dept_id = #{deptId}
+        )
+    </select>
+</mapper>

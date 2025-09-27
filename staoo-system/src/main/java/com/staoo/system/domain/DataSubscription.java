@@ -1,0 +1,74 @@
+package com.staoo.system.domain;
+
+import java.util.Date;
+
+/**
+ * 数据订阅实体类
+ * 用于存储第三方应用对数据变更的订阅信息
+ */
+public class DataSubscription {
+    private Long id;                  // 订阅ID
+    private String appKey;            // 应用标识
+    private String dataType;          // 数据类型（ORG：组织架构，USER：用户，FLOW：流程）
+    private String callbackUrl;       // 回调地址
+    private String status;            // 状态（0：启用，1：禁用）
+    private Date createTime;          // 创建时间
+    private Date updateTime;          // 更新时间
+
+    // Getter and Setter methods
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAppKey() {
+        return appKey;
+    }
+
+    public void setAppKey(String appKey) {
+        this.appKey = appKey;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getCallbackUrl() {
+        return callbackUrl;
+    }
+
+    public void setCallbackUrl(String callbackUrl) {
+        this.callbackUrl = callbackUrl;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+}

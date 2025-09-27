@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.staoo.system.mapper.UserMapper">
+    <!-- 结果映射 -->
+    <resultMap id="UserResultMap" type="com.staoo.system.domain.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="status" column="status"/>
+        <result property="admin" column="is_admin"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="tenantId" column="tenant_id"/>
+    </resultMap>
+
+    <!-- 基础SQL片段 -->
+    <sql id="Base_Column_List">
+        id, username, password, nickname, avatar, email, phone, status, is_admin, create_by, create_time, update_by, update_time, remark
+    </sql>
+
+    <!-- 查询条件SQL片段 -->
+    <sql id="Query_Condition">
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="username != null and username != ''">
+                AND username like concat('%', #{username}, '%')
+            </if>
+            <if test="nickname != null and nickname != ''">
+                AND nickname like concat('%', #{nickname}, '%')
+            </if>
+            <if test="email != null and email != ''">
+                AND email like concat('%', #{email}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="admin != null">
+                AND is_admin = #{admin}
+            </if>
+            <if test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 根据ID查询用户 -->
+    <select id="getById" resultMap="UserResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据用户名查询用户 -->
+    <select id="getByUsername" resultMap="UserResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user
+        WHERE username = #{username}
+    </select>
+
+    <!-- 查询用户列表 -->
+    <select id="getList" resultMap="UserResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user
+        <include refid="Query_Condition"/>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据部门ID查询用户列表 -->
+    <select id="getListByDeptId" resultMap="UserResultMap">
+        SELECT DISTINCT
+        <include refid="Base_Column_List"/>
+        FROM sys_user u
+        INNER JOIN sys_user_dept ud ON u.id = ud.user_id
+        WHERE ud.dept_id = #{deptId}
+        <if test="username != null and username != ''">
+            AND u.username like concat('%', #{username}, '%')
+        </if>
+        <if test="nickname != null and nickname != ''">
+            AND u.nickname like concat('%', #{nickname}, '%')
+        </if>
+        <if test="email != null and email != ''">
+            AND u.email like concat('%', #{email}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            AND u.phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="status != null">
+            AND u.status = #{status}
+        </if>
+        <if test="admin != null">
+            AND u.is_admin = #{admin}
+        </if>
+        ORDER BY u.create_time DESC
+    </select>
+
+    <!-- 查询用户总数 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(1)
+        FROM sys_user
+        <include refid="Query_Condition"/>
+    </select>
+
+    <!-- 新增用户 -->
+    <insert id="insert" parameterType="com.staoo.system.domain.User">
+        INSERT INTO sys_user (
+            username, password, nickname, avatar, email, phone, status, is_admin, create_by, create_time, update_by, update_time, remark, tenant_id
+        ) VALUES (
+            #{username}, #{password}, #{nickname}, #{avatar}, #{email}, #{phone}, #{status}, #{admin}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{remark}, #{tenantId}
+        )
+    </insert>
+
+    <!-- 更新用户 -->
+    <update id="update" parameterType="com.staoo.system.domain.User">
+        UPDATE sys_user
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="nickname != null and nickname != ''">
+                nickname = #{nickname},
+            </if>
+            <if test="avatar != null and avatar != ''">
+                avatar = #{avatar},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="admin != null">
+                is_admin = #{admin},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            update_time = #{updateTime},
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除用户 -->
+    <delete id="deleteById">
+        DELETE FROM sys_user
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除用户 -->
+    <delete id="deleteByIds">
+        DELETE FROM sys_user
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 批量更新用户状态 -->
+    <update id="updateStatusByIds">
+        UPDATE sys_user
+        SET status = #{status}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 根据用户ID查询角色ID列表 -->
+    <select id="getRoleIdsByUserId" resultType="java.lang.Long">
+        SELECT role_id
+        FROM sys_user_role
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 保存用户角色关系 -->
+    <insert id="saveUserRoles">
+        INSERT INTO sys_user_role (user_id, role_id)
+        <foreach collection="roleIds" item="roleId" separator=",">
+            (#{userId}, #{roleId})
+        </foreach>
+    </insert>
+
+    <!-- 删除用户角色关系 -->
+    <delete id="deleteUserRoles">
+        DELETE FROM sys_user_role
+        WHERE user_id = #{userId}
+    </delete>
+</mapper>

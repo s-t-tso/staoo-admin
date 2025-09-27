@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.staoo.system.mapper.FlowTaskRecordMapper">
+    <!-- 结果映射 -->
+    <resultMap id="FlowTaskRecordResultMap" type="com.staoo.system.domain.FlowTaskRecord">
+        <id property="id" column="id"/>
+        <result property="processInstanceId" column="process_instance_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="assigneeId" column="assignee_id"/>
+        <result property="assigneeName" column="assignee_name"/>
+        <result property="action" column="action"/>
+        <result property="comment" column="comment"/>
+        <result property="createTime" column="create_time"/>
+        <result property="completeTime" column="complete_time"/>
+        <result property="tenantId" column="tenant_id"/>
+    </resultMap>
+
+    <!-- 基础SQL片段 -->
+    <sql id="Base_Column_List">
+        id, process_instance_id, task_id, task_name, assignee_id, assignee_name, action, comment, create_time, complete_time, tenant_id
+    </sql>
+
+    <!-- 查询条件SQL片段 -->
+    <sql id="Query_Condition">
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="processInstanceId != null and processInstanceId != ''">
+                AND process_instance_id = #{processInstanceId}
+            </if>
+            <if test="taskId != null and taskId != ''">
+                AND task_id = #{taskId}
+            </if>
+            <if test="taskName != null and taskName != ''">
+                AND task_name = #{taskName}
+            </if>
+            <if test="assigneeId != null">
+                AND assignee_id = #{assigneeId}
+            </if>
+            <if test="assigneeName != null and assigneeName != ''">
+                AND assignee_name = #{assigneeName}
+            </if>
+            <if test="action != null and action != ''">
+                AND action = #{action}
+            </if>
+            <if test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 根据ID查询流程任务记录 -->
+    <select id="getById" resultMap="FlowTaskRecordResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_flow_task_record
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据流程实例ID查询流程任务记录 -->
+    <select id="getListByProcessInstanceId" resultMap="FlowTaskRecordResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_flow_task_record
+        WHERE process_instance_id = #{processInstanceId}
+        AND tenant_id = #{tenantId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据任务ID查询流程任务记录 -->
+    <select id="getByTaskId" resultMap="FlowTaskRecordResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_flow_task_record
+        WHERE task_id = #{taskId}
+        AND tenant_id = #{tenantId}
+    </select>
+
+    <!-- 查询流程任务记录列表 -->
+    <select id="getList" resultMap="FlowTaskRecordResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_flow_task_record
+        <include refid="Query_Condition"/>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 查询流程任务记录总数 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(1)
+        FROM sys_flow_task_record
+        <include refid="Query_Condition"/>
+    </select>
+
+    <!-- 新增流程任务记录 -->
+    <insert id="insert" parameterType="com.staoo.system.domain.FlowTaskRecord">
+        INSERT INTO sys_flow_task_record (
+            process_instance_id, task_id, task_name, assignee_id, assignee_name, action, comment, create_time, complete_time, tenant_id
+        ) VALUES (
+            #{processInstanceId}, #{taskId}, #{taskName}, #{assigneeId}, #{assigneeName}, #{action}, #{comment}, #{createTime}, #{completeTime}, #{tenantId}
+        )
+    </insert>
+
+    <!-- 更新流程任务记录 -->
+    <update id="update" parameterType="com.staoo.system.domain.FlowTaskRecord">
+        UPDATE sys_flow_task_record
+        <set>
+            <if test="taskName != null and taskName != ''">
+                task_name = #{taskName},
+            </if>
+            <if test="assigneeId != null">
+                assignee_id = #{assigneeId},
+            </if>
+            <if test="assigneeName != null and assigneeName != ''">
+                assignee_name = #{assigneeName},
+            </if>
+            <if test="action != null and action != ''">
+                action = #{action},
+            </if>
+            <if test="comment != null and comment != ''">
+                comment = #{comment},
+            </if>
+            <if test="completeTime != null">
+                complete_time = #{completeTime}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除流程任务记录 -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM sys_flow_task_record WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除流程任务记录 -->
+    <delete id="deleteByIds">
+        DELETE FROM sys_flow_task_record WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据处理人ID查询流程任务记录 -->
+    <select id="getListByAssigneeId" resultMap="FlowTaskRecordResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_flow_task_record
+        WHERE assignee_id = #{assigneeId}
+        AND tenant_id = #{tenantId}
+        ORDER BY create_time DESC
+    </select>
+</mapper>

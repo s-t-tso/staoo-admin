@@ -1,0 +1,114 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  api:
+    prefix: api
+
+spring:
+  application:
+    name: staoo-api
+  main:
+    allow-circular-references: true
+#  config:
+#    import: "optional:nacos:"
+  # 数据源配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/staoo_admin?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: staoo
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat,wall,log4j
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      use-global-data-source-stat: true
+  # Nacos配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: public
+      config:
+        server-addr: localhost:8848
+        namespace: public
+        file-extension: yml
+        import-check:
+          enabled: false
+  # 消息队列配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: stao
+    password: 123456
+    virtual-host: /
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+
+# MyBatis配置
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.staoo.**.domain
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Flowable配置
+flowable:
+  async-executor-activate: false
+  database-schema-update: true
+
+# SpringDoc配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  group-configs:
+    - group: 'all'
+      paths-to-match: '/${server.api.prefix}/**'
+      packages-to-scan: com.staoo
+
+# 日志配置
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    com.staoo: INFO
+    org.springframework: INFO
+    org.mybatis: DEBUG
+
+# JWT配置
+jwt:
+  secret: 4/tM8uKoGBA+4H1JQukutsCKltQVWuKQplls2gL+5uCpppHSyyI/Iaqt+Ku5Ku6xoNKRxegQb38Gf6HaJfcekA==
+  expiration: 3600000 # 1小时
+  refresh-expiration: 604800000 # 7天
+  issuer: staoo-admin
+
+# 系统配置
+system:
+  login:
+    max-retry-count: 3
+    lock-time: 1800 # 30分钟，单位秒
+    max-sessions: 10
+  file:
+    upload-path: /data/upload
+    max-size: 104857600 # 100MB

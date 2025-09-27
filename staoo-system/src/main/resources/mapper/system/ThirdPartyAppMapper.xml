@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.staoo.system.mapper.ThirdPartyAppMapper">
+    
+    <resultMap id="BaseResultMap" type="com.staoo.system.domain.ThirdPartyApp">
+        <id column="id" property="id"/>
+        <result column="app_name" property="appName"/>
+        <result column="app_key" property="appKey"/>
+        <result column="app_secret" property="appSecret"/>
+        <result column="app_icon" property="appIcon"/>
+        <result column="app_domain" property="appDomain"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, app_name, app_key, app_secret, app_icon, app_domain, status, remark, create_time, update_time
+    </sql>
+    
+    <select id="getById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM third_party_app
+        WHERE id = #{id}
+    </select>
+    
+    <select id="getByAppKey" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM third_party_app
+        WHERE app_key = #{appKey}
+    </select>
+    
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM third_party_app
+        <where>
+            <if test="appName != null and appName != ''">
+                AND app_name LIKE CONCAT('%', #{appName}, '%')
+            </if>
+            <if test="appKey != null and appKey != ''">
+                AND app_key = #{appKey}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="createTime != null">
+                AND create_time >= #{createTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="getPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM third_party_app
+        <where>
+            <if test="app.appName != null and app.appName != ''">
+                AND app_name LIKE CONCAT('%', #{app.appName}, '%')
+            </if>
+            <if test="app.appKey != null and app.appKey != ''">
+                AND app_key = #{app.appKey}
+            </if>
+            <if test="app.status != null and app.status != ''">
+                AND status = #{app.status}
+            </if>
+            <if test="app.createTime != null">
+                AND create_time >= #{app.createTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="getCount" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM third_party_app
+        <where>
+            <if test="appName != null and appName != ''">
+                AND app_name LIKE CONCAT('%', #{appName}, '%')
+            </if>
+            <if test="appKey != null and appKey != ''">
+                AND app_key = #{appKey}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="createTime != null">
+                AND create_time >= #{createTime}
+            </if>
+        </where>
+    </select>
+    
+    <insert id="insert" parameterType="com.staoo.system.domain.ThirdPartyApp" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO third_party_app (
+            app_name,
+            app_key,
+            app_secret,
+            app_icon,
+            app_domain,
+            status,
+            remark,
+            create_time,
+            update_time
+        ) VALUES (
+            #{appName},
+            #{appKey},
+            #{appSecret},
+            #{appIcon},
+            #{appDomain},
+            #{status},
+            #{remark},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+    
+    <update id="update" parameterType="com.staoo.system.domain.ThirdPartyApp">
+        UPDATE third_party_app
+        <set>
+            <if test="appName != null and appName != ''">
+                app_name = #{appName},
+            </if>
+            <if test="appKey != null and appKey != ''">
+                app_key = #{appKey},
+            </if>
+            <if test="appSecret != null and appSecret != ''">
+                app_secret = #{appSecret},
+            </if>
+            <if test="appIcon != null and appIcon != ''">
+                app_icon = #{appIcon},
+            </if>
+            <if test="appDomain != null and appDomain != ''">
+                app_domain = #{appDomain},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById">
+        DELETE FROM third_party_app WHERE id = #{id}
+    </delete>
+    
+    <delete id="deleteByIds">
+        DELETE FROM third_party_app WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 回调地址相关操作 -->
+    <insert id="insertCallbackUrl">
+        INSERT INTO third_party_app_callback (
+            app_id,
+            callback_url
+        ) VALUES (
+            #{appId},
+            #{callbackUrl}
+        )
+    </insert>
+    
+    <delete id="deleteCallbackUrls">
+        DELETE FROM third_party_app_callback WHERE app_id = #{appId}
+    </delete>
+    
+    <select id="getCallbackUrls" resultType="java.lang.String">
+        SELECT callback_url
+        FROM third_party_app_callback
+        WHERE app_id = #{appId}
+    </select>
+    
+    <!-- 权限相关操作 -->
+    <insert id="insertPermission">
+        INSERT INTO third_party_app_permission (
+            app_id,
+            permission
+        ) VALUES (
+            #{appId},
+            #{permission}
+        )
+    </insert>
+    
+    <delete id="deletePermissions">
+        DELETE FROM third_party_app_permission WHERE app_id = #{appId}
+    </delete>
+    
+    <select id="getPermissions" resultType="java.lang.String">
+        SELECT permission
+        FROM third_party_app_permission
+        WHERE app_id = #{appId}
+    </select>
+    
+    <!-- 租户关系相关操作 -->
+    <insert id="insertTenantRelation">
+        INSERT INTO third_party_app_tenant (
+            app_id,
+            tenant_id
+        ) VALUES (
+            #{appId},
+            #{tenantId}
+        )
+    </insert>
+    
+    <delete id="deleteTenantRelations">
+        DELETE FROM third_party_app_tenant WHERE app_id = #{appId}
+    </delete>
+    
+    <select id="getTenantIds" resultType="java.lang.Long">
+        SELECT tenant_id
+        FROM third_party_app_tenant
+        WHERE app_id = #{appId}
+    </select>
+</mapper>

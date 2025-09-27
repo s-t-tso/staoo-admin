@@ -1,0 +1,1 @@
+$(cat /Users/shitao/wwws/learn/staoo-admin/operateLog.md)

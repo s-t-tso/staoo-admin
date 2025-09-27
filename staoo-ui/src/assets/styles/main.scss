@@ -1,0 +1,290 @@
+// 引入变量和混合器
+@import './variables.scss';
+@import './mixins.scss';
+
+// 全局样式重置
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: $font-family;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $text-primary;
+  background-color: $bg-regular;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $bg-secondary;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-color;
+  border-radius: 4px;
+  &:hover {
+    background: $border-light;
+  }
+}
+
+// 通用工具类
+.flex {
+  @include flex;
+}
+
+.flex-center {
+  @include flex(row, center, center);
+}
+
+.flex-between {
+  @include flex(row, space-between, center);
+}
+
+.flex-column {
+  @include flex(column);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-ellipsis {
+  @include ellipsis;
+}
+
+// Element Plus 组件样式覆盖
+.el-card {
+  border-radius: $border-radius-base;
+  box-shadow: $shadow-light;
+  &__header {
+    padding: $spacing-lg $spacing-lg $spacing-sm;
+  }
+  &__body {
+    padding: $spacing-sm $spacing-lg $spacing-lg;
+  }
+}
+
+.el-button {
+  font-size: $font-size-base;
+  border-radius: $border-radius-base;
+  &--primary {
+    background-color: $primary-color;
+    border-color: $primary-color;
+  }
+}
+
+.el-input {
+  .el-input__wrapper {
+    border-radius: $border-radius-base;
+  }
+}
+
+.el-table {
+  font-size: $font-size-base;
+  .el-table__header-wrapper {
+    .el-table__header {
+      th {
+        background-color: $bg-regular;
+        border-bottom: 1px solid $border-color;
+      }
+    }
+  }
+  .el-table__body-wrapper {
+    .el-table__body {
+      td {
+        border-bottom: 1px solid $border-color;
+      }
+    }
+  }
+}
+
+.el-form {
+  .el-form-item__label {
+    color: $text-regular;
+  }
+}
+
+.el-menu {
+  border-right: 0;
+  &-item {
+    height: 48px;
+    line-height: 48px;
+    padding-left: $spacing-xxxl !important;
+    &:hover {
+      background-color: $bg-regular !important;
+    }
+    &.is-active {
+      color: $primary-color !important;
+      background-color: $bg-regular !important;
+    }
+  }
+  &-submenu {
+    &__title {
+      height: 48px;
+      line-height: 48px;
+      padding-left: $spacing-xxxl !important;
+      &:hover {
+        background-color: $bg-regular !important;
+      }
+    }
+    .el-menu {
+      padding-left: $spacing-lg;
+      .el-menu-item {
+        padding-left: $spacing-xxl !important;
+      }
+    }
+  }
+}
+
+// 加载动画
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $border-color;
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// 空状态
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-xxxxl 0;
+  color: $text-secondary;
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: $spacing-lg;
+    opacity: 0.5;
+  }
+  .empty-text {
+    font-size: $font-size-lg;
+  }
+}
+
+// 错误状态
+.error-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-xxxxl 0;
+  color: $error-color;
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: $spacing-lg;
+  }
+  .error-text {
+    font-size: $font-size-lg;
+    margin-bottom: $spacing-lg;
+  }
+  .error-detail {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+// 提示消息
+.message {
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-lg;
+  border-radius: $border-radius-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  display: flex;
+  align-items: center;
+  .message-icon {
+    margin-right: $spacing-md;
+    font-size: $font-size-lg;
+  }
+  &--success {
+    background-color: rgba($success-color, 0.1);
+    color: $success-color;
+    border: 1px solid rgba($success-color, 0.3);
+  }
+  &--warning {
+    background-color: rgba($warning-color, 0.1);
+    color: $warning-color;
+    border: 1px solid rgba($warning-color, 0.3);
+  }
+  &--error {
+    background-color: rgba($error-color, 0.1);
+    color: $error-color;
+    border: 1px solid rgba($error-color, 0.3);
+  }
+  &--info {
+    background-color: rgba($info-color, 0.1);
+    color: $info-color;
+    border: 1px solid rgba($info-color, 0.3);
+  }
+}
+
+// 标签样式
+.tag {
+  display: inline-block;
+  padding: 2px $spacing-sm;
+  border-radius: $border-radius-small;
+  font-size: $font-size-xs;
+  line-height: 18px;
+  &--primary {
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-color;
+  }
+  &--success {
+    background-color: rgba($success-color, 0.1);
+    color: $success-color;
+  }
+  &--warning {
+    background-color: rgba($warning-color, 0.1);
+    color: $warning-color;
+  }
+  &--error {
+    background-color: rgba($error-color, 0.1);
+    color: $error-color;
+  }
+  &--info {
+    background-color: rgba($info-color, 0.1);
+    color: $info-color;
+  }
+}

@@ -1,0 +1,183 @@
+// 清除浮动
+@mixin clearfix {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+// 椭圆裁剪文本
+@mixin ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 多行文本裁剪
+@mixin multi-line-ellipsis($line: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $line;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// 盒子阴影
+@mixin box-shadow($shadow: $shadow-base) {
+  box-shadow: $shadow;
+}
+
+// 边框
+@mixin border($width: 1px, $style: solid, $color: $border-color, $radius: $border-radius-base) {
+  border: $width $style $color;
+  border-radius: $radius;
+}
+
+// 边框-上
+@mixin border-top($width: 1px, $style: solid, $color: $border-color) {
+  border-top: $width $style $color;
+}
+
+// 边框-右
+@mixin border-right($width: 1px, $style: solid, $color: $border-color) {
+  border-right: $width $style $color;
+}
+
+// 边框-下
+@mixin border-bottom($width: 1px, $style: solid, $color: $border-color) {
+  border-bottom: $width $style $color;
+}
+
+// 边框-左
+@mixin border-left($width: 1px, $style: solid, $color: $border-color) {
+  border-left: $width $style $color;
+}
+
+// 圆角
+@mixin border-radius($radius: $border-radius-base) {
+  border-radius: $radius;
+}
+
+// 弹性布局
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+// 网格布局
+@mixin grid($columns: 12, $gap: $spacing-md) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+// 响应式断点
+@mixin media($breakpoint) {
+  @if $breakpoint == 'xs' {
+    @media (max-width: 480px) {
+      @content;
+    }
+  } @else if $breakpoint == 'sm' {
+    @media (max-width: 768px) {
+      @content;
+    }
+  } @else if $breakpoint == 'md' {
+    @media (max-width: 992px) {
+      @content;
+    }
+  } @else if $breakpoint == 'lg' {
+    @media (max-width: 1200px) {
+      @content;
+    }
+  } @else if $breakpoint == 'xl' {
+    @media (max-width: 1600px) {
+      @content;
+    }
+  }
+}
+
+// 定位
+@mixin position($type: relative, $top: null, $right: null, $bottom: null, $left: null) {
+  position: $type;
+  @if $top != null { top: $top; }
+  @if $right != null { right: $right; }
+  @if $bottom != null { bottom: $bottom; }
+  @if $left != null { left: $left; }
+}
+
+// 绝对居中
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// 固定定位
+@mixin fixed($top: null, $right: null, $bottom: null, $left: null) {
+  position: fixed;
+  @if $top != null { top: $top; }
+  @if $right != null { right: $right; }
+  @if $bottom != null { bottom: $bottom; }
+  @if $left != null { left: $left; }
+  z-index: 100;
+}
+
+// 动画
+@mixin animation($name, $duration: $transition-duration-base, $timing-function: $transition-timing-function-ease, $delay: 0s, $iteration-count: 1, $direction: normal, $fill-mode: none) {
+  animation: $name $duration $timing-function $delay $iteration-count $direction $fill-mode;
+}
+
+// 过渡
+@mixin transition($property: all, $duration: $transition-duration-base, $timing-function: $transition-timing-function-ease, $delay: 0s) {
+  transition: $property $duration $timing-function $delay;
+}
+
+// 透明度
+@mixin opacity($opacity: 1) {
+  opacity: $opacity;
+  filter: alpha(opacity=($opacity * 100));
+}
+
+// 旋转
+@mixin rotate($degrees: 0deg) {
+  transform: rotate($degrees);
+}
+
+// 缩放
+@mixin scale($scale: 1) {
+  transform: scale($scale);
+}
+
+// 平移
+@mixin translate($x: 0, $y: 0) {
+  transform: translate($x, $y);
+}
+
+// 倾斜
+@mixin skew($x: 0deg, $y: 0deg) {
+  transform: skew($x, $y);
+}
+
+// 变换原点
+@mixin transform-origin($origin: center) {
+  transform-origin: $origin;
+}
+
+// 背景渐变
+@mixin background-gradient($from: $primary-color, $to: $primary-color-dark, $direction: 135deg) {
+  background: linear-gradient($direction, $from, $to);
+}
+
+// 文字渐变
+@mixin text-gradient($from: $primary-color, $to: $primary-color-dark) {
+  background: linear-gradient(to right, $from, $to);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}

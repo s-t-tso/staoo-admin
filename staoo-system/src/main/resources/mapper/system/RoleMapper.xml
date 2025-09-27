@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.staoo.system.mapper.RoleMapper">
+    <!-- 结果映射 -->
+    <resultMap id="RoleResultMap" type="com.staoo.system.domain.Role">
+        <id property="id" column="id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="roleSort" column="sort"/>
+        <result property="dataScope" column="data_scope"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <!-- 基础SQL片段 -->
+    <sql id="Base_Column_List">
+        id,
+        tenant_id,
+        role_name,
+        sort,
+        data_scope,
+        status,
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark
+    </sql>
+
+    <!-- 查询条件SQL片段 -->
+    <sql id="Query_Condition">
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </if>
+            <if test="roleName != null and roleName != ''">
+                AND role_name like concat('%', #{roleName}, '%')
+            </if>
+            <if test="roleKey != null and roleKey != ''">
+                AND role_key like concat('%', #{roleKey}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="isAdmin != null">
+                AND is_admin = #{isAdmin}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 根据ID查询角色 -->
+    <select id="getById" resultMap="RoleResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_role
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据角色名称查询角色 -->
+    <select id="getByRoleName" resultMap="RoleResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_role
+        WHERE role_name = #{roleName}
+    </select>
+
+    <!-- 查询角色列表 -->
+    <select id="getList" resultMap="RoleResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_role
+        <include refid="Query_Condition"/>
+        ORDER BY role_sort ASC
+    </select>
+
+    <!-- 查询角色总数 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(1)
+        FROM sys_role
+        <include refid="Query_Condition"/>
+    </select>
+
+    <!-- 新增角色 -->
+    <insert id="insert" parameterType="com.staoo.system.domain.Role">
+        INSERT INTO sys_role (tenant_id, role_name, role_key, role_sort, data_scope, menu_check_strictly, dept_check_strictly, status, is_admin, create_by, create_time, update_by, update_time, remark)
+        VALUES (#{tenantId}, #{roleName}, #{roleKey}, #{roleSort}, #{dataScope}, #{menuCheckStrictly}, #{deptCheckStrictly}, #{status}, #{isAdmin}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{remark})
+    </insert>
+
+    <!-- 更新角色 -->
+    <update id="update" parameterType="com.staoo.system.domain.Role">
+        UPDATE sys_role
+        <set>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="roleName != null and roleName != ''">
+                role_name = #{roleName},
+            </if>
+            <if test="roleKey != null and roleKey != ''">
+                role_key = #{roleKey},
+            </if>
+            <if test="roleSort != null">
+                role_sort = #{roleSort},
+            </if>
+            <if test="dataScope != null">
+                data_scope = #{dataScope},
+            </if>
+            <if test="menuCheckStrictly != null">
+                menu_check_strictly = #{menuCheckStrictly},
+            </if>
+            <if test="deptCheckStrictly != null">
+                dept_check_strictly = #{deptCheckStrictly},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="isAdmin != null">
+                is_admin = #{isAdmin},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            update_time = #{updateTime},
+            <if test="remark != null and remark != ''">
+                remark = #{remark}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除角色 -->
+    <delete id="deleteById">
+        DELETE
+        FROM sys_role
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除角色 -->
+    <delete id="deleteByIds">
+        DELETE
+        FROM sys_role
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 批量更新角色状态 -->
+    <update id="updateStatusByIds">
+        UPDATE sys_role
+        SET status = #{status}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 根据角色ID查询菜单ID列表 -->
+    <select id="getMenuIdsByRoleId" resultType="java.lang.Long">
+        SELECT menu_id
+        FROM sys_role_menu
+        WHERE role_id = #{roleId}
+    </select>
+
+    <!-- 保存角色菜单关系 -->
+    <insert id="saveRoleMenus">
+        INSERT INTO sys_role_menu (role_id, menu_id)
+        <foreach collection="menuIds" item="menuId" separator=",">
+                (#{roleId}, #{menuId})
+        </foreach>
+    </insert>
+
+    <!-- 删除角色菜单关系 -->
+    <delete id="deleteRoleMenus">
+        DELETE
+        FROM sys_role_menu
+        WHERE role_id = #{roleId}
+    </delete>
+
+    <!-- 根据用户ID查询角色列表 -->
+    <select id="getRolesByUserId" resultMap="RoleResultMap">
+        SELECT DISTINCT sr.id,
+                        sr.tenant_id,
+                        sr.role_name,
+                        sr.role_key,
+                        sr.role_sort,
+                        sr.data_scope,
+                        sr.menu_check_strictly,
+                        sr.dept_check_strictly,
+                        sr.status,
+                        sr.is_admin,
+                        sr.create_by,
+                        sr.create_time,
+                        sr.update_by,
+                        sr.update_time,
+                        sr.remark
+        FROM sys_role sr
+                 INNER JOIN sys_user_role sur ON sr.id = sur.role_id
+        WHERE sur.user_id = #{userId}
+    </select>
+
+    <!-- 根据用户ID查询权限标识列表 -->
+    <select id="getPermissionsByUserId" resultType="java.lang.String">
+        SELECT DISTINCT sm.perms
+        FROM sys_menu sm
+                 INNER JOIN sys_role_menu srm ON sm.id = srm.menu_id
+                 INNER JOIN sys_user_role sur ON srm.role_id = sur.role_id
+        WHERE sur.user_id = #{userId}
+          AND sm.perms IS NOT NULL
+          AND sm.perms != ''
+    </select>
+</mapper>
