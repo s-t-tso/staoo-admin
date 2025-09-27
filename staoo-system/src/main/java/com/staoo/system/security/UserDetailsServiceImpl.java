@@ -1,5 +1,6 @@
 package com.staoo.system.security;
 
+import com.staoo.common.enums.status.UserStatusEnum;
 import com.staoo.system.domain.User;
 import com.staoo.system.service.UserService;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
             
             // 检查用户状态
-            if (user.getStatus() == null || user.getStatus() != 1) {
+            if (user.getStatus() == null || !UserStatusEnum.ENABLED.equals(UserStatusEnum.getByCode(user.getStatus()))) {
                 logger.warn("用户状态异常: {}, 状态: {}", username, user.getStatus());
                 throw new UsernameNotFoundException("用户状态异常");
             }

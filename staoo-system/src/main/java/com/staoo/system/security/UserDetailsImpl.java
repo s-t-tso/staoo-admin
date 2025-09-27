@@ -1,5 +1,6 @@
 package com.staoo.system.security;
 
+import com.staoo.common.enums.status.UserStatusEnum;
 import com.staoo.system.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,8 +51,8 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        // 用户状态为1表示启用
-        return user.getStatus() != null && user.getStatus() == 1;
+        // 使用枚举判断用户是否启用
+        return user.getStatus() != null && UserStatusEnum.ENABLED.equals(UserStatusEnum.getByCode(user.getStatus()));
     }
 
     @Override
@@ -62,8 +63,8 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        // 用户状态为1表示启用
-        return user.getStatus() != null && user.getStatus() == 1;
+        // 使用枚举判断用户是否启用
+        return user.getStatus() != null && UserStatusEnum.ENABLED.equals(UserStatusEnum.getByCode(user.getStatus()));
     }
 
     /**

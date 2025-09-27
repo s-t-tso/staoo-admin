@@ -6,6 +6,8 @@ import com.staoo.common.domain.TableResult;
 import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.common.exception.BusinessException;
 import com.staoo.system.pojo.request.SystemNoticeQueryRequest;
+import com.staoo.common.enums.status.NoticeStatusEnum;
+import com.staoo.common.enums.status.ReadStatusEnum;
 import com.staoo.system.domain.SystemNotice;
 import com.staoo.system.mapper.SystemNoticeMapper;
 import com.staoo.system.service.SystemNoticeService;
@@ -192,14 +194,14 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
         
         // 检查通知是否已经发布
-        if (existingNotice.getStatus() == 1) {
+        if (NoticeStatusEnum.PUBLISHED.equals(NoticeStatusEnum.getByCode(existingNotice.getStatus()))) {
             throw new BusinessException(StatusCodeEnum.OPERATION_NOT_ALLOWED, "通知已经发布");
         }
         
         // 更新通知状态为已发布，并设置发布时间
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
-        systemNotice.setStatus(1);
+        systemNotice.setStatus(NoticeStatusEnum.PUBLISHED.getCode());
         // 注意：publishTime和updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
@@ -220,14 +222,14 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
         
         // 检查通知是否已经撤回
-        if (existingNotice.getStatus() == 2) {
+        if (NoticeStatusEnum.RECALLED.equals(NoticeStatusEnum.getByCode(existingNotice.getStatus()))) {
             throw new BusinessException(StatusCodeEnum.OPERATION_NOT_ALLOWED, "通知已经撤回");
         }
         
         // 更新通知状态为已撤回
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
-        systemNotice.setStatus(2);
+        systemNotice.setStatus(NoticeStatusEnum.RECALLED.getCode());
         // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
@@ -248,14 +250,14 @@ public class SystemNoticeServiceImpl implements SystemNoticeService {
         }
         
         // 检查通知是否已经阅读
-        if (existingNotice.getReadStatus() == 1) {
+        if (ReadStatusEnum.READ.equals(ReadStatusEnum.getByCode(existingNotice.getReadStatus()))) {
             return true; // 已经阅读，直接返回成功
         }
         
         // 更新通知阅读状态为已读
         SystemNotice systemNotice = new SystemNotice();
         systemNotice.setId(id);
-        systemNotice.setReadStatus(1);
+        systemNotice.setReadStatus(ReadStatusEnum.READ.getCode());
         // 注意：updateTime字段将由MyBatis拦截器自动填充
         
         int count = systemNoticeMapper.update(systemNotice);
