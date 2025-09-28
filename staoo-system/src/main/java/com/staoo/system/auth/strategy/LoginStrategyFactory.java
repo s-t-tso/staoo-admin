@@ -39,7 +39,7 @@ public class LoginStrategyFactory {
     public LoginStrategy getStrategy(String loginType) {
         LoginStrategy strategy = loginStrategyMap.get(loginType);
         if (strategy == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, 
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, 
                 "不支持的登录类型: " + loginType);
         }
         return strategy;

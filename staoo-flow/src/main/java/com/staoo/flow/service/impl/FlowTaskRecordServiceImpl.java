@@ -32,10 +32,6 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
      */
     @Override
     public FlowTaskRecord getById(Long id) {
-        if (id == null || id <= 0) {
-            logger.warn("查询流程任务记录时ID为空或无效: {}", id);
-            return null;
-        }
         return flowTaskRecordMapper.getById(id);
     }
 
@@ -48,16 +44,18 @@ public class FlowTaskRecordServiceImpl implements FlowTaskRecordService {
     public List<FlowTaskRecord> getListByProcessInstanceId(String processInstanceId) {
         if (processInstanceId == null || processInstanceId.isEmpty()) {
             logger.warn("查询流程实例的任务记录时流程实例ID为空");
-            return null;
+            return java.util.Collections.emptyList();
         }
         // 从当前登录用户获取租户ID
         Long tenantId = UserUtils.getCurrentTenantId();
         if (tenantId == null) {
             logger.warn("获取当前租户ID失败，租户ID为空");
-            return null;
+            return java.util.Collections.emptyList();
         }
         return flowTaskRecordMapper.getListByProcessInstanceId(processInstanceId, tenantId);
     }
+
+
 
     /**
      * 根据任务ID查询流程任务记录

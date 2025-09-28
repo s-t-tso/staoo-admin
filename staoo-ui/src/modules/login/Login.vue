@@ -104,6 +104,11 @@ const handleLogin = async () => {
     // 保存用户信息和token
     userStore.setToken(data.accessToken)
     userStore.setUserInfo(data.userInfo)
+    
+    // 保存refreshToken
+    if (data.refreshToken) {
+      userStore.setRefreshToken(data.refreshToken)
+    }
 
     // 记住我
     if (loginForm.rememberMe) {

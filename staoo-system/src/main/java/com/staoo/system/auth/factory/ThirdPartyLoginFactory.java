@@ -40,7 +40,7 @@ public class ThirdPartyLoginFactory {
     public ThirdPartyLoginService getLoginService(String loginType) {
         ThirdPartyLoginService loginService = loginServiceMap.get(loginType);
         if (loginService == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, 
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, 
                 "不支持的登录类型: " + loginType);
         }
         return loginService;

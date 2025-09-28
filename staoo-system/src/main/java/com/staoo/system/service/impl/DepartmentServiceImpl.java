@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.staoo.common.enums.StatusCodeEnum;
 import com.staoo.common.exception.BusinessException;
+import com.staoo.common.util.TreeUtils;
 import com.staoo.system.domain.Department;
 import com.staoo.system.mapper.DepartmentMapper;
 import com.staoo.system.pojo.request.DepartmentQueryRequest;
@@ -56,11 +57,6 @@ public class DepartmentServiceImpl implements IDepartmentService {
     @Override
     public Page<Department> getPage(DepartmentQueryRequest request) {
         try {
-            // 参数校验
-            if (request == null) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            
             // 设置分页参数
             PageHelper.startPage(request.getPageNum(), request.getPageSize());
             
@@ -134,10 +130,15 @@ public class DepartmentServiceImpl implements IDepartmentService {
         return rows > 0;
     }
 
+    /**
+     * 获取部门树形结构
+     */
     @Override
     public List<Department> getDepartmentTree() {
-        // 调用departmentMapper获取部门树形结构
-        return departmentMapper.getDepartmentTree();
+        // 调用Mapper层获取所有部门数据
+        List<Department> departments = departmentMapper.getDepartmentTree();
+        // 使用通用的TreeUtils构建部门树形结构并返回
+        return TreeUtils.buildTree(departments, 0L);
     }
 
     @Override

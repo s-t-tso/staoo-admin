@@ -34,8 +34,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long subscribe(String appKey, String dataType, String callbackUrl) {
-        // 参数校验
-        validateSubscribeParams(appKey, dataType, callbackUrl);
 
         // 检查是否已存在相同的订阅
         DataSubscription existingSubscription = dataSubscriptionMapper.selectByAppKeyAndDataType(appKey, dataType);
@@ -69,14 +67,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean unsubscribe(String appKey, String dataType) {
-        // 参数校验
-        if (appKey == null || appKey.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "应用标识不能为空");
-        }
-        if (dataType == null || dataType.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "数据类型不能为空");
-        }
-
         int count = dataSubscriptionMapper.deleteByAppKeyAndDataType(appKey, dataType);
         boolean success = count > 0;
 
@@ -91,20 +81,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public List<DataSubscription> getAppSubscriptions(String appKey) {
-        if (appKey == null || appKey.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "应用标识不能为空");
-        }
-
         List<DataSubscription> subscriptions = dataSubscriptionMapper.selectByAppKey(appKey);
         return subscriptions != null ? subscriptions : List.of();
     }
 
     @Override
     public List<DataSubscription> getSubscriptionsByDataType(String dataType) {
-        if (dataType == null || dataType.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "数据类型不能为空");
-        }
-
         List<DataSubscription> subscriptions = dataSubscriptionMapper.selectByDataType(dataType);
         return subscriptions != null ? subscriptions : List.of();
     }
@@ -112,13 +94,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean changeSubscriptionStatus(Long subscriptionId, String status) {
-        if (subscriptionId == null || subscriptionId <= 0) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "订阅ID不能为空");
-        }
-        if (status == null || (!"0".equals(status) && !"1".equals(status))) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "状态值无效");
-        }
-
         // 检查订阅是否存在
         DataSubscription subscription = dataSubscriptionMapper.selectById(subscriptionId);
         if (subscription == null) {
@@ -137,34 +112,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return success;
     }
 
-    /**
-     * 验证订阅参数
-     */
-    private void validateSubscribeParams(String appKey, String dataType, String callbackUrl) {
-        if (appKey == null || appKey.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "应用标识不能为空");
-        }
-        if (dataType == null || dataType.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "数据类型不能为空");
-        }
-        if (callbackUrl == null || callbackUrl.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "回调地址不能为空");
-        }
-        // 简单验证URL格式
-        if (!callbackUrl.startsWith("http://") && !callbackUrl.startsWith("https://")) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "回调地址格式无效");
-        }
-    }
     
     @Override
     public List<DataSubscription> getList(SubscriptionQueryRequest request) {
         try {
-            if (request == null) {
-                request = new SubscriptionQueryRequest();
-            }
-            
-            // 参数校验
-            validateQueryParams(request);
+            // 参数校验已移至Request层
             
             // 调用Mapper层方法查询列表
             return dataSubscriptionMapper.selectListByRequest(request);
@@ -177,10 +129,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public TableResult<DataSubscription> getPage(SubscriptionQueryRequest request) {
         try {
-            if (request == null) {
-                request = new SubscriptionQueryRequest();
-            }
-            
             // 设置分页参数
             PageHelper.startPage(request.getPageNum(), request.getPageSize());
             
@@ -196,19 +144,5 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
     }
     
-    /**
-     * 验证查询参数
-     */
-    private void validateQueryParams(SubscriptionQueryRequest request) {
-        // 可以根据需要添加查询参数的验证逻辑
-        if (request.getPageNum() < 1) {
-            request.setPageNum(1);
-        }
-        if (request.getPageSize() < 1) {
-            request.setPageSize(10);
-        }
-        if (request.getPageSize() > 1000) {
-            request.setPageSize(1000);
-        }
-    }
+
 }

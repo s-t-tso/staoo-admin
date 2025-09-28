@@ -99,10 +99,6 @@ public class LoginLogServiceImpl implements LoginLogService {
     @Override
     public TableResult<LoginLog> getPage(LoginLogQueryRequest request) {
         try {
-            if (request == null) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
-            }
-            
             // 设置分页参数
             PageHelper.startPage(request.getPageNum(), request.getPageSize());
             

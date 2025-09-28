@@ -2,6 +2,7 @@ package com.staoo.framework.auth.exception;
 
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.common.enums.StatusCodeEnum;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,16 @@ public class AuthExceptionHandler {
     public ResponseEntity<AjaxResult<?>> handleAuthException(AuthException ex, HttpServletRequest request) {
         logger.error("认证异常: {}", ex.getMessage(), ex);
         AjaxResult<?> response = AjaxResult.error(ex.getCode(), ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
+     * 处理JWT令牌过期异常
+     */
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<AjaxResult<?>> handleExpiredJwtException(ExpiredJwtException ex, HttpServletRequest request) {
+        logger.error("JWT令牌过期异常: {}", ex.getMessage(), ex);
+        AjaxResult<?> response = AjaxResult.error(StatusCodeEnum.JWT_EXPIRED.getCode(), StatusCodeEnum.JWT_EXPIRED.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 

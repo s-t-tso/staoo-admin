@@ -24,7 +24,7 @@
 
     <!-- 基础SQL片段 -->
     <sql id="Base_Column_List">
-        id, menu_name, parent_id, menu_type, path, component, perms, icon, order_num, status, visible, 
+        id, menu_name, parent_id, menu_type, path, component, perms, icon, order_num, status, visible,
         cacheable, create_by, create_time, update_by, update_time, remark
     </sql>
 
@@ -71,7 +71,7 @@
         <include refid="Query_Condition" />
         ORDER BY parent_id, order_num
     </select>
-    
+
     <!-- 根据请求参数查询菜单列表 -->
     <select id="getListByRequest" resultMap="BaseResultMap">
         SELECT
@@ -120,12 +120,12 @@
     <!-- 新增菜单 -->
     <insert id="insert" parameterType="com.staoo.system.domain.Menu" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_menu (
-            menu_name, parent_id, menu_type, path, component, perms, icon, 
-            order_num, status, visible, cacheable, create_by, create_time, 
+            menu_name, parent_id, menu_type, path, component, perms, icon,
+            order_num, status, visible, cacheable, create_by, create_time,
             update_by, update_time, remark
         ) VALUES (
-            #{menuName}, #{parentId}, #{menuType}, #{path}, #{component}, #{perms}, #{icon}, 
-            #{orderNum}, #{status}, #{visible}, #{cacheable}, #{createBy}, #{createTime}, 
+            #{menuName}, #{parentId}, #{menuType}, #{path}, #{component}, #{perms}, #{icon},
+            #{orderNum}, #{status}, #{visible}, #{cacheable}, #{createBy}, #{createTime},
             #{updateBy}, #{updateTime}, #{remark}
         )
     </insert>
@@ -206,8 +206,8 @@
     <!-- 根据角色ID查询菜单列表 -->
     <select id="getMenusByRoleId" resultMap="BaseResultMap">
         SELECT DISTINCT
-        m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon, 
-        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time, 
+        m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon,
+        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
         m.update_by, m.update_time, m.remark
         FROM sys_menu m
         INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
@@ -220,8 +220,8 @@
     <!-- 根据用户ID查询菜单列表 -->
     <select id="getMenusByUserId" resultMap="BaseResultMap">
         SELECT DISTINCT
-        m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon, 
-        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time, 
+        m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon,
+        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
         m.update_by, m.update_time, m.remark
         FROM sys_menu m
         INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
@@ -280,14 +280,14 @@
     <!-- 查询用户菜单树结构 -->
     <select id="getUserMenuTree" resultMap="BaseResultMap">
         SELECT DISTINCT
-        m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon, 
-        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time, 
+        m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon,
+        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
         m.update_by, m.update_time, m.remark
         FROM sys_menu m
         INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
         INNER JOIN sys_user_role ur ON rm.role_id = ur.role_id
-        WHERE ur.user_id = #{userId}
         <include refid="Query_Condition" />
+        AND ur.user_id = #{userId}
         ORDER BY m.parent_id, m.sort
     </select>
 

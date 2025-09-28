@@ -3,24 +3,23 @@ package com.staoo.system.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.staoo.common.domain.TableResult;
-import com.staoo.common.exception.BusinessException;
 import com.staoo.common.enums.StatusCodeEnum;
+import com.staoo.common.exception.BusinessException;
+import com.staoo.common.util.TreeUtils;
+import com.staoo.common.util.UserUtils;
 import com.staoo.system.domain.Menu;
 import com.staoo.system.mapper.MenuMapper;
 import com.staoo.system.pojo.request.MenuQueryRequest;
 import com.staoo.system.service.MenuService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,10 +37,6 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public Menu getById(Long id) {
-        if (id == null || id <= 0) {
-            logger.error("查询菜单ID无效: {}", id);
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
         Menu menu = menuMapper.getById(id);
         if (menu == null) {
             logger.error("菜单不存在: {}", id);
@@ -59,13 +54,10 @@ public class MenuServiceImpl implements MenuService {
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
-    
+
     @Override
     public List<Menu> getList(MenuQueryRequest request) {
         try {
-            if (request == null) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "查询参数不能为空");
-            }
             return menuMapper.getListByRequest(request);
         } catch (Exception e) {
             logger.error("根据请求参数查询菜单列表失败", e);
@@ -76,10 +68,6 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public TableResult<Menu> getPage(MenuQueryRequest request) {
         try {
-            if (request == null) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
-            }
-
             // 设置分页参数
             PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
@@ -99,34 +87,8 @@ public class MenuServiceImpl implements MenuService {
     @Transactional(rollbackFor = Exception.class)
     public boolean save(Menu menu) {
         try {
-            // 参数校验
-            validateMenu(menu);
-
-            // 检查菜单名称唯一性
-            if (checkMenuNameUnique(menu.getMenuName(), menu.getParentId(), null)) {
-                logger.error("菜单名称已存在: {}", menu.getMenuName());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 检查菜单权限唯一性
-            if (StringUtils.hasText(menu.getPerms()) && checkMenuPermsUnique(menu.getPerms(), null)) {
-                logger.error("菜单权限已存在: {}", menu.getPerms());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 检查菜单路由唯一性
-            if (StringUtils.hasText(menu.getPath()) && checkMenuPathUnique(menu.getPath(), null)) {
-                logger.error("菜单路由已存在: {}", menu.getPath());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 检查菜单组件唯一性
-            if (StringUtils.hasText(menu.getComponent()) && checkMenuComponentUnique(menu.getComponent(), null)) {
-                logger.error("菜单组件已存在: {}", menu.getComponent());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
+            // 执行验证
+            validateMenu(menu, null);
 
             // 保存菜单信息
             int result = menuMapper.insert(menu);
@@ -144,11 +106,6 @@ public class MenuServiceImpl implements MenuService {
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Menu menu) {
         try {
-            if (menu == null || menu.getId() == null || menu.getId() <= 0) {
-                logger.error("菜单ID无效");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查菜单是否存在
             Menu existingMenu = menuMapper.getById(menu.getId());
             if (existingMenu == null) {
@@ -156,38 +113,8 @@ public class MenuServiceImpl implements MenuService {
                 throw new BusinessException(StatusCodeEnum.MENU_NOT_FOUND);
             }
 
-            // 检查菜单名称唯一性
-            if (!existingMenu.getMenuName().equals(menu.getMenuName()) &&
-                checkMenuNameUnique(menu.getMenuName(), menu.getParentId(), menu.getId())) {
-                logger.error("菜单名称已存在: {}", menu.getMenuName());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 检查菜单权限唯一性
-            if (StringUtils.hasText(menu.getPerms()) &&
-                !menu.getPerms().equals(existingMenu.getPerms()) &&
-                checkMenuPermsUnique(menu.getPerms(), menu.getId())) {
-                logger.error("菜单权限已存在: {}", menu.getPerms());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 检查菜单路由唯一性
-            if (StringUtils.hasText(menu.getPath()) &&
-                !menu.getPath().equals(existingMenu.getPath()) &&
-                checkMenuPathUnique(menu.getPath(), menu.getId())) {
-                logger.error("菜单路由已存在: {}", menu.getPath());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 检查菜单组件唯一性
-            if (StringUtils.hasText(menu.getComponent()) &&
-                !menu.getComponent().equals(existingMenu.getComponent()) &&
-                checkMenuComponentUnique(menu.getComponent(), menu.getId())) {
-                logger.error("菜单组件已存在: {}", menu.getComponent());
-                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
-            }
-
-            // 注意：updateTime字段将由MyBatis拦截器自动填充
+            // 执行验证
+            validateMenu(menu, existingMenu);
 
             // 更新菜单信息
             int result = menuMapper.update(menu);
@@ -205,11 +132,6 @@ public class MenuServiceImpl implements MenuService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteById(Long id) {
         try {
-            if (id == null || id <= 0) {
-                logger.error("菜单ID无效: {}", id);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查菜单是否存在
             Menu menu = menuMapper.getById(id);
             if (menu == null) {
@@ -224,8 +146,6 @@ public class MenuServiceImpl implements MenuService {
                 throw new BusinessException(StatusCodeEnum.OPERATION_NOT_ALLOWED);
             }
 
-            // TODO: 这里可以添加检查菜单是否被角色引用的逻辑
-
             // 删除菜单
             int result = menuMapper.deleteById(id);
             return result > 0;
@@ -239,76 +159,11 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean deleteByIds(List<Long> ids) {
-        try {
-            if (ids == null || ids.isEmpty()) {
-                logger.error("菜单ID列表为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
-            // 检查是否有子菜单
-            for (Long id : ids) {
-                int childCount = menuMapper.getCountByParentId(id);
-                if (childCount > 0) {
-                    logger.error("菜单下存在子菜单，不能删除: {}", id);
-                    throw new BusinessException(StatusCodeEnum.OPERATION_NOT_ALLOWED);
-                }
-            }
-
-            // TODO: 这里可以添加检查菜单是否被角色引用的逻辑
-
-            // 批量删除菜单
-            int result = menuMapper.deleteByIds(ids);
-            return result > 0;
-        } catch (BusinessException e) {
-            // 业务异常直接抛出
-            throw e;
-        } catch (Exception e) {
-            logger.error("批量删除菜单失败", e);
-            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
-        }
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean updateStatusByIds(List<Long> ids, Integer status) {
-        try {
-            if (ids == null || ids.isEmpty()) {
-                logger.error("菜单ID列表为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (status == null) {
-                logger.error("菜单状态为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
-            // 批量更新菜单状态
-            int result = menuMapper.updateStatusByIds(ids, status);
-            return result > 0;
-        } catch (BusinessException e) {
-            // 业务异常直接抛出
-            throw e;
-        } catch (Exception e) {
-            logger.error("批量更新菜单状态失败", e);
-            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
-        }
-    }
-
-    @Override
     public List<Menu> getMenusByRoleId(Long roleId) {
         try {
-            if (roleId == null || roleId <= 0) {
-                logger.error("角色ID无效: {}", roleId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             return menuMapper.getMenusByRoleId(roleId);
-        } catch (BusinessException e) {
-            // 业务异常直接抛出
-            throw e;
         } catch (Exception e) {
-            logger.error("查询角色菜单列表失败", e);
+            logger.error("根据角色ID查询菜单列表失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
@@ -316,17 +171,9 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public List<Menu> getMenusByUserId(Long userId) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             return menuMapper.getMenusByUserId(userId);
-        } catch (BusinessException e) {
-            // 业务异常直接抛出
-            throw e;
         } catch (Exception e) {
-            logger.error("查询用户菜单列表失败", e);
+            logger.error("根据用户ID查询菜单列表失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
@@ -334,22 +181,14 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public Set<String> getPermissionsByUserId(Long userId) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
-            List<String> permissions = new ArrayList<>();
+            // 查询用户拥有的菜单权限
             Set<String> permsSet = menuMapper.getPermissionsByUserId(userId);
-            if (permsSet != null && !permsSet.isEmpty()) {
-                permissions.addAll(permsSet);
+            if (CollectionUtils.isEmpty(permsSet)) {
+                return Collections.emptySet();
             }
-            return new HashSet<>(permissions);
-        } catch (BusinessException e) {
-            // 业务异常直接抛出
-            throw e;
+            return permsSet;
         } catch (Exception e) {
-            logger.error("查询用户权限列表失败", e);
+            logger.error("根据用户ID查询菜单权限失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
@@ -357,9 +196,14 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public Set<String> getAllPermissions() {
         try {
-            return menuMapper.getAllPermissions();
+            // 查询所有菜单权限
+            Set<String> permsSet = menuMapper.getAllPermissions();
+            if (CollectionUtils.isEmpty(permsSet)) {
+                return Collections.emptySet();
+            }
+            return permsSet;
         } catch (Exception e) {
-            logger.error("查询所有菜单权限标识失败", e);
+            logger.error("查询所有菜单权限失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
@@ -367,10 +211,17 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public List<Menu> getMenuTree(Menu menu) {
         try {
-            List<Menu> menus = menuMapper.getMenuTree(menu);
-            return buildMenuTree(menus);
+            // 查询菜单列表
+            List<Menu> menus = menuMapper.getList(menu);
+            if (CollectionUtils.isEmpty(menus)) {
+                return Collections.emptyList();
+            }
+
+            // 构建菜单树
+            List<Menu> menuTree = buildMenuTree(menus, 0L);
+            return menuTree;
         } catch (Exception e) {
-            logger.error("查询菜单树结构失败", e);
+            logger.error("构建菜单树失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
@@ -378,147 +229,186 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public List<Menu> getRoleMenuTree(Long roleId) {
         try {
-            if (roleId == null || roleId <= 0) {
-                logger.error("角色ID无效: {}", roleId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
-            List<Menu> menus = menuMapper.getRoleMenuTree(roleId);
-            return buildMenuTree(menus);
-        } catch (BusinessException e) {
-            // 业务异常直接抛出
-            throw e;
+            return menuMapper.getRoleMenuTree(roleId);
         } catch (Exception e) {
-            logger.error("查询角色菜单树结构失败", e);
+            logger.error("构建角色菜单树失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
 
     @Override
     public List<Menu> getUserMenuTree(Long userId) {
+        // 获取当前登录用户
+        Long currentUserId = userId;
+        if (currentUserId == null) {
+            currentUserId = UserUtils.getCurrentUserId();
+        }
+
+        // 超级管理员拥有所有菜单
+        if (UserUtils.isSuperAdmin()) {
+            Menu menu = new Menu();
+            menu.setStatus(1); // 启用状态
+            return getMenuTree(menu);
+        }
+
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
+            // 查询用户拥有的菜单
+            List<Menu> userMenus = getMenusByUserId(currentUserId);
+            if (CollectionUtils.isEmpty(userMenus)) {
+                return Collections.emptyList();
             }
 
-            List<Menu> menus = menuMapper.getUserMenuTree(userId);
-            return buildMenuTree(menus);
-        } catch (BusinessException e) {
-            // 业务异常直接抛出
-            throw e;
+            // 查询所有启用状态的菜单
+            Menu queryMenu = new Menu();
+            queryMenu.setStatus(1);
+            List<Menu> allMenus = menuMapper.getList(queryMenu);
+            if (CollectionUtils.isEmpty(allMenus)) {
+                return Collections.emptyList();
+            }
+
+            // 筛选用户拥有的菜单
+            Set<Long> userMenuIds = userMenus.stream().map(Menu::getId).collect(Collectors.toSet());
+            List<Menu> menus = allMenus.stream()
+                                       .filter(m -> userMenuIds.contains(m.getId()))
+                                       .collect(Collectors.toList());
+
+            // 构建菜单树
+            List<Menu> menuTree = buildMenuTree(menus, 0L);
+            return menuTree;
         } catch (Exception e) {
-            logger.error("查询用户菜单树结构失败", e);
+            logger.error("构建用户菜单树失败", e);
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
     }
 
-    @Override
-    public List<Menu> buildMenuTree(List<Menu> menus) {
-        if (CollectionUtils.isEmpty(menus)) {
-            return Collections.emptyList();
-        }
-
-        // 将菜单列表转换为树结构
-        List<Menu> menuTree = new ArrayList<>();
-        // 查找根节点（parentId为0或null）
-        List<Menu> rootMenus = menus.stream()
-                .filter(menu -> menu.getParentId() == null || menu.getParentId() == 0)
-                .collect(Collectors.toList());
-
-        // 为每个根节点构建子树
-        for (Menu rootMenu : rootMenus) {
-            buildSubMenuTree(rootMenu, menus);
-            menuTree.add(rootMenu);
-        }
-
-        return menuTree;
-    }
-
-    @Override
-    public boolean checkMenuNameUnique(String menuName, Long parentId, Long id) {
-        if (!StringUtils.hasText(menuName) || parentId == null) {
-            return false;
-        }
-
-        Menu menu = menuMapper.checkMenuNameUnique(menuName, parentId, id);
-        return menu != null;
-    }
-
-    @Override
-    public boolean checkMenuPermsUnique(String perms, Long id) {
-        if (!StringUtils.hasText(perms)) {
-            return false;
-        }
-
-        Menu menu = menuMapper.checkMenuPermsUnique(perms, id);
-        return menu != null;
-    }
-
-    @Override
-    public boolean checkMenuPathUnique(String path, Long id) {
-        if (!StringUtils.hasText(path)) {
-            return false;
-        }
-
-        Menu menu = menuMapper.checkMenuPathUnique(path, id);
-        return menu != null;
-    }
-
-    @Override
-    public boolean checkMenuComponentUnique(String component, Long id) {
-        if (!StringUtils.hasText(component)) {
-            return false;
-        }
-
-        Menu menu = menuMapper.checkMenuComponentUnique(component, id);
-        return menu != null;
+    /**
+     * 构建菜单树
+     *
+     * @param menus    菜单列表
+     * @param parentId 父菜单ID
+     * @return 菜单树列表
+     */
+    private List<Menu> buildMenuTree(List<Menu> menus, Long parentId) {
+        // 直接使用TreeUtils构建菜单树
+        return TreeUtils.buildTree(menus, parentId);
     }
 
     /**
-     * 验证菜单信息
-     * @param menu 菜单信息
+     * 检查菜单名称是否唯一
+     *
+     * @param menuName 菜单名称
+     * @param parentId 父菜单ID
+     * @param menuId   菜单ID
+     * @return true-存在 false-不存在
      */
-    private void validateMenu(Menu menu) {
-        if (menu == null) {
-            logger.error("菜单信息为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
+    @Override
+    public boolean checkMenuNameUnique(String menuName, Long parentId, Long menuId) {
+        try {
+            Menu menu = menuMapper.checkMenuNameUnique(menuName, parentId, menuId);
+            return menu != null;
+        } catch (Exception e) {
+            logger.error("检查菜单名称唯一性失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
         }
-        if (!StringUtils.hasText(menu.getMenuName())) {
-            logger.error("菜单名称为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        if (menu.getMenuType() == null) {
-            logger.error("菜单类型为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        if (menu.getParentId() == null) {
-            logger.error("父菜单ID为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        if (menu.getOrderNum() == null || menu.getOrderNum() <= 0) {
-            logger.error("菜单排序为空或无效");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        // 其他验证逻辑...
     }
 
     /**
-     * 构建子菜单树
-     * @param parentMenu 父菜单
-     * @param menus 所有菜单列表
+     * 检查菜单权限是否唯一
+     *
+     * @param perms  菜单权限
+     * @param menuId 菜单ID
+     * @return true-存在 false-不存在
      */
-    private void buildSubMenuTree(Menu parentMenu, List<Menu> menus) {
-        // 查找当前菜单的子菜单
-        List<Menu> children = menus.stream()
-                .filter(menu -> menu.getParentId() != null && menu.getParentId().equals(parentMenu.getId()))
-                .collect(Collectors.toList());
+    @Override
+    public boolean checkMenuPermsUnique(String perms, Long menuId) {
+        try {
+            Menu menu = menuMapper.checkMenuPermsUnique(perms, menuId);
+            return menu != null;
+        } catch (Exception e) {
+            logger.error("检查菜单权限唯一性失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
 
-        if (!children.isEmpty()) {
-            parentMenu.setChildren(children);
-            // 递归构建子菜单的子树
-            for (Menu child : children) {
-                buildSubMenuTree(child, menus);
+    /**
+     * 检查菜单路由是否唯一
+     *
+     * @param path   菜单路由
+     * @param menuId 菜单ID
+     * @return true-存在 false-不存在
+     */
+    @Override
+    public boolean checkMenuPathUnique(String path, Long menuId) {
+        try {
+            Menu menu = menuMapper.checkMenuPathUnique(path, menuId);
+            return menu != null;
+        } catch (Exception e) {
+            logger.error("检查菜单路由唯一性失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
+
+    /**
+     * 检查菜单组件是否唯一
+     *
+     * @param component 菜单组件
+     * @param menuId    菜单ID
+     * @return true-存在 false-不存在
+     */
+    @Override
+    public boolean checkMenuComponentUnique(String component, Long menuId) {
+        try {
+            Menu menu = menuMapper.checkMenuComponentUnique(component, menuId);
+            return menu != null;
+        } catch (Exception e) {
+            logger.error("检查菜单组件唯一性失败", e);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR);
+        }
+    }
+
+    /**
+     * 菜单验证方法
+     */
+    private void validateMenu(Menu menu, Menu existingMenu) {
+        // 菜单名称验证
+        if (existingMenu == null || !existingMenu.getMenuName().equals(menu.getMenuName())) {
+            if (checkMenuNameUnique(menu.getMenuName(), menu.getParentId(),
+                    existingMenu != null ? existingMenu.getId() : null)) {
+                logger.error("菜单名称已存在: {}", menu.getMenuName());
+                throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
+            }
+        }
+
+        // 菜单权限验证
+        if (StringUtils.hasText(menu.getPerms())) {
+            if (existingMenu == null || !menu.getPerms().equals(existingMenu.getPerms())) {
+                if (checkMenuPermsUnique(menu.getPerms(),
+                        existingMenu != null ? existingMenu.getId() : null)) {
+                    logger.error("菜单权限已存在: {}", menu.getPerms());
+                    throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
+                }
+            }
+        }
+
+        // 菜单路由验证
+        if (StringUtils.hasText(menu.getPath())) {
+            if (existingMenu == null || !menu.getPath().equals(existingMenu.getPath())) {
+                if (checkMenuPathUnique(menu.getPath(),
+                        existingMenu != null ? existingMenu.getId() : null)) {
+                    logger.error("菜单路由已存在: {}", menu.getPath());
+                    throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
+                }
+            }
+        }
+
+        // 菜单组件验证
+        if (StringUtils.hasText(menu.getComponent())) {
+            if (existingMenu == null || !menu.getComponent().equals(existingMenu.getComponent())) {
+                if (checkMenuComponentUnique(menu.getComponent(),
+                        existingMenu != null ? existingMenu.getId() : null)) {
+                    logger.error("菜单组件已存在: {}", menu.getComponent());
+                    throw new BusinessException(StatusCodeEnum.DATA_EXISTS);
+                }
             }
         }
     }

@@ -29,10 +29,6 @@ public class ProcessTemplateServiceImpl implements ProcessTemplateService {
 
     @Override
     public ProcessTemplate getById(Long id) {
-        if (id == null || id <= 0) {
-            logger.warn("查询流程模板时ID为空或无效: {}", id);
-            return null;
-        }
         logger.debug("查询流程模板，ID: {}", id);
         try {
             return processTemplateMapper.getById(id);
@@ -44,11 +40,6 @@ public class ProcessTemplateServiceImpl implements ProcessTemplateService {
 
     @Override
     public ProcessTemplate getByProcessKey(String processKey, Long tenantId) {
-        if (processKey == null || processKey.isEmpty()) {
-            logger.warn("查询流程模板时流程标识为空");
-            return null;
-        }
-        
         // 获取租户ID（如果传入的租户ID为空）
         Long effectiveTenantId = tenantId;
         if (effectiveTenantId == null) {
@@ -97,25 +88,6 @@ public class ProcessTemplateServiceImpl implements ProcessTemplateService {
 
     @Override
     public int save(ProcessTemplate processTemplate) {
-        if (processTemplate == null) {
-            logger.warn("保存流程模板时参数为空");
-            return 0;
-        }
-        
-        // 验证必要字段
-        if (processTemplate.getProcessName() == null || processTemplate.getProcessName().isEmpty()) {
-            logger.warn("保存流程模板时流程名称为空");
-            return 0;
-        }
-        if (processTemplate.getProcessKey() == null || processTemplate.getProcessKey().isEmpty()) {
-            logger.warn("保存流程模板时流程标识为空");
-            return 0;
-        }
-        if (processTemplate.getBpmnXml() == null || processTemplate.getBpmnXml().isEmpty()) {
-            logger.warn("保存流程模板时BPMN定义为空");
-            return 0;
-        }
-        
         // 设置租户ID（如果未设置）
         if (processTemplate.getTenantId() == null) {
             Long tenantId = UserUtils.getCurrentTenantId();
@@ -125,12 +97,6 @@ public class ProcessTemplateServiceImpl implements ProcessTemplateService {
                 logger.warn("无法获取租户ID");
                 return 0;
             }
-        }
-        
-        // 检查流程标识是否唯一
-        if (!checkProcessKeyUnique(processTemplate.getProcessKey(), processTemplate.getTenantId(), null)) {
-            logger.warn("流程标识已存在: {}", processTemplate.getProcessKey());
-            return 0;
         }
         
         // 创建时间和更新时间由MyBatis拦截器自动填充
@@ -153,43 +119,10 @@ public class ProcessTemplateServiceImpl implements ProcessTemplateService {
 
     @Override
     public int update(ProcessTemplate processTemplate) {
-        if (processTemplate == null) {
-            logger.warn("更新流程模板时参数为空");
-            return 0;
-        }
-        
-        // 验证ID
-        if (processTemplate.getId() == null || processTemplate.getId() <= 0) {
-            logger.warn("更新流程模板时ID为空或无效");
-            return 0;
-        }
-        
-        // 验证必要字段
-        if (processTemplate.getProcessName() == null || processTemplate.getProcessName().isEmpty()) {
-            logger.warn("更新流程模板时流程名称为空");
-            return 0;
-        }
-        if (processTemplate.getProcessKey() == null || processTemplate.getProcessKey().isEmpty()) {
-            logger.warn("更新流程模板时流程标识为空");
-            return 0;
-        }
-        if (processTemplate.getBpmnXml() == null || processTemplate.getBpmnXml().isEmpty()) {
-            logger.warn("更新流程模板时BPMN定义为空");
-            return 0;
-        }
-        
         // 获取租户ID
         Long tenantId = UserUtils.getCurrentTenantId();
-        if (tenantId == null) {
-            logger.warn("无法获取租户ID");
-            return 0;
-        }
-        processTemplate.setTenantId(tenantId);
-        
-        // 检查流程标识是否唯一（排除当前记录）
-        if (!checkProcessKeyUnique(processTemplate.getProcessKey(), tenantId, processTemplate.getId())) {
-            logger.warn("流程标识已存在: {}", processTemplate.getProcessKey());
-            return 0;
+        if (tenantId != null) {
+            processTemplate.setTenantId(tenantId);
         }
         
         // 更新时间由MyBatis拦截器自动填充
@@ -200,15 +133,14 @@ public class ProcessTemplateServiceImpl implements ProcessTemplateService {
             ProcessTemplate existingTemplate = processTemplateMapper.getById(processTemplate.getId());
             if (existingTemplate != null) {
                 processTemplate.setVersion(existingTemplate.getVersion() + 1);
-            } else {
-                processTemplate.setVersion(1);
             }
         } else {
+            // 如果传入了版本号，则直接自增
             processTemplate.setVersion(processTemplate.getVersion() + 1);
         }
         
-        logger.info("更新流程模板，ID: {}, 名称: {}, 版本: {}", 
-            processTemplate.getId(), processTemplate.getProcessName(), processTemplate.getVersion());
+        logger.info("更新流程模板，ID: {}, 名称: {}, 标识: {}", 
+            processTemplate.getId(), processTemplate.getProcessName(), processTemplate.getProcessKey());
         
         try {
             return processTemplateMapper.update(processTemplate);

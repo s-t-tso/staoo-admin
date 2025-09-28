@@ -49,10 +49,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getById(Long id) {
-        if (id == null || id <= 0) {
-            logger.error("查询用户ID无效: {}", id);
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
         User user = userMapper.getById(id);
         if (user == null) {
             logger.error("用户不存在: {}", id);
@@ -69,10 +65,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByUsername(String username) {
-        if (!StringUtils.hasText(username)) {
-            logger.error("用户名为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
         User user = userMapper.getByUsername(username);
         if (user != null) {
             // 加载用户的租户关联信息
@@ -141,16 +133,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean save(User user) {
         try {
-            // 参数校验
-            validateUser(user);
-
-            // 检查用户名是否已存在
-            User existingUser = userMapper.getByUsername(user.getUsername());
-            if (existingUser != null) {
-                logger.error("用户名已存在: {}", user.getUsername());
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 加密密码
             if (StringUtils.hasText(user.getPassword())) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -196,11 +178,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean update(User user) {
         try {
-            if (user == null || user.getId() == null || user.getId() <= 0) {
-                logger.error("用户ID无效");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User existingUser = userMapper.getById(user.getId());
             if (existingUser == null) {
@@ -213,7 +190,7 @@ public class UserServiceImpl implements UserService {
                 User checkUser = userMapper.getByUsername(user.getUsername());
                 if (checkUser != null && !checkUser.getId().equals(user.getId())) {
                     logger.error("用户名已存在: {}", user.getUsername());
-                    throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
+                    throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "用户名已存在");
                 }
             }
 
@@ -260,11 +237,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteById(Long id) {
         try {
-            if (id == null || id <= 0) {
-                logger.error("用户ID无效: {}", id);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User user = userMapper.getById(id);
             if (user == null) {
@@ -299,11 +271,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteByIds(List<Long> ids) {
         try {
-            if (ids == null || ids.isEmpty()) {
-                logger.error("用户ID列表为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 批量删除用户角色关系和用户-租户关系
             for (Long id : ids) {
                 userMapper.deleteUserRoles(id);
@@ -326,15 +293,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean updateStatusByIds(List<Long> ids, Integer status) {
         try {
-            if (ids == null || ids.isEmpty()) {
-                logger.error("用户ID列表为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (status == null) {
-                logger.error("用户状态为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 批量更新用户状态
             int result = userMapper.updateStatusByIds(ids, status);
             return result > 0;
@@ -351,15 +309,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean resetPassword(Long id, String password) {
         try {
-            if (id == null || id <= 0) {
-                logger.error("用户ID无效: {}", id);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (!StringUtils.hasText(password)) {
-                logger.error("密码为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User user = userMapper.getById(id);
             if (user == null) {
@@ -391,15 +340,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean updateAvatar(Long id, String avatar) {
         try {
-            if (id == null || id <= 0) {
-                logger.error("用户ID无效: {}", id);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (!StringUtils.hasText(avatar)) {
-                logger.error("头像URL为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User user = userMapper.getById(id);
             if (user == null) {
@@ -428,11 +368,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean updateProfile(User user) {
         try {
-            if (user == null || user.getId() == null || user.getId() <= 0) {
-                logger.error("用户ID无效");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User existingUser = userMapper.getById(user.getId());
             if (existingUser == null) {
@@ -463,19 +398,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean changePassword(Long userId, String oldPassword, String newPassword) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (!StringUtils.hasText(oldPassword)) {
-                logger.error("旧密码为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (!StringUtils.hasText(newPassword)) {
-                logger.error("新密码为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User user = userMapper.getById(userId);
             if (user == null) {
@@ -486,7 +408,7 @@ public class UserServiceImpl implements UserService {
             // 验证旧密码
             if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 logger.error("旧密码错误");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
+                throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "旧密码错误");
             }
 
             // 加密新密码
@@ -512,11 +434,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Long> getRoleIdsByUserId(Long userId) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User user = userMapper.getById(userId);
             if (user == null) {
@@ -538,11 +455,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public boolean saveUserRoles(Long userId, List<Long> roleIds) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查用户是否存在
             User user = userMapper.getById(userId);
             if (user == null) {
@@ -570,24 +482,4 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    /**
-     * 验证用户信息
-     *
-     * @param user 用户信息
-     */
-    private void validateUser(User user) {
-        if (user == null) {
-            logger.error("用户信息为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        if (!StringUtils.hasText(user.getUsername())) {
-            logger.error("用户名为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        if (!StringUtils.hasText(user.getPassword())) {
-            logger.error("密码为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        // 其他验证逻辑...
-    }
 }

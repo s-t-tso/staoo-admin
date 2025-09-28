@@ -83,6 +83,8 @@ public abstract class AbstractLoginStrategy implements LoginStrategy {
         claims.put("userId", user.getId());
         claims.put("username", user.getUsername());
         claims.put("nickname", user.getNickname());
+        // 添加admin字段到claims中
+        claims.put("admin", user.getAdmin());
         
         // 生成accessToken和refreshToken
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUsername(), deviceId, claims);

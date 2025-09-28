@@ -85,11 +85,6 @@ public class UserTenantServiceImpl implements UserTenantService {
     @Transactional
     public boolean batchAddUserTenant(List<UserTenant> userTenantList) {
         try {
-            if (userTenantList == null || userTenantList.isEmpty()) {
-                log.warn("批量新增用户-租户关联列表为空");
-                return true;
-            }
-
             // 设置默认值并检查冲突
             for (UserTenant userTenant : userTenantList) {
                 if (checkUserBelongsToTenant(userTenant.getUserId(), userTenant.getTenantId())) {
@@ -170,11 +165,6 @@ public class UserTenantServiceImpl implements UserTenantService {
     @Transactional
     public boolean batchDeleteUserTenantByIds(Long[] ids) {
         try {
-            if (ids == null || ids.length == 0) {
-                log.warn("批量删除用户-租户关联ID列表为空");
-                return true;
-            }
-
             for (Long id : ids) {
                 userTenantMapper.deleteById(id);
             }
@@ -196,11 +186,6 @@ public class UserTenantServiceImpl implements UserTenantService {
     @Transactional
     public boolean batchDeleteUserTenantByUserIds(Long[] userIds) {
         try {
-            if (userIds == null || userIds.length == 0) {
-                log.warn("批量删除用户的所有租户关联用户ID列表为空");
-                return true;
-            }
-
             for (Long userId : userIds) {
                 List<UserTenant> userTenants = getUserTenantsByUserId(userId);
                 for (UserTenant userTenant : userTenants) {
@@ -225,11 +210,6 @@ public class UserTenantServiceImpl implements UserTenantService {
     @Transactional
     public boolean batchDeleteUserTenantByTenantIds(Long[] tenantIds) {
         try {
-            if (tenantIds == null || tenantIds.length == 0) {
-                log.warn("批量删除租户的所有用户关联租户ID列表为空");
-                return true;
-            }
-
             for (Long tenantId : tenantIds) {
                 List<UserTenant> userTenants = getUserTenantsByTenantId(tenantId);
                 for (UserTenant userTenant : userTenants) {
@@ -254,11 +234,6 @@ public class UserTenantServiceImpl implements UserTenantService {
     @Transactional
     public boolean updateUserTenant(UserTenant userTenant) {
         try {
-            if (userTenant.getId() == null) {
-                log.warn("更新用户-租户关联ID不能为空");
-                return false;
-            }
-
             UserTenant existing = getUserTenantById(userTenant.getId());
             if (existing == null) {
                 log.warn("用户-租户关联ID[{}]不存在", userTenant.getId());
@@ -492,10 +467,9 @@ public class UserTenantServiceImpl implements UserTenantService {
      * @return 是否合法
      */
     private boolean isValidRoleType(Integer roleType) {
-        return roleType != null && 
-               (roleType.equals(ROLE_TYPE_CREATOR) || 
-                roleType.equals(ROLE_TYPE_MANAGER) || 
-                roleType.equals(ROLE_TYPE_NORMAL));
+        return roleType.equals(ROLE_TYPE_CREATOR) || 
+               roleType.equals(ROLE_TYPE_MANAGER) || 
+               roleType.equals(ROLE_TYPE_NORMAL);
     }
 
     /**
@@ -504,9 +478,8 @@ public class UserTenantServiceImpl implements UserTenantService {
      * @return 是否合法
      */
     private boolean isValidStatus(Integer status) {
-        return status != null && 
-               (status.equals(STATUS_ENABLE) || 
-                status.equals(STATUS_DISABLE));
+        return status.equals(STATUS_ENABLE) || 
+               status.equals(STATUS_DISABLE);
     }
 
     /**
@@ -517,10 +490,6 @@ public class UserTenantServiceImpl implements UserTenantService {
     @Override
     public List<UserTenant> getList(UserTenantQueryRequest request) {
         try {
-            if (request == null) {
-                return Collections.emptyList();
-            }
-            
             // 使用统一的mapper方法根据查询请求条件获取列表
             return userTenantMapper.getListByRequest(request);
         } catch (Exception e) {
@@ -537,10 +506,6 @@ public class UserTenantServiceImpl implements UserTenantService {
     @Override
     public TableResult<UserTenant> getPage(UserTenantQueryRequest request) {
         try {
-            if (request == null) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
-            }
-
             // 设置分页参数
             int pageNum = request.getPageNum() != null ? request.getPageNum() : 1;
             int pageSize = request.getPageSize() != null ? request.getPageSize() : 10;

@@ -35,10 +35,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role getById(Long id) {
-        if (id == null || id <= 0) {
-            logger.error("查询角色ID无效: {}", id);
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
         Role role = roleMapper.getById(id);
         if (role == null) {
             logger.error("角色不存在: {}", id);
@@ -49,10 +45,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role getByRoleName(String roleName) {
-        if (!StringUtils.hasText(roleName)) {
-            logger.error("角色名称为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
         return roleMapper.getByRoleName(roleName);
     }
 
@@ -69,10 +61,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> getList(RoleQueryRequest request) {
         try {
-            if (request == null) {
-                logger.error("查询请求参数为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return roleMapper.selectListByRequest(request);
         } catch (BusinessException e) {
             throw e;
@@ -85,12 +73,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public TableResult<Role> getPage(RoleQueryRequest request) {
         try {
-            // 参数校验
-            if (request == null) {
-                logger.error("分页查询请求参数为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            
             // 设置分页参数
             PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
@@ -110,9 +92,6 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public boolean save(Role role) {
         try {
-            // 参数校验
-            validateRole(role);
-
             // 检查角色名称是否已存在
             if (checkRoleNameUnique(role)) {
                 logger.error("角色名称已存在: {}", role.getRoleName());
@@ -140,11 +119,6 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Role role) {
         try {
-            if (role == null || role.getId() == null || role.getId() <= 0) {
-                logger.error("角色ID无效");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查角色是否存在
             Role existingRole = roleMapper.getById(role.getId());
             if (existingRole == null) {
@@ -179,11 +153,6 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteById(Long id) {
         try {
-            if (id == null || id <= 0) {
-                logger.error("角色ID无效: {}", id);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查角色是否存在
             Role role = roleMapper.getById(id);
             if (role == null) {
@@ -218,11 +187,6 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteByIds(List<Long> ids) {
         try {
-            if (ids == null || ids.isEmpty()) {
-                logger.error("角色ID列表为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查是否包含管理员角色
             for (Long id : ids) {
                 Role role = roleMapper.getById(id);
@@ -255,15 +219,6 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public boolean updateStatusByIds(List<Long> ids, Integer status) {
         try {
-            if (ids == null || ids.isEmpty()) {
-                logger.error("角色ID列表为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (status == null) {
-                logger.error("角色状态为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查是否包含管理员角色
             for (Long id : ids) {
                 Role role = roleMapper.getById(id);
@@ -290,11 +245,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> getRolesByUserId(Long userId) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             return roleMapper.getRolesByUserId(userId);
         } catch (BusinessException e) {
             // 业务异常直接抛出
@@ -308,11 +258,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Set<String> getPermissionsByUserId(Long userId) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("用户ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             List<String> permissions = roleMapper.getPermissionsByUserId(userId);
             return permissions != null ? new HashSet<>(permissions) : Collections.emptySet();
         } catch (BusinessException e) {
@@ -327,11 +272,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Long> getMenuIdsByRoleId(Long roleId) {
         try {
-            if (roleId == null || roleId <= 0) {
-                logger.error("角色ID无效: {}", roleId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查角色是否存在
             Role role = roleMapper.getById(roleId);
             if (role == null) {
@@ -353,11 +293,6 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public boolean saveRoleMenus(Long roleId, List<Long> menuIds) {
         try {
-            if (roleId == null || roleId <= 0) {
-                logger.error("角色ID无效: {}", roleId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 检查角色是否存在
             Role role = roleMapper.getById(roleId);
             if (role == null) {
@@ -404,27 +339,5 @@ public class RoleServiceImpl implements RoleService {
         // 这里简化处理，实际应该有专门的方法来检查角色名称是否唯一
         // 这里暂时返回false
         return false;
-    }
-
-    /**
-     * 验证角色信息
-     * @param role 角色信息
-     */
-    private void validateRole(Role role) {
-        if (role == null) {
-            logger.error("角色信息为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        if (!StringUtils.hasText(role.getRoleName())) {
-            logger.error("角色名称为空");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        // 角色类中没有roleKey属性，移除相关验证
-        // 可以根据实际需要添加其他必要的验证
-        if (role.getOrderNum() == null || role.getOrderNum() <= 0) {
-            logger.error("角色排序为空或无效");
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
-        // 其他验证逻辑...
     }
 }

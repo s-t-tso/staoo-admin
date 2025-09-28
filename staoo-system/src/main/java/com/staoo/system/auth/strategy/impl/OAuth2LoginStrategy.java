@@ -43,17 +43,17 @@ public class OAuth2LoginStrategy implements LoginStrategy {
     @Override
     public void validateRequest(LoginRequest request) {
         if (request == null || !StringUtils.hasText(request.getPassword())) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "OAuth2授权码不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "OAuth2授权码不能为空");
         }
         
         if (!StringUtils.hasText(request.getUsername())) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "OAuth2提供商不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "OAuth2提供商不能为空");
         }
         
         // 支持的OAuth2提供商检查
         String provider = request.getUsername().toLowerCase();
         if (!provider.equals("github") && !provider.equals("google") && !provider.equals("wechat")) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "不支持的OAuth2提供商: " + provider);
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "不支持的OAuth2提供商: " + provider);
         }
     }
     

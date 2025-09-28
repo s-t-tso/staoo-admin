@@ -53,7 +53,7 @@ public class PasswordLoginStrategy extends AbstractLoginStrategy {
     @Override
     public void validateRequest(LoginRequest request) {
         if (request == null || !StringUtils.hasText(request.getUsername()) || !StringUtils.hasText(request.getPassword())) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "用户名或密码不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "用户名或密码不能为空");
         }
     }
     

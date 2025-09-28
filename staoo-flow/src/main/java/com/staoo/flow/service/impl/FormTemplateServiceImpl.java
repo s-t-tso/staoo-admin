@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -29,10 +30,6 @@ public class FormTemplateServiceImpl implements FormTemplateService {
 
     @Override
     public FormTemplate getById(Long id) {
-        if (id == null || id <= 0) {
-            logger.warn("查询表单模板时ID为空或无效: {}", id);
-            return null;
-        }
         logger.debug("查询表单模板，ID: {}", id);
         try {
             return formTemplateMapper.getById(id);
@@ -44,11 +41,6 @@ public class FormTemplateServiceImpl implements FormTemplateService {
 
     @Override
     public FormTemplate getByFormKey(String formKey, Long tenantId) {
-        if (formKey == null || formKey.isEmpty()) {
-            logger.warn("查询表单模板时表单标识为空");
-            return null;
-        }
-        
         // 获取租户ID（如果传入的租户ID为空）
         Long effectiveTenantId = tenantId;
         if (effectiveTenantId == null) {
@@ -83,7 +75,8 @@ public class FormTemplateServiceImpl implements FormTemplateService {
                 }
             }
             logger.debug("查询表单模板列表，表单标识: {}, 状态: {}, 租户ID: {}", 
-                formTemplate.getFormKey(), formTemplate.getStatus(), formTemplate.getTenantId());
+                formTemplate.getFormKey(), formTemplate.getStatus(), 
+                formTemplate.getTenantId());
         }
         
         try {
@@ -96,25 +89,6 @@ public class FormTemplateServiceImpl implements FormTemplateService {
 
     @Override
     public int save(FormTemplate formTemplate) {
-        if (formTemplate == null) {
-            logger.warn("保存表单模板时参数为空");
-            return 0;
-        }
-        
-        // 验证必要字段
-        if (formTemplate.getFormName() == null || formTemplate.getFormName().isEmpty()) {
-            logger.warn("保存表单模板时表单名称为空");
-            return 0;
-        }
-        if (formTemplate.getFormKey() == null || formTemplate.getFormKey().isEmpty()) {
-            logger.warn("保存表单模板时表单标识为空");
-            return 0;
-        }
-        if (formTemplate.getFormConfig() == null || formTemplate.getFormConfig().isEmpty()) {
-            logger.warn("保存表单模板时表单配置为空");
-            return 0;
-        }
-        
         // 设置租户ID（如果未设置）
         if (formTemplate.getTenantId() == null) {
             Long tenantId = UserUtils.getCurrentTenantId();
@@ -125,15 +99,6 @@ public class FormTemplateServiceImpl implements FormTemplateService {
                 return 0;
             }
         }
-        
-        // 检查表单标识是否唯一
-        if (!checkFormKeyUnique(formTemplate.getFormKey(), formTemplate.getTenantId(), null)) {
-            logger.warn("表单标识已存在: {}", formTemplate.getFormKey());
-            return 0;
-        }
-        
-        // createTime和updateTime字段由MyBatis拦截器自动填充
-        formTemplate.setVersion(1);
         
         // 设置默认状态
         if (formTemplate.getStatus() == null) {
@@ -152,56 +117,14 @@ public class FormTemplateServiceImpl implements FormTemplateService {
 
     @Override
     public int update(FormTemplate formTemplate) {
-        if (formTemplate == null) {
-            logger.warn("更新表单模板时参数为空");
-            return 0;
-        }
-        if (formTemplate.getId() == null || formTemplate.getId() <= 0) {
-            logger.warn("更新表单模板时ID为空或无效");
-            return 0;
+        // 获取租户ID
+        Long tenantId = UserUtils.getCurrentTenantId();
+        if (tenantId != null) {
+            formTemplate.setTenantId(tenantId);
         }
         
-        // 验证必要字段
-        if (formTemplate.getFormName() == null || formTemplate.getFormName().isEmpty()) {
-            logger.warn("更新表单模板时表单名称为空");
-            return 0;
-        }
-        if (formTemplate.getFormKey() == null || formTemplate.getFormKey().isEmpty()) {
-            logger.warn("更新表单模板时表单标识为空");
-            return 0;
-        }
-        if (formTemplate.getFormConfig() == null || formTemplate.getFormConfig().isEmpty()) {
-            logger.warn("更新表单模板时表单配置为空");
-            return 0;
-        }
-        
-        // 设置租户ID（如果未设置）
-        if (formTemplate.getTenantId() == null) {
-            Long tenantId = UserUtils.getCurrentTenantId();
-            if (tenantId != null) {
-                formTemplate.setTenantId(tenantId);
-            } else {
-                logger.warn("无法获取租户ID");
-                return 0;
-            }
-        }
-        
-        // 检查表单标识是否唯一（排除当前记录）
-        if (!checkFormKeyUnique(formTemplate.getFormKey(), formTemplate.getTenantId(), formTemplate.getId())) {
-            logger.warn("表单标识已存在: {}", formTemplate.getFormKey());
-            return 0;
-        }
-        
-        // updateTime字段由MyBatis拦截器自动填充
-        
-        // 版本号自增
-        if (formTemplate.getVersion() != null) {
-            formTemplate.setVersion(formTemplate.getVersion() + 1);
-        } else {
-            formTemplate.setVersion(1);
-        }
-        
-        logger.info("更新表单模板，ID: {}, 名称: {}", formTemplate.getId(), formTemplate.getFormName());
+        logger.info("更新表单模板，ID: {}, 名称: {}, 标识: {}", 
+            formTemplate.getId(), formTemplate.getFormName(), formTemplate.getFormKey());
         
         try {
             return formTemplateMapper.update(formTemplate);
@@ -302,30 +225,18 @@ public class FormTemplateServiceImpl implements FormTemplateService {
 
     @Override
     public int publishFormTemplate(Long id) {
-        if (id == null || id <= 0) {
-            logger.warn("发布表单模板时ID为空或无效: {}", id);
+        // 使用验证策略链进行参数验证
+        ValidationChain validationChain = new ValidationChain();
+        validationChain.addValidator(new IdValidator())
+                      .addValidator(new TenantValidator())
+                      .addValidator(new TemplateExistsValidator());
+                       
+        ValidationContext context = new ValidationContext(id, null);
+        if (!validationChain.validate(context)) {
             return 0;
         }
         
-        // 获取当前租户ID
-        Long tenantId = UserUtils.getCurrentTenantId();
-        if (tenantId == null) {
-            logger.warn("无法获取租户ID，无法发布表单模板");
-            return 0;
-        }
-        
-        // 检查记录是否存在并属于当前租户
-        FormTemplate formTemplate = formTemplateMapper.getById(id);
-        if (formTemplate == null) {
-            logger.warn("表单模板不存在，ID: {}", id);
-            return 0;
-        }
-        if (!tenantId.equals(formTemplate.getTenantId())) {
-            logger.warn("无权限发布其他租户的表单模板，ID: {}", id);
-            return 0;
-        }
-        
-        logger.info("发布表单模板，ID: {}, 名称: {}", id, formTemplate.getFormName());
+        logger.info("发布表单模板，ID: {}, 名称: {}", id, context.getOriginalTemplate().getFormName());
         
         try {
             return formTemplateMapper.updateStatus(id, "PUBLISHED");
@@ -337,51 +248,36 @@ public class FormTemplateServiceImpl implements FormTemplateService {
 
     @Override
     public Long copyFormTemplate(Long id, String newName) {
-        if (id == null || id <= 0) {
-            logger.warn("复制表单模板时ID为空或无效: {}", id);
-            return null;
-        }
-        if (newName == null || newName.isEmpty()) {
-            logger.warn("复制表单模板时新名称为空");
-            return null;
-        }
-        
-        // 获取当前租户ID
-        Long tenantId = UserUtils.getCurrentTenantId();
-        if (tenantId == null) {
-            logger.warn("无法获取租户ID，无法复制表单模板");
+        // 使用验证策略链进行参数验证
+        ValidationChain validationChain = new ValidationChain();
+        validationChain.addValidator(new IdValidator())
+                      .addValidator(new NameValidator())
+                      .addValidator(new TenantValidator())
+                      .addValidator(new TemplateExistsValidator());
+                       
+        ValidationContext context = new ValidationContext(id, newName);
+        if (!validationChain.validate(context)) {
             return null;
         }
         
-        // 检查记录是否存在并属于当前租户
-        FormTemplate original = formTemplateMapper.getById(id);
-        if (original == null) {
-            logger.warn("表单模板不存在，ID: {}", id);
-            return null;
-        }
-        if (!tenantId.equals(original.getTenantId())) {
-            logger.warn("无权限复制其他租户的表单模板，ID: {}", id);
-            return null;
-        }
-        
-        logger.info("复制表单模板，ID: {}, 名称: {}, 新名称: {}", id, original.getFormName(), newName);
+        logger.info("复制表单模板，ID: {}, 名称: {}, 新名称: {}", id, context.getOriginalTemplate().getFormName(), newName);
         
         try {
             // 创建新的表单模板
             FormTemplate newTemplate = new FormTemplate();
             
             // 生成唯一的表单标识
-            String newFormKey = generateUniqueFormKey(original.getFormKey(), tenantId);
+            String newFormKey = generateUniqueFormKey(context.getOriginalTemplate().getFormKey(), context.getTenantId());
             newTemplate.setFormKey(newFormKey);
             
             newTemplate.setFormName(newName);
-            newTemplate.setDescription(original.getDescription());
-            newTemplate.setFormConfig(original.getFormConfig());
+            newTemplate.setDescription(context.getOriginalTemplate().getDescription());
+            newTemplate.setFormConfig(context.getOriginalTemplate().getFormConfig());
             newTemplate.setStatus("DRAFT");
             newTemplate.setVersion(1);
-            newTemplate.setTenantId(original.getTenantId());
+            newTemplate.setTenantId(context.getOriginalTemplate().getTenantId());
             // createTime和updateTime字段由MyBatis拦截器自动填充
-            newTemplate.setCreateBy(original.getCreateBy());
+            newTemplate.setCreateBy(context.getOriginalTemplate().getCreateBy());
             
             logger.info("已创建表单模板副本，新名称: {}, 新标识: {}", 
                 newTemplate.getFormName(), newTemplate.getFormKey());
@@ -444,6 +340,120 @@ public class FormTemplateServiceImpl implements FormTemplateService {
         } catch (Exception e) {
             logger.error("检查表单标识唯一性失败: {}", e.getMessage(), e);
             return false;
+        }
+    }
+    
+    /**
+     * 验证上下文类，用于在验证链中传递数据
+     */
+    private class ValidationContext {
+        private Long id;
+        private String newName;
+        private Long tenantId;
+        private FormTemplate originalTemplate;
+        
+        public ValidationContext(Long id, String newName) {
+            this.id = id;
+            this.newName = newName;
+        }
+        
+        public Long getId() { return id; }
+        public String getNewName() { return newName; }
+        public Long getTenantId() { return tenantId; }
+        public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
+        public FormTemplate getOriginalTemplate() { return originalTemplate; }
+        public void setOriginalTemplate(FormTemplate originalTemplate) { this.originalTemplate = originalTemplate; }
+    }
+    
+    /**
+     * 验证器接口
+     */
+    private interface Validator {
+        boolean validate(ValidationContext context);
+    }
+    
+    /**
+     * ID验证器
+     */
+    private class IdValidator implements Validator {
+        @Override
+        public boolean validate(ValidationContext context) {
+            if (context.getId() == null || context.getId() <= 0) {
+                logger.warn("复制表单模板时ID为空或无效: {}", context.getId());
+                return false;
+            }
+            return true;
+        }
+    }
+    
+    /**
+     * 名称验证器
+     */
+    private class NameValidator implements Validator {
+        @Override
+        public boolean validate(ValidationContext context) {
+            if (context.getNewName() == null || context.getNewName().isEmpty()) {
+                logger.warn("复制表单模板时新名称为空");
+                return false;
+            }
+            return true;
+        }
+    }
+    
+    /**
+     * 租户验证器
+     */
+    private class TenantValidator implements Validator {
+        @Override
+        public boolean validate(ValidationContext context) {
+            Long tenantId = UserUtils.getCurrentTenantId();
+            if (tenantId == null) {
+                logger.warn("无法获取租户ID，无法复制表单模板");
+                return false;
+            }
+            context.setTenantId(tenantId);
+            return true;
+        }
+    }
+    
+    /**
+     * 模板存在验证器
+     */
+    private class TemplateExistsValidator implements Validator {
+        @Override
+        public boolean validate(ValidationContext context) {
+            FormTemplate original = formTemplateMapper.getById(context.getId());
+            if (original == null) {
+                logger.warn("表单模板不存在，ID: {}", context.getId());
+                return false;
+            }
+            if (!context.getTenantId().equals(original.getTenantId())) {
+                logger.warn("无权限复制其他租户的表单模板，ID: {}", context.getId());
+                return false;
+            }
+            context.setOriginalTemplate(original);
+            return true;
+        }
+    }
+    
+    /**
+     * 验证链类，用于组合多个验证器
+     */
+    private class ValidationChain {
+        private List<Validator> validators = new ArrayList<>();
+        
+        public ValidationChain addValidator(Validator validator) {
+            validators.add(validator);
+            return this;
+        }
+        
+        public boolean validate(ValidationContext context) {
+            for (Validator validator : validators) {
+                if (!validator.validate(context)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

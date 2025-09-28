@@ -47,11 +47,11 @@ public class IAMLoginStrategy implements LoginStrategy {
     @Override
     public void validateRequest(LoginRequest request) {
         if (request == null || !StringUtils.hasText(request.getPassword())) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "IAM授权码不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "IAM授权码不能为空");
         }
         
         if (!StringUtils.hasText(request.getUsername())) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "应用ID不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "应用ID不能为空");
         }
     }
     

@@ -34,17 +34,11 @@ public class TenantServiceImpl implements TenantService {
 
     @Override
     public Tenant getById(Long id) {
-        if (id == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "租户ID不能为空");
-        }
         return tenantMapper.getById(id);
     }
 
     @Override
     public Tenant getByTenantName(String tenantName) {
-        if (tenantName == null || tenantName.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "租户名称不能为空");
-        }
         return tenantMapper.getByTenantName(tenantName);
     }
 
@@ -58,19 +52,12 @@ public class TenantServiceImpl implements TenantService {
     
     @Override
     public List<Tenant> getList(TenantQueryRequest request) {
-        if (request == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "查询参数不能为空");
-        }
         return tenantMapper.getListByRequest(request);
     }
 
     @Override
     public TableResult<Tenant> getPage(TenantQueryRequest request) {
         try {
-            if (request == null) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
-            }
-            
             // 设置分页参数
             PageHelper.startPage(request.getPageNum(), request.getPageSize());
             
@@ -89,10 +76,6 @@ public class TenantServiceImpl implements TenantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insert(Tenant tenant) {
-        if (tenant == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "租户信息不能为空");
-        }
-        
         // 校验租户名称是否已存在
         Tenant existingTenant = tenantMapper.getByTenantName(tenant.getTenantName());
         if (existingTenant != null) {
@@ -107,10 +90,6 @@ public class TenantServiceImpl implements TenantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int update(Tenant tenant) {
-        if (tenant == null || tenant.getId() == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "租户ID不能为空");
-        }
-        
         // 校验租户是否存在
         Tenant existingTenant = tenantMapper.getById(tenant.getId());
         if (existingTenant == null) {
@@ -133,10 +112,6 @@ public class TenantServiceImpl implements TenantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int delete(Long id) {
-        if (id == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "租户ID不能为空");
-        }
-        
         // 校验租户是否存在
         Tenant existingTenant = tenantMapper.getById(id);
         if (existingTenant == null) {
@@ -151,10 +126,6 @@ public class TenantServiceImpl implements TenantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int deleteBatch(Long[] ids) {
-        if (ids == null || ids.length == 0) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "租户ID集合不能为空");
-        }
-        
         // 校验租户是否存在
         for (Long id : ids) {
             Tenant existingTenant = tenantMapper.getById(id);
@@ -169,13 +140,6 @@ public class TenantServiceImpl implements TenantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int changeStatus(Long id, Integer status) {
-        if (id == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "租户ID不能为空");
-        }
-        if (status == null || (status != 0 && status != 1)) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "状态值必须为0或1");
-        }
-        
         // 校验租户是否存在
         Tenant existingTenant = tenantMapper.getById(id);
         if (existingTenant == null) {

@@ -25,7 +25,31 @@ export const login = async (params: LoginRequest): Promise<LoginResponse> => {
   };
 
   // 实际API调用代码
-  return await request.post<LoginResponse>('/auth/login', loginParams);
+  const data = await request.post<LoginResponse>('/auth/login', loginParams);
+  
+  // 保存refreshToken到本地存储
+  if (data.refreshToken) {
+    localStorage.setItem('refreshToken', data.refreshToken);
+  }
+  
+  return data;
+};
+
+/**
+ * 刷新token接口
+ * @param refreshToken 刷新令牌
+ * @returns 登录响应（包含新的accessToken）
+ */
+export const refreshToken = async (refreshToken: string): Promise<LoginResponse> => {
+  // 实际API调用代码
+  const data = await request.post<LoginResponse>('/auth/refresh', { refreshToken });
+  
+  // 保存新的refreshToken
+  if (data.refreshToken) {
+    localStorage.setItem('refreshToken', data.refreshToken);
+  }
+  
+  return data;
 };
 
 /**

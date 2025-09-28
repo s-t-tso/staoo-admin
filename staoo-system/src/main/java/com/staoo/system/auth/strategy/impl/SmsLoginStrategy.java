@@ -54,16 +54,16 @@ public class SmsLoginStrategy extends AbstractLoginStrategy {
     @Override
     public void validateRequest(LoginRequest request) {
         if (request == null || !StringUtils.hasText(request.getUsername())) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "手机号码不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "手机号码不能为空");
         }
 
         if (!StringUtils.hasText(request.getPassword())) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "验证码不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "验证码不能为空");
         }
 
         // 简单的手机号码格式验证
         if (!request.getUsername().matches("^1[3-9]\\d{9}$")) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "手机号码格式不正确");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "手机号码格式不正确");
         }
     }
 
@@ -116,7 +116,7 @@ public class SmsLoginStrategy extends AbstractLoginStrategy {
     public boolean sendSmsCode(String phoneNumber) {
         // 验证手机号码格式
         if (!phoneNumber.matches("^1[3-9]\\d{9}$")) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "手机号码格式不正确");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "手机号码格式不正确");
         }
 
         // 检查发送频率

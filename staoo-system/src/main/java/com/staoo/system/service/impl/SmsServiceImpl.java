@@ -33,16 +33,6 @@ public class SmsServiceImpl implements SmsService {
     
     @Override
     public boolean sendVerificationCode(String phoneNumber, String code) {
-        // 验证手机号码格式
-        if (!validatePhoneNumber(phoneNumber)) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "手机号码格式不正确");
-        }
-        
-        // 验证验证码
-        if (!StringUtils.hasText(code)) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "验证码不能为空");
-        }
-        
         // 检查发送频率
         if (!checkSendFrequency(phoneNumber)) {
             // 频率检查失败，这里已经在checkSendFrequency方法中抛出异常
@@ -56,16 +46,6 @@ public class SmsServiceImpl implements SmsService {
     
     @Override
     public boolean sendNotification(String phoneNumber, String content) {
-        // 验证手机号码格式
-        if (!validatePhoneNumber(phoneNumber)) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "手机号码格式不正确");
-        }
-        
-        // 验证短信内容
-        if (!StringUtils.hasText(content)) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "短信内容不能为空");
-        }
-        
         // 检查发送频率
         if (!checkSendFrequency(phoneNumber)) {
             // 频率检查失败，这里已经在checkSendFrequency方法中抛出异常
@@ -78,17 +58,12 @@ public class SmsServiceImpl implements SmsService {
     
     @Override
     public boolean checkSendFrequency(String phoneNumber) {
-        // 验证手机号码格式
-        if (!validatePhoneNumber(phoneNumber)) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "手机号码格式不正确");
-        }
-        
         Long lastSendTime = smsSendRecordMap.get(phoneNumber);
         if (lastSendTime != null) {
             long interval = System.currentTimeMillis() - lastSendTime;
             if (interval < TimeUnit.MINUTES.toMillis(SMS_SEND_INTERVAL)) {
                 long remainingTime = (TimeUnit.MINUTES.toMillis(SMS_SEND_INTERVAL) - interval) / 1000;
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, 
+                throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, 
                     "短信发送过于频繁，请" + remainingTime + "秒后再试");
             }
         }

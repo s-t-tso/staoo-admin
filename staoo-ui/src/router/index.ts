@@ -1,24 +1,29 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import Layout from '../layouts/Layout.vue'
+import { useUserStore, useSystemStore } from '../store'
+import { storeToRefs } from 'pinia'
 
-const routes: Array<RouteRecordRaw> = [
+// 基础路由（不涉及权限控制的路由）
+const constantRoutes: Array<RouteRecordRaw> = [
+  {
+    path: '/login',
+    name: 'Login',
+    meta: {
+      title: '登录',
+      hidden: true
+    },
+    component: () => import('../modules/login/Login.vue')
+  },
   {
     path: '/',
     name: 'Layout',
     component: Layout,
     redirect: '/dashboard',
+    meta: {
+      hidden: true
+    },
     children: [
-      // 直接访问管理页面的重定向路由
-      {
-        path: 'process-template',
-        name: 'SystemProcessTemplateRedirect',
-        meta: {
-          title: '流程模板(重定向)',
-          hidden: true
-        },
-        redirect: '/flow/process-template'
-      },
       {
         path: 'dashboard',
         name: 'Dashboard',
@@ -27,145 +32,90 @@ const routes: Array<RouteRecordRaw> = [
           icon: 'Home'
         },
         component: () => import('../modules/dashboard/Dashboard.vue')
-      },
-      {
-        path: 'system',
-        name: 'System',
-        meta: {
-          title: '系统管理',
-          icon: 'Setting'
-        },
-        component: () => import('../modules/system/index.vue'),
-        children: [
-          {
-            path: 'user',
-            name: 'User',
-            meta: {
-              title: '用户管理'
-            },
-            component: () => import('../modules/system/user/UserList.vue')
-          },
-          {
-            path: 'role',
-            name: 'Role',
-            meta: {
-              title: '角色管理'
-            },
-            component: () => import('../modules/system/role/RoleList.vue')
-          },
-          {
-            path: 'department',
-            name: 'Department',
-            meta: {
-              title: '部门管理'
-            },
-            component: () => import('../modules/system/department/DepartmentList.vue')
-          },
-          {
-            path: 'menu',
-            name: 'Menu',
-            meta: {
-              title: '菜单管理'
-            },
-            component: () => import('../modules/system/menu/MenuList.vue')
-          }
-        ]
       }
     ]
-  },
-  
-  // 流程管理模块
-  {
-    path: '/flow',
-    component: Layout,
-    redirect: '/flow/process-template',
-    name: 'Flow',
-    meta: {
-      title: '流程管理',
-      icon: 'flow-chart',
-      roles: ['admin', 'flow:manage']
-    },
-    children: [
-      // 流程模板管理
-      {
-        path: 'process-template',
-        component: () => import('../modules/flow/process-template/ProcessTemplateList.vue'),
-        name: 'ProcessTemplate',
-        meta: {
-          title: '流程模板',
-          icon: 'template',
-          roles: ['admin', 'flow:process-template:list']
-        }
-      },
-      {
-        path: 'process-template/edit',
-        component: () => import('../modules/flow/process-template/ProcessTemplateEdit.vue'),
-        name: 'ProcessTemplateEdit',
-        meta: {
-          title: '流程模板编辑',
-          roles: ['admin', 'flow:process-template:edit'],
-          hidden: true
-        }
-      },
-
-      // 表单模板管理
-      {
-        path: 'form-template',
-        component: () => import('../modules/flow/form-template/FormTemplateList.vue'),
-        name: 'FormTemplate',
-        meta: {
-          title: '表单模板',
-          icon: 'form',
-          roles: ['admin', 'flow:form-template:list']
-        }
-      },
-      {
-        path: 'form-template/edit',
-        component: () => import('../modules/flow/form-template/FormTemplateEdit.vue'),
-        name: 'FormTemplateEdit',
-        meta: {
-          title: '表单模板编辑',
-          roles: ['admin', 'flow:form-template:edit'],
-          hidden: true
-        }
-      }
-    ]
-  },
-
-  {
-    path: '/login',
-    name: 'Login',
-    meta: {
-      title: '登录'
-    },
-    component: () => import('../modules/login/Login.vue')
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
+    meta: {
+      title: '页面不存在',
+      hidden: true
+    },
     component: () => import('../modules/error/NotFound.vue')
   }
 ]
 
+// 初始化路由
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+  routes: constantRoutes
 })
 
+// 重置路由
+export const resetRouter = () => {
+  // 清空所有动态路由
+  router.getRoutes().forEach(route => {
+    if (!constantRoutes.find(cr => cr.path === route.path && cr.name === route.name)) {
+      router.removeRoute(route.name || '')
+    }
+  })
+  // 重新添加常量路由
+  constantRoutes.forEach(route => {
+    try {
+      router.addRoute(route)
+    } catch (e) {
+      // 忽略已存在的路由
+    }
+  })
+}
+
 // 路由守卫
-router.beforeEach((to: any, _from: any, next: any) => {
+router.beforeEach(async (to: any, _from: any, next: any) => {
   // 设置页面标题
   if (to.meta.title) {
     document.title = `${to.meta.title} - Staoo Admin`
+  }
+
+  const userStore = useUserStore()
+  const systemStore = useSystemStore()
+  const { isLoggedIn } = storeToRefs(userStore)
+  const { accessedRoutes } = storeToRefs(systemStore)
+  
+  // 已经登录但要去登录页，重定向到首页
+  if (isLoggedIn.value && to.path === '/login') {
+    next('/dashboard')
+    return
   }
 
   // 登录拦截
   const token = localStorage.getItem('token')
   if (to.path !== '/login' && !token) {
     next('/login')
-  } else {
-    next()
+    return
   }
+
+  // 如果已经登录但还没有加载路由
+  if (isLoggedIn.value && accessedRoutes.value.length === 0) {
+    try {
+      // 加载用户信息
+      await userStore.getUserInfo()
+      
+      // 加载动态路由
+      await systemStore.loadMenuData()
+      
+      // 重新跳转，确保路由已加载
+      next({ ...to, replace: true })
+      return
+    } catch (error) {
+      console.error('加载用户信息或路由失败:', error)
+      userStore.logout()
+      next('/login')
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

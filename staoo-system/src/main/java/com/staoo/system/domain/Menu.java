@@ -1,5 +1,6 @@
 package com.staoo.system.domain;
 
+import com.staoo.common.util.TreeUtils;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.List;
  * 菜单实体类
  * 对应数据库中的sys_menu表
  */
-public class Menu implements Serializable {
+public class Menu implements Serializable, TreeUtils.TreeNode<Menu> {
     private static final long serialVersionUID = 1L;
 
     /**

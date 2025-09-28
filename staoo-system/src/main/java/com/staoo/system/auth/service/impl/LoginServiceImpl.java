@@ -38,7 +38,7 @@ public class LoginServiceImpl implements LoginService {
     public LoginResponse login(LoginRequest request) {
         // 参数验证
         if (request == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "登录请求不能为空");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "登录请求不能为空");
         }
 
         String loginType = request.getLoginType();
@@ -49,7 +49,7 @@ public class LoginServiceImpl implements LoginService {
         try {
             // 根据登录类型获取对应的登录策略
             if (!loginStrategyFactory.supports(loginType)) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "不支持的登录方式: " + loginType);
+                throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "不支持的登录方式: " + loginType);
             }
 
             // 执行登录
@@ -57,7 +57,7 @@ public class LoginServiceImpl implements LoginService {
 
             // 记录登录日志
             recordLoginLog(username, true, "登录成功", ip, userAgent);
-
+            
             return response;
         } catch (BusinessException e) {
             logger.error("登录业务异常: {}", e.getMessage());

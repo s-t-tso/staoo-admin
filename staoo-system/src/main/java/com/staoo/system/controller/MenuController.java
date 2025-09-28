@@ -1,21 +1,24 @@
 package com.staoo.system.controller;
 
-import com.staoo.common.domain.TableResult;
 import com.staoo.common.domain.AjaxResult;
+import com.staoo.common.domain.TableResult;
+import com.staoo.common.util.UserUtils;
 import com.staoo.system.domain.Menu;
-import com.staoo.system.service.MenuService;
 import com.staoo.system.mapstruct.IMenuMapper;
-import com.staoo.system.pojo.request.MenuRequest;
 import com.staoo.system.pojo.request.MenuQueryRequest;
+import com.staoo.system.pojo.request.MenuRequest;
 import com.staoo.system.pojo.response.MenuResponse;
+import com.staoo.system.service.MenuService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,7 +37,34 @@ public class MenuController {
     private IMenuMapper menuMapper;
 
     /**
+     * 获取当前用户的菜单导航
+     *
+     * @return 当前用户的菜单导航数据
+     */
+    @GetMapping("/nav")
+    @Operation(summary = "获取当前用户菜单导航", description = "获取当前登录用户的菜单导航数据")
+    public AjaxResult<Map<String, Object>> nav() {
+        // 获取当前登录用户ID
+        Long userId = UserUtils.getCurrentUserId();
+
+        // 获取用户菜单树
+        List<Menu> menuTree = menuService.getUserMenuTree(userId);
+        List<MenuResponse> menuResponses = menuMapper.toResponseList(menuTree);
+
+        // 获取用户权限
+        Set<String> permissions = menuService.getPermissionsByUserId(userId);
+
+        // 构建返回结果Map
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("menuList", menuResponses);
+        resultMap.put("permissions", permissions);
+
+        return AjaxResult.success(resultMap);
+    }
+
+    /**
      * 根据ID查询菜单
+     *
      * @param id 菜单ID
      * @return 菜单信息
      */
@@ -49,6 +79,7 @@ public class MenuController {
 
     /**
      * 查询菜单列表
+     *
      * @param request 查询条件
      * @return 菜单列表
      */
@@ -63,6 +94,7 @@ public class MenuController {
 
     /**
      * 分页查询菜单
+     *
      * @param request 分页查询条件
      * @return 菜单分页结果
      */
@@ -78,6 +110,7 @@ public class MenuController {
 
     /**
      * 新增菜单
+     *
      * @param menuRequest 菜单信息
      * @return 操作结果
      */
@@ -92,6 +125,7 @@ public class MenuController {
 
     /**
      * 更新菜单
+     *
      * @param menuRequest 菜单信息
      * @return 操作结果
      */
@@ -107,6 +141,7 @@ public class MenuController {
 
     /**
      * 根据ID删除菜单
+     *
      * @param id 菜单ID
      * @return 操作结果
      */
@@ -119,35 +154,12 @@ public class MenuController {
     }
 
     /**
-     * 批量删除菜单
-     * @param ids 菜单ID列表
-     * @return 操作结果
+     * 批量删除菜单功能暂未实现
      */
-    @DeleteMapping("/batch")
-    @Operation(summary = "批量删除菜单", description = "批量删除菜单信息")
-    @PreAuthorize("hasAnyAuthority('system:menu:delete')")
-    public AjaxResult<Boolean> deleteByIds(@RequestBody List<Long> ids) {
-        boolean result = menuService.deleteByIds(ids);
-        return AjaxResult.success(result);
-    }
-
-    /**
-     * 批量更新菜单状态
-     * @param ids 菜单ID列表
-     * @param status 状态
-     * @return 操作结果
-     */
-    @PutMapping("/status")
-    @Operation(summary = "批量更新菜单状态", description = "批量更新菜单状态")
-    @PreAuthorize("hasAnyAuthority('system:menu:edit')")
-    public AjaxResult<Boolean> updateStatusByIds(@RequestParam("ids") List<Long> ids,
-                                           @RequestParam("status") Integer status) {
-        boolean result = menuService.updateStatusByIds(ids, status);
-        return AjaxResult.success(result);
-    }
 
     /**
      * 根据角色ID查询菜单列表
+     *
      * @param roleId 角色ID
      * @return 菜单列表
      */
@@ -161,21 +173,8 @@ public class MenuController {
     }
 
     /**
-     * 根据用户ID查询菜单列表
-     * @param userId 用户ID
-     * @return 菜单列表
-     */
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "根据用户ID查询菜单列表", description = "根据用户ID查询用户拥有的菜单列表")
-    @PreAuthorize("hasAnyAuthority('system:user:query')")
-    public AjaxResult<List<MenuResponse>> getMenusByUserId(@PathVariable("userId") @Parameter(description = "用户ID") Long userId) {
-        List<Menu> menus = menuService.getMenusByUserId(userId);
-        List<MenuResponse> responseList = menuMapper.toResponseList(menus);
-        return AjaxResult.success(responseList);
-    }
-
-    /**
      * 根据用户ID查询权限列表
+     *
      * @param userId 用户ID
      * @return 权限列表
      */
@@ -189,6 +188,7 @@ public class MenuController {
 
     /**
      * 查询所有菜单权限标识
+     *
      * @return 权限标识列表
      */
     @GetMapping("/allPermissions")
@@ -201,6 +201,7 @@ public class MenuController {
 
     /**
      * 查询菜单树结构
+     *
      * @param menuRequest 查询条件
      * @return 菜单树结构
      */
@@ -216,6 +217,7 @@ public class MenuController {
 
     /**
      * 查询角色菜单树结构
+     *
      * @param roleId 角色ID
      * @return 菜单树结构
      */
@@ -230,6 +232,7 @@ public class MenuController {
 
     /**
      * 查询用户菜单树结构
+     *
      * @param userId 用户ID
      * @return 菜单树结构
      */
@@ -244,63 +247,69 @@ public class MenuController {
 
     /**
      * 检查菜单名称唯一性
+     *
      * @param menuName 菜单名称
      * @param parentId 父菜单ID
-     * @param id 菜单ID（用于排除自身）
+     * @param id       菜单ID（用于排除自身）
      * @return 检查结果
      */
     @GetMapping("/checkMenuNameUnique")
     @Operation(summary = "检查菜单名称唯一性", description = "检查菜单名称是否唯一")
     @PreAuthorize("hasAnyAuthority('system:menu:add', 'system:menu:edit')")
     public AjaxResult<Boolean> checkMenuNameUnique(@RequestParam("menuName") String menuName,
-                                             @RequestParam("parentId") Long parentId,
-                                             @RequestParam(value = "id", required = false) Long id) {
+                                                   @RequestParam("parentId") Long parentId,
+                                                   @RequestParam(value = "id", required = false) Long id) {
         boolean isUnique = !menuService.checkMenuNameUnique(menuName, parentId, id);
         return AjaxResult.success(isUnique);
     }
 
     /**
      * 检查菜单权限唯一性
+     *
      * @param perms 菜单权限
-     * @param id 菜单ID（用于排除自身）
+     * @param id    菜单ID（用于排除自身）
      * @return 检查结果
      */
     @GetMapping("/checkMenuPermsUnique")
     @Operation(summary = "检查菜单权限唯一性", description = "检查菜单权限是否唯一")
     @PreAuthorize("hasAnyAuthority('system:menu:add', 'system:menu:edit')")
     public AjaxResult<Boolean> checkMenuPermsUnique(@RequestParam("perms") String perms,
-                                              @RequestParam(value = "id", required = false) Long id) {
+                                                    @RequestParam(value = "id", required = false) Long id) {
         boolean isUnique = !menuService.checkMenuPermsUnique(perms, id);
         return AjaxResult.success(isUnique);
     }
 
     /**
      * 检查菜单路由唯一性
+     *
      * @param path 菜单路由
-     * @param id 菜单ID（用于排除自身）
+     * @param id   菜单ID（用于排除自身）
      * @return 检查结果
      */
     @GetMapping("/checkMenuPathUnique")
     @Operation(summary = "检查菜单路由唯一性", description = "检查菜单路由是否唯一")
     @PreAuthorize("hasAnyAuthority('system:menu:add', 'system:menu:edit')")
     public AjaxResult<Boolean> checkMenuPathUnique(@RequestParam("path") String path,
-                                             @RequestParam(value = "id", required = false) Long id) {
+                                                   @RequestParam(value = "id", required = false) Long id) {
         boolean isUnique = !menuService.checkMenuPathUnique(path, id);
         return AjaxResult.success(isUnique);
     }
 
     /**
      * 检查菜单组件唯一性
+     *
      * @param component 菜单组件
-     * @param id 菜单ID（用于排除自身）
+     * @param id        菜单ID（用于排除自身）
      * @return 检查结果
      */
     @GetMapping("/checkMenuComponentUnique")
     @Operation(summary = "检查菜单组件唯一性", description = "检查菜单组件是否唯一")
     @PreAuthorize("hasAnyAuthority('system:menu:add', 'system:menu:edit')")
     public AjaxResult<Boolean> checkMenuComponentUnique(@RequestParam("component") String component,
-                                                  @RequestParam(value = "id", required = false) Long id) {
+                                                        @RequestParam(value = "id", required = false) Long id) {
         boolean isUnique = !menuService.checkMenuComponentUnique(component, id);
         return AjaxResult.success(isUnique);
     }
+
+
 }

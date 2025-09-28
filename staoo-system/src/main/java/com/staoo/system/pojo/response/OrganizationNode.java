@@ -1,12 +1,20 @@
 package com.staoo.system.pojo.response;
 
+import com.staoo.common.util.TreeUtils;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 组织节点响应类
  * 用于封装组织架构中的单个节点数据
  */
-public class OrganizationNode implements Serializable {
+public class OrganizationNode implements Serializable, TreeUtils.TreeNode<OrganizationNode> {
+
+    /**
+     * 子节点列表
+     */
+    private List<OrganizationNode> children = new ArrayList<>();
     private static final long serialVersionUID = 1L;
 
     /**
@@ -114,6 +122,14 @@ public class OrganizationNode implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<OrganizationNode> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<OrganizationNode> children) {
+        this.children = children;
     }
 
     @Override

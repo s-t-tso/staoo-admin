@@ -139,6 +139,8 @@ import { useRouter } from 'vue-router'
 import { useUserStore, useSystemStore } from '../store'
 import { Bell } from '@element-plus/icons-vue'
 
+// 安全拼接路径的辅助函数已移除，因为当前未使用
+
 // Store
 const userStore = useUserStore()
 const systemStore = useSystemStore()
@@ -153,16 +155,10 @@ const activeMenu = computed(() => {
   return route.name as string || ''
 })
 
-// 获取非Layout的路由，且过滤掉hidden为true的路由
+// 使用从后端获取的动态路由数据
 const routes = computed(() => {
-  const layoutRoute = router.options.routes.find((route: any) => route.name === 'Layout')
-  console.log("路由",layoutRoute)
-  if (layoutRoute && layoutRoute.children) {
-    return layoutRoute.children.filter((child: any) =>
-      child.path !== '/' && child.meta?.hidden !== true
-    )
-  }
-  return []
+  // 返回系统Store中存储的可访问路由
+  return systemStore.accessedRoutes || []
 })
 
 // 切换侧边栏
@@ -177,9 +173,18 @@ const handleLogout = () => {
 }
 
 // 初始化
-onMounted(() => {
+onMounted(async () => {
   // 加载token
   userStore.loadToken()
+  
+  // 如果用户已登录且没有加载过菜单数据，则加载动态路由
+  if (userStore.isLoggedIn && systemStore.accessedRoutes.length === 0) {
+    try {
+      await systemStore.loadMenuData()
+    } catch (error) {
+      console.error('加载菜单数据失败:', error)
+    }
+  }
 
   // 更新面包屑
   updateBreadcrumb()

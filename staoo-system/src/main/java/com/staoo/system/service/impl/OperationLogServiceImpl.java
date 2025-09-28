@@ -30,10 +30,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
 
     @Override
     public OperationLogBase getById(Long id) {
-        if (id == null || id <= 0) {
-            logger.error("查询操作日志ID无效: {}", id);
-            throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-        }
         try {
             return operationLogMapper.getById(id);
         } catch (Exception e) {
@@ -55,11 +51,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public TableResult<OperationLogBase> getPage(OperationLogQueryRequest request) {
         try {
-            // 参数校验
-            if (request == null) {
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR, "分页查询参数不能为空");
-            }
-            
             // 构建查询条件
             OperationLogBase operationLogBase = new OperationLogBase();
             
@@ -102,11 +93,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Transactional(rollbackFor = Exception.class)
     public boolean save(OperationLogBase operationLogBase) {
         try {
-            if (operationLogBase == null) {
-                logger.error("操作日志不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
             int result = operationLogMapper.insert(operationLogBase);
@@ -124,11 +110,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Transactional(rollbackFor = Exception.class)
     public boolean saveBatch(List<OperationLogBase> operationLogBases) {
         try {
-            if (operationLogBases == null || operationLogBases.isEmpty()) {
-                logger.error("操作日志列表不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-
             // 注意：createTime和updateTime字段将由MyBatis拦截器自动填充
 
             int result = operationLogMapper.insertBatch(operationLogBases);
@@ -146,10 +127,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteById(Long id) {
         try {
-            if (id == null || id <= 0) {
-                logger.error("删除操作日志ID无效: {}", id);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             int result = operationLogMapper.deleteById(id);
             return result > 0;
         } catch (BusinessException e) {
@@ -165,10 +142,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteByIds(List<Long> ids) {
         try {
-            if (ids == null || ids.isEmpty()) {
-                logger.error("删除操作日志ID列表不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             int result = operationLogMapper.deleteByIds(ids);
             return result > 0;
         } catch (BusinessException e) {
@@ -184,14 +157,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteByTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            if (startTime == null || endTime == null) {
-                logger.error("删除操作日志时间范围不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (startTime.isAfter(endTime)) {
-                logger.error("开始时间不能晚于结束时间");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             int result = operationLogMapper.deleteByTimeRange(startTime, endTime);
             return result >= 0;
         } catch (BusinessException e) {
@@ -219,10 +184,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public List<OperationLogBase> getByUserId(Long userId) {
         try {
-            if (userId == null || userId <= 0) {
-                logger.error("查询操作人ID无效: {}", userId);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.getByUserId(userId);
         } catch (BusinessException e) {
             logger.error("根据操作人ID查询操作日志失败: {}", e.getMessage());
@@ -236,10 +197,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public List<OperationLogBase> getByModule(String module) {
         try {
-            if (!StringUtils.hasText(module)) {
-                logger.error("模块名称不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.getByModule(module);
         } catch (BusinessException e) {
             logger.error("根据模块查询操作日志失败: {}", e.getMessage());
@@ -253,10 +210,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public List<OperationLogBase> getByOperationType(String operationType) {
         try {
-            if (!StringUtils.hasText(operationType)) {
-                logger.error("操作类型不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.getByOperationType(operationType);
         } catch (BusinessException e) {
             logger.error("根据操作类型查询操作日志失败: {}", e.getMessage());
@@ -270,10 +223,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public List<OperationLogBase> getByIp(String ip) {
         try {
-            if (!StringUtils.hasText(ip)) {
-                logger.error("IP地址不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.getByIp(ip);
         } catch (BusinessException e) {
             logger.error("根据IP查询操作日志失败: {}", e.getMessage());
@@ -315,14 +264,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public List<OperationLogBase> countByModule(LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            if (startTime == null || endTime == null) {
-                logger.error("统计时间范围不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (startTime.isAfter(endTime)) {
-                logger.error("开始时间不能晚于结束时间");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.countByModule(startTime, endTime);
         } catch (BusinessException e) {
             logger.error("统计各模块操作次数失败: {}", e.getMessage());
@@ -336,14 +277,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public List<OperationLogBase> countByOperationType(LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            if (startTime == null || endTime == null) {
-                logger.error("统计时间范围不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (startTime.isAfter(endTime)) {
-                logger.error("开始时间不能晚于结束时间");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.countByOperationType(startTime, endTime);
         } catch (BusinessException e) {
             logger.error("统计各操作类型操作次数失败: {}", e.getMessage());
@@ -357,14 +290,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public int countTotalOperations(LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            if (startTime == null || endTime == null) {
-                logger.error("统计时间范围不能为空");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
-            if (startTime.isAfter(endTime)) {
-                logger.error("开始时间不能晚于结束时间");
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.countTotalOperations(startTime, endTime);
         } catch (BusinessException e) {
             logger.error("统计操作总次数失败: {}", e.getMessage());
@@ -378,10 +303,6 @@ public class OperationLogServiceImpl implements SystemOperationLogService {
     @Override
     public List<OperationLogBase> getOperationTrend(Integer days) {
         try {
-            if (days == null || days <= 0) {
-                logger.error("查询天数无效: {}", days);
-                throw new BusinessException(StatusCodeEnum.PARAM_VALIDATION_ERROR);
-            }
             return operationLogMapper.getOperationTrend(days);
         } catch (BusinessException e) {
             logger.error("查询操作趋势失败: {}", e.getMessage());

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.staoo.common.annotation.LogOperation;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.flow.domain.FormData;
+import com.staoo.flow.mapstruct.FormDataConverter;
+import com.staoo.flow.pojo.request.FormDataRequest;
+import com.staoo.flow.pojo.response.FormDataResponse;
 import com.staoo.flow.service.FormDataService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +40,9 @@ public class FormDataController {
 
     @Autowired
     private FormDataService formDataService;
+    
+    @Autowired
+    private FormDataConverter formDataConverter;
 
     /**
      * 根据ID查询表单数据
@@ -44,20 +51,21 @@ public class FormDataController {
      */
     @PreAuthorize("hasAuthority('form:data:view')")
     @GetMapping("/{id}")
-    public AjaxResult<FormData> getById(@PathVariable Long id) {
+    public AjaxResult<FormDataResponse> getById(@PathVariable Long id) {
         try {
             FormData formData = formDataService.getById(id);
             if (formData == null) {
                 return AjaxResult.error("表单数据不存在");
             }
-            return AjaxResult.success(formData);
+            FormDataResponse response = formDataConverter.toResponse(formData);
+            return AjaxResult.success(response);
         } catch (Exception e) {
             return AjaxResult.error("查询失败: " + e.getMessage());
         }
     }
 
     /**
-     * 根据业务键查询表单数据
+     * 根据业务键和表单标识查询表单数据
      * @param businessKey 业务键
      * @param formKey 表单标识
      * @param tenantId 租户ID
@@ -65,36 +73,16 @@ public class FormDataController {
      */
     @PreAuthorize("hasAuthority('form:data:view')")
     @GetMapping("/by-business-key")
-    public AjaxResult<FormData> getByBusinessKey(@RequestParam String businessKey, 
-                                              @RequestParam String formKey, 
-                                              @RequestParam Long tenantId) {
+    public AjaxResult<FormDataResponse> getByBusinessKey(@RequestParam String businessKey, 
+                                                     @RequestParam String formKey, 
+                                                     @RequestParam Long tenantId) {
         try {
             FormData formData = formDataService.getByBusinessKey(businessKey, formKey, tenantId);
             if (formData == null) {
                 return AjaxResult.error("表单数据不存在");
             }
-            return AjaxResult.success(formData);
-        } catch (Exception e) {
-            return AjaxResult.error("查询失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 根据流程实例ID查询表单数据
-     * @param processInstanceId 流程实例ID
-     * @param tenantId 租户ID
-     * @return 表单数据信息
-     */
-    @PreAuthorize("hasAuthority('form:data:view')")
-    @GetMapping("/by-process-instance")
-    public AjaxResult<FormData> getByProcessInstanceId(@RequestParam String processInstanceId, 
-                                                    @RequestParam Long tenantId) {
-        try {
-            FormData formData = formDataService.getByProcessInstanceId(processInstanceId, tenantId);
-            if (formData == null) {
-                return AjaxResult.error("表单数据不存在");
-            }
-            return AjaxResult.success(formData);
+            FormDataResponse response = formDataConverter.toResponse(formData);
+            return AjaxResult.success(response);
         } catch (Exception e) {
             return AjaxResult.error("查询失败: " + e.getMessage());
         }
@@ -107,10 +95,11 @@ public class FormDataController {
      */
     @PreAuthorize("hasAuthority('form:data:list')")
     @GetMapping("/list")
-    public AjaxResult<List<FormData>> getList(FormData formData) {
+    public AjaxResult<List<FormDataResponse>> getList(FormData formData) {
         try {
             List<FormData> list = formDataService.getList(formData);
-            return AjaxResult.success(list);
+            List<FormDataResponse> responses = formDataConverter.toResponseList(list);
+            return AjaxResult.success(responses);
         } catch (Exception e) {
             return AjaxResult.error("查询失败: " + e.getMessage());
         }
@@ -118,18 +107,15 @@ public class FormDataController {
 
     /**
      * 新增表单数据
-     * @param formData 表单数据信息
+     * @param request 表单数据请求信息
      * @return 操作结果
      */
     @PreAuthorize("hasAuthority('form:data:add')")
     @LogOperation(module = "表单管理", operationType = "新增", content = "新增表单数据")
     @PostMapping
-    public AjaxResult<Integer> add(@RequestBody FormData formData) {
+    public AjaxResult<Integer> add(@Validated @RequestBody FormDataRequest request) {
         try {
-            // 验证表单数据
-            if (!formDataService.validateFormData(formData)) {
-                return AjaxResult.error("表单数据验证失败");
-            }
+            FormData formData = formDataConverter.toEntity(request);
             int result = formDataService.save(formData);
             return AjaxResult.success(result);
         } catch (Exception e) {
@@ -139,18 +125,15 @@ public class FormDataController {
 
     /**
      * 更新表单数据
-     * @param formData 表单数据信息
+     * @param request 表单数据请求信息
      * @return 操作结果
      */
     @PreAuthorize("hasAuthority('form:data:edit')")
     @LogOperation(module = "表单管理", operationType = "更新", content = "更新表单数据")
     @PutMapping
-    public AjaxResult<Integer> update(@RequestBody FormData formData) {
+    public AjaxResult<Integer> update(@Validated @RequestBody FormDataRequest request) {
         try {
-            // 验证表单数据
-            if (!formDataService.validateFormData(formData)) {
-                return AjaxResult.error("表单数据验证失败");
-            }
+            FormData formData = formDataConverter.toEntity(request);
             int result = formDataService.update(formData);
             return AjaxResult.success(result);
         } catch (Exception e) {

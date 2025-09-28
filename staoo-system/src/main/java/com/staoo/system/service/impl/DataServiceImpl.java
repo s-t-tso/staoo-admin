@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.staoo.common.domain.PageQuery;
 import com.staoo.common.domain.TableResult;
+import com.staoo.common.util.TreeUtils;
 import com.staoo.system.domain.Department;
 import com.staoo.system.domain.User;
 import com.staoo.system.mapstruct.IUserMapper;
@@ -160,9 +161,8 @@ public class DataServiceImpl implements DataService {
      * 构建部门树形结构
      */
     private List<OrganizationNode> buildTree(List<OrganizationNode> nodes) {
-        // 为了简化，这里不实现完整的树形结构构建
-        // 实际项目中可能需要递归构建树形结构
-        return nodes;
+        // 使用通用的TreeUtils构建组织节点树形结构
+        return TreeUtils.buildTree(nodes, 0L);
     }
 
     /**

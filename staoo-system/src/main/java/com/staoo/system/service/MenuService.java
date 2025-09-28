@@ -25,7 +25,7 @@ public interface MenuService {
      * @return 菜单列表
      */
     List<Menu> getList(Menu menu);
-    
+
     /**
      * 根据请求参数查询菜单列表
      * @param request 查询请求参数
@@ -61,20 +61,7 @@ public interface MenuService {
      */
     boolean deleteById(Long id);
 
-    /**
-     * 批量删除菜单
-     * @param ids 菜单ID列表
-     * @return 操作结果
-     */
-    boolean deleteByIds(List<Long> ids);
 
-    /**
-     * 批量更新菜单状态
-     * @param ids 菜单ID列表
-     * @param status 状态
-     * @return 操作结果
-     */
-    boolean updateStatusByIds(List<Long> ids, Integer status);
 
     /**
      * 根据角色ID查询菜单列表
@@ -124,12 +111,6 @@ public interface MenuService {
      */
     List<Menu> getUserMenuTree(Long userId);
 
-    /**
-     * 构建菜单树
-     * @param menus 菜单列表
-     * @return 菜单树结构
-     */
-    List<Menu> buildMenuTree(List<Menu> menus);
 
     /**
      * 检查菜单名称唯一性

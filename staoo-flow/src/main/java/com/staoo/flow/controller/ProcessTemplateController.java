@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.staoo.common.annotation.LogOperation;
 import com.staoo.common.domain.AjaxResult;
 import com.staoo.flow.domain.ProcessTemplate;
+import com.staoo.flow.mapstruct.ProcessTemplateConverter;
 import com.staoo.flow.pojo.request.ProcessTemplateRequest;
 import com.staoo.flow.service.ProcessTemplateService;
 
@@ -31,6 +33,9 @@ public class ProcessTemplateController {
 
     @Autowired
     private ProcessTemplateService processTemplateService;
+    
+    @Autowired
+    private ProcessTemplateConverter processTemplateConverter;
 
     /**
      * 根据ID查询流程模板
@@ -95,24 +100,15 @@ public class ProcessTemplateController {
     @PreAuthorize("hasAuthority('process:template:add')")
     @LogOperation(module = "流程管理", operationType = "新增", content = "新增流程模板")
     @PostMapping
-    public AjaxResult<Integer> add(@RequestBody ProcessTemplateRequest request) {
+    public AjaxResult<Integer> add(@Validated @RequestBody ProcessTemplateRequest request) {
         try {
             // 验证流程标识唯一性
             if (!processTemplateService.checkProcessKeyUnique(request.getProcessKey(), request.getTenantId(), null)) {
                 return AjaxResult.error("流程标识已存在");
             }
             
-            // 转换请求对象为实体对象
-            ProcessTemplate processTemplate = new ProcessTemplate();
-            processTemplate.setProcessKey(request.getProcessKey());
-            processTemplate.setProcessName(request.getProcessName());
-            processTemplate.setDescription(request.getDescription());
-            processTemplate.setBpmnXml(request.getBpmnXml());
-            processTemplate.setStatus(request.getStatus());
-            processTemplate.setVersion(request.getVersion());
-            processTemplate.setTenantId(request.getTenantId());
-            processTemplate.setCategory(request.getCategory());
-            processTemplate.setFormKey(request.getFormKey());
+            // 使用MapStruct转换器转换对象
+            ProcessTemplate processTemplate = processTemplateConverter.toEntity(request);
             
             int result = processTemplateService.save(processTemplate);
             return AjaxResult.success(result);
@@ -129,25 +125,15 @@ public class ProcessTemplateController {
     @PreAuthorize("hasAuthority('process:template:edit')")
     @LogOperation(module = "流程管理", operationType = "更新", content = "更新流程模板")
     @PutMapping
-    public AjaxResult<Integer> update(@RequestBody ProcessTemplateRequest request) {
+    public AjaxResult<Integer> update(@Validated @RequestBody ProcessTemplateRequest request) {
         try {
             // 验证流程标识唯一性
             if (!processTemplateService.checkProcessKeyUnique(request.getProcessKey(), request.getTenantId(), request.getId())) {
                 return AjaxResult.error("流程标识已存在");
             }
             
-            // 转换请求对象为实体对象
-            ProcessTemplate processTemplate = new ProcessTemplate();
-            processTemplate.setId(request.getId());
-            processTemplate.setProcessKey(request.getProcessKey());
-            processTemplate.setProcessName(request.getProcessName());
-            processTemplate.setDescription(request.getDescription());
-            processTemplate.setBpmnXml(request.getBpmnXml());
-            processTemplate.setStatus(request.getStatus());
-            processTemplate.setVersion(request.getVersion());
-            processTemplate.setTenantId(request.getTenantId());
-            processTemplate.setCategory(request.getCategory());
-            processTemplate.setFormKey(request.getFormKey());
+            // 使用MapStruct转换器转换对象
+            ProcessTemplate processTemplate = processTemplateConverter.toEntity(request);
             
             int result = processTemplateService.update(processTemplate);
             return AjaxResult.success(result);

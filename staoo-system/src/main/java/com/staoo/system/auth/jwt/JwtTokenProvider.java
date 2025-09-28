@@ -1,6 +1,8 @@
 package com.staoo.system.auth.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
@@ -21,19 +23,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class JwtTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-
+    // 存储用户会话信息，用于多端登录控制
+    // key: username + deviceId, value: token
+    private final Map<String, String> userSessions = new ConcurrentHashMap<>();
+    // 存储用户当前活跃会话数
+    private final Map<String, Integer> userActiveSessions = new ConcurrentHashMap<>();
     @Value("${jwt.secret}")
     private String jwtSecret;
-
     @Value("${jwt.expiration}")
     private long jwtExpiration;
-
     @Value("${jwt.refresh-expiration}")
     private long jwtRefreshExpiration;
-
     @Value("${jwt.issuer}")
     private String jwtIssuer;
-
     @Value("${system.login.max-sessions}")
     private int maxSessions;
 
@@ -43,13 +45,6 @@ public class JwtTokenProvider {
     public long getJwtExpiration() {
         return jwtExpiration;
     }
-
-    // 存储用户会话信息，用于多端登录控制
-    // key: username + deviceId, value: token
-    private final Map<String, String> userSessions = new ConcurrentHashMap<>();
-
-    // 存储用户当前活跃会话数
-    private final Map<String, Integer> userActiveSessions = new ConcurrentHashMap<>();
 
     /**
      * 获取JWT密钥
@@ -72,9 +67,10 @@ public class JwtTokenProvider {
 
     /**
      * 生成访问令牌
+     *
      * @param username 用户名
      * @param deviceId 设备ID
-     * @param claims 自定义声明
+     * @param claims   自定义声明
      * @return JWT访问令牌
      */
     public String generateAccessToken(String username, String deviceId, Map<String, Object> claims) {
@@ -86,13 +82,13 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         String token = Jwts.builder()
-                .setClaims(claims != null ? claims : new HashMap<>())
-                .setSubject(username)
-                .setIssuer(jwtIssuer)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSignInKey(), SignatureAlgorithm.HS512)
-                .compact();
+                           .setClaims(claims != null ? claims : new HashMap<>())
+                           .setSubject(username)
+                           .setIssuer(jwtIssuer)
+                           .setIssuedAt(now)
+                           .setExpiration(expiryDate)
+                           .signWith(getSignInKey(), SignatureAlgorithm.HS512)
+                           .compact();
 
         // 存储会话信息
         String sessionKey = getSessionKey(username, deviceId);
@@ -104,6 +100,7 @@ public class JwtTokenProvider {
 
     /**
      * 生成刷新令牌
+     *
      * @param username 用户名
      * @return JWT刷新令牌
      */
@@ -112,94 +109,87 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + jwtRefreshExpiration);
 
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuer(jwtIssuer)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSignInKey(), SignatureAlgorithm.HS512)
-                .compact();
+                   .setSubject(username)
+                   .setIssuer(jwtIssuer)
+                   .setIssuedAt(now)
+                   .setExpiration(expiryDate)
+                   .signWith(getSignInKey(), SignatureAlgorithm.HS512)
+                   .compact();
     }
 
     /**
      * 从令牌中获取用户名
+     *
      * @param token JWT令牌
      * @return 用户名
      */
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+                            .setSigningKey(getSignInKey())
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
 
         return claims.getSubject();
     }
 
     /**
      * 验证令牌
-     * @param token JWT令牌
+     *
+     * @param token    JWT令牌
      * @param deviceId 设备ID
      * @return 令牌是否有效
      */
     public boolean validateToken(String token, String deviceId) {
-        try {
-            // 解析令牌
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getSignInKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
 
-            String username = claims.getSubject();
-            String sessionKey = getSessionKey(username, deviceId);
+        // 解析令牌
+        Claims claims = Jwts.parserBuilder()
+                            .setSigningKey(getSignInKey())
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
 
-            // 检查令牌是否在会话中
+        String username = claims.getSubject();
+        String sessionKey = getSessionKey(username, deviceId);
+
+        // 检查令牌是否在会话中
 //            String storedToken = userSessions.get(sessionKey);
 //            if (storedToken == null || !storedToken.equals(token)) {
 //                logger.warn("令牌不在有效会话中: {}", username);
 //                return false;
 //            }
 
-            // 检查令牌是否过期
-            Date expiration = claims.getExpiration();
-            if (expiration != null && expiration.before(new Date())) {
-                logger.warn("令牌已过期: {}", username);
-                // 移除过期会话
-                removeSession(username, deviceId);
-                return false;
-            }
-
-            return true;
-        } catch (SecurityException e) {
-            logger.error("无效的JWT签名", e);
-        } catch (MalformedJwtException e) {
-            logger.error("无效的JWT令牌", e);
-        } catch (ExpiredJwtException e) {
-            logger.error("JWT令牌已过期", e);
-        } catch (UnsupportedJwtException e) {
-            logger.error("不支持的JWT令牌", e);
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT令牌为空或格式错误", e);
+        // 检查令牌是否过期
+        Date expiration = claims.getExpiration();
+        if (expiration != null && expiration.before(new Date())) {
+            logger.warn("令牌已过期: {}", username);
+            // 移除过期会话
+            removeSession(username, deviceId);
+            return false;
         }
-        return false;
+
+        return true;
+
     }
 
     /**
      * 从令牌中获取所有声明
+     *
      * @param token JWT令牌
      * @return 声明Map
      */
     public Map<String, Object> getAllClaimsFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+                            .setSigningKey(getSignInKey())
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
         return claims;
     }
 
     /**
      * 注销指定用户的指定设备会话
+     *
      * @param username 用户名
      * @param deviceId 设备ID
      */
@@ -209,6 +199,7 @@ public class JwtTokenProvider {
 
     /**
      * 注销指定用户的所有会话
+     *
      * @param username 用户名
      */
     public void logoutAll(String username) {
@@ -221,6 +212,7 @@ public class JwtTokenProvider {
 
     /**
      * 检查并清理用户会话
+     *
      * @param username 用户名
      * @param deviceId 设备ID
      */
@@ -253,6 +245,7 @@ public class JwtTokenProvider {
 
     /**
      * 移除指定会话
+     *
      * @param username 用户名
      * @param deviceId 设备ID
      */
@@ -272,6 +265,7 @@ public class JwtTokenProvider {
 
     /**
      * 获取会话键
+     *
      * @param username 用户名
      * @param deviceId 设备ID
      * @return 会话键
