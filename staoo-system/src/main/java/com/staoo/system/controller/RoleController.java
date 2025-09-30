@@ -29,7 +29,7 @@ public class RoleController {
 
     @Autowired
     private RoleService roleService;
-    
+
     @Autowired
     private IRoleMapper roleMapper;
 
@@ -71,7 +71,7 @@ public class RoleController {
     @PreAuthorize("hasAnyAuthority('system:role:query')")
     public AjaxResult<TableResult<RoleResponse>> getPage(RoleQueryRequest request) {
         TableResult<Role> page = roleService.getPage(request);
-        List<RoleResponse> responseList = roleMapper.toResponseList(page.getRow());
+        List<RoleResponse> responseList = roleMapper.toResponseList(page.getList());
         TableResult<RoleResponse> responsePage = TableResult.build(page.getTotal(), page.getPage(), page.getPagesize(), responseList);
         return AjaxResult.success(responsePage);
     }
@@ -140,7 +140,7 @@ public class RoleController {
     @PutMapping("/status")
     @Operation(summary = "批量更新角色状态", description = "批量更新角色状态")
     @PreAuthorize("hasAnyAuthority('system:role:edit')")
-    public AjaxResult<Boolean> updateStatusByIds(@RequestParam("ids") List<Long> ids, 
+    public AjaxResult<Boolean> updateStatusByIds(@RequestParam("ids") List<Long> ids,
                                            @RequestParam("status") Integer status) {
         boolean result = roleService.updateStatusByIds(ids, status);
         return AjaxResult.success(result);
@@ -195,7 +195,7 @@ public class RoleController {
     @PostMapping("/menu")
     @Operation(summary = "保存角色菜单关系", description = "保存角色与菜单的关联关系")
     @PreAuthorize("hasAnyAuthority('system:role:edit')")
-    public AjaxResult<Boolean> saveRoleMenus(@RequestParam("roleId") Long roleId, 
+    public AjaxResult<Boolean> saveRoleMenus(@RequestParam("roleId") Long roleId,
                                         @RequestBody List<Long> menuIds) {
         boolean result = roleService.saveRoleMenus(roleId, menuIds);
         return AjaxResult.success(result);

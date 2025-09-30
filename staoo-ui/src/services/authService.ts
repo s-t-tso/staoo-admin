@@ -25,7 +25,7 @@ export const login = async (params: LoginRequest): Promise<LoginResponse> => {
   };
 
   // 实际API调用代码
-  const data = await request.post<LoginResponse>('/auth/login', loginParams);
+  const data = await request.post<LoginResponse>('/auth/login', loginParams).then(res => res.data);
   
   // 保存refreshToken到本地存储
   if (data.refreshToken) {
@@ -42,7 +42,7 @@ export const login = async (params: LoginRequest): Promise<LoginResponse> => {
  */
 export const refreshToken = async (refreshToken: string): Promise<LoginResponse> => {
   // 实际API调用代码
-  const data = await request.post<LoginResponse>('/auth/refresh', { refreshToken });
+  const data = await request.post<LoginResponse>('/auth/refresh', { refreshToken }).then(res => res.data);
   
   // 保存新的refreshToken
   if (data.refreshToken) {
@@ -100,6 +100,6 @@ export const getUserInfo = async (): Promise<ApiResponse<UserInfo>> => {
   return {
     code: 200,
     message: 'success',
-    data: result
+    data: result.data
   };
 };

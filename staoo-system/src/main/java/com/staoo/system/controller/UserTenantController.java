@@ -1,6 +1,5 @@
 package com.staoo.system.controller;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.staoo.common.domain.AjaxResult;
-import com.staoo.common.domain.PageQuery;
 import com.staoo.common.domain.TableResult;
 import com.staoo.system.domain.UserTenant;
 import com.staoo.system.mapstruct.IUserTenantMapper;
@@ -38,7 +36,7 @@ import jakarta.validation.Valid;
 public class UserTenantController {
     @Autowired
     private UserTenantService userTenantService;
-    
+
     @Autowired
     private IUserTenantMapper userTenantMapper;
 
@@ -96,8 +94,8 @@ public class UserTenantController {
     @PutMapping("/{userId}/{tenantId}/role-type")
     @Operation(summary = "更新用户在租户中的角色类型")
     @PreAuthorize("@ss.hasPermi('system:user:edit')")
-    public AjaxResult<Boolean> updateUserTenantRoleType(@PathVariable Long userId, 
-                                                    @PathVariable Long tenantId, 
+    public AjaxResult<Boolean> updateUserTenantRoleType(@PathVariable Long userId,
+                                                    @PathVariable Long tenantId,
                                                     @RequestBody Integer roleType) {
         boolean result = userTenantService.updateUserTenantRoleType(userId, tenantId, roleType);
         return AjaxResult.success(result);
@@ -113,8 +111,8 @@ public class UserTenantController {
     @PutMapping("/{userId}/{tenantId}/status")
     @Operation(summary = "更新用户在租户中的状态")
     @PreAuthorize("@ss.hasPermi('system:user:edit')")
-    public AjaxResult<Boolean> updateUserTenantStatus(@PathVariable Long userId, 
-                                                  @PathVariable Long tenantId, 
+    public AjaxResult<Boolean> updateUserTenantStatus(@PathVariable Long userId,
+                                                  @PathVariable Long tenantId,
                                                   @RequestBody Integer status) {
         boolean result = userTenantService.updateUserTenantStatus(userId, tenantId, status);
         return AjaxResult.success(result);
@@ -156,7 +154,7 @@ public class UserTenantController {
     @DeleteMapping("/{userId}/{tenantId}")
     @Operation(summary = "根据用户ID和租户ID删除关联")
     @PreAuthorize("@ss.hasPermi('system:user:delete')")
-    public AjaxResult<Boolean> deleteUserTenantByUserAndTenant(@PathVariable Long userId, 
+    public AjaxResult<Boolean> deleteUserTenantByUserAndTenant(@PathVariable Long userId,
                                                            @PathVariable Long tenantId) {
         boolean result = userTenantService.deleteUserTenantByUserAndTenant(userId, tenantId);
         return AjaxResult.success(result);
@@ -185,7 +183,7 @@ public class UserTenantController {
     @GetMapping("/{userId}/{tenantId}")
     @Operation(summary = "根据用户ID和租户ID查询关联信息")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<UserTenantResponse> getUserTenantByUserAndTenant(@PathVariable Long userId, 
+    public AjaxResult<UserTenantResponse> getUserTenantByUserAndTenant(@PathVariable Long userId,
                                                           @PathVariable Long tenantId) {
         UserTenant userTenant = userTenantService.getUserTenantByUserAndTenant(userId, tenantId);
         UserTenantResponse response = userTenantMapper.toResponse(userTenant);
@@ -229,7 +227,7 @@ public class UserTenantController {
     @GetMapping("/check/{userId}/{tenantId}")
     @Operation(summary = "检查用户是否属于指定租户")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<Boolean> checkUserBelongsToTenant(@PathVariable Long userId, 
+    public AjaxResult<Boolean> checkUserBelongsToTenant(@PathVariable Long userId,
                                                     @PathVariable Long tenantId) {
         boolean result = userTenantService.checkUserBelongsToTenant(userId, tenantId);
         return AjaxResult.success(result);
@@ -244,7 +242,7 @@ public class UserTenantController {
     @GetMapping("/check-creator/{userId}/{tenantId}")
     @Operation(summary = "检查用户在租户中是否具有创建者权限")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<Boolean> checkUserIsCreatorInTenant(@PathVariable Long userId, 
+    public AjaxResult<Boolean> checkUserIsCreatorInTenant(@PathVariable Long userId,
                                                       @PathVariable Long tenantId) {
         boolean result = userTenantService.checkUserIsCreatorInTenant(userId, tenantId);
         return AjaxResult.success(result);
@@ -259,7 +257,7 @@ public class UserTenantController {
     @GetMapping("/check-manager/{userId}/{tenantId}")
     @Operation(summary = "检查用户在租户中是否具有管理者权限")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<Boolean> checkUserIsManagerInTenant(@PathVariable Long userId, 
+    public AjaxResult<Boolean> checkUserIsManagerInTenant(@PathVariable Long userId,
                                                       @PathVariable Long tenantId) {
         boolean result = userTenantService.checkUserIsManagerInTenant(userId, tenantId);
         return AjaxResult.success(result);
@@ -274,7 +272,7 @@ public class UserTenantController {
     @GetMapping("/check-normal/{userId}/{tenantId}")
     @Operation(summary = "检查用户在租户中是否具有普通用户权限")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public AjaxResult<Boolean> checkUserIsNormalInTenant(@PathVariable Long userId, 
+    public AjaxResult<Boolean> checkUserIsNormalInTenant(@PathVariable Long userId,
                                                      @PathVariable Long tenantId) {
         boolean result = userTenantService.checkUserIsNormalInTenant(userId, tenantId);
         return AjaxResult.success(result);
@@ -305,11 +303,11 @@ public class UserTenantController {
     @PreAuthorize("@ss.hasPermi('system:user:query')")
     public AjaxResult<TableResult<UserTenantResponse>> getPage(UserTenantQueryRequest request) {
         TableResult<UserTenant> tableResult = userTenantService.getPage(request);
-        List<UserTenantResponse> responseList = userTenantMapper.toResponseList(tableResult.getRow());
+        List<UserTenantResponse> responseList = userTenantMapper.toResponseList(tableResult.getList());
         TableResult<UserTenantResponse> finalResult = TableResult.build(
-            tableResult.getTotal(), 
-            tableResult.getPage(), 
-            tableResult.getPagesize(), 
+            tableResult.getTotal(),
+            tableResult.getPage(),
+            tableResult.getPagesize(),
             responseList
         );
         return AjaxResult.success(finalResult);

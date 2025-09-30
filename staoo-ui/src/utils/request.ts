@@ -36,10 +36,9 @@ let requestQueue: Array<{ resolve: Function; reject: Function }> = []
 service.interceptors.response.use(
   (response) => {
     const res = response.data
-    
     // 统一处理响应数据
     if (res.code === 200) {
-      return res.data
+      return res
     } else {
       // 处理业务错误
       console.error('业务错误:', res.msg || '未知错误')
@@ -124,13 +123,43 @@ service.interceptors.response.use(
   }
 )
 
+/**
+ * 统一的API响应结构
+ */
+export interface ApiResponse<T = any> {
+  /**
+   * 状态码
+   */
+  code: number;
+
+  /**
+   * 数据
+   */
+  data: T;
+
+  /**
+   * 消息
+   */
+  message: string;
+
+  /**
+   * 错误代码
+   */
+  errcode?: string;
+
+  /**
+   * 错误消息
+   */
+  errmsg?: string;
+}
+
 // 导出常用的请求方法
 export const request = {
-  get: <T = any>(url: string, params?: any): Promise<T> => service.get(url, params),
-  post: <T = any>(url: string, data?: any, params?: any): Promise<T> => service.post(url, data, { params }),
-  put: <T = any>(url: string, data?: any): Promise<T> => service.put(url, data),
-  delete: <T = any>(url: string, params?: any): Promise<T> => service.delete(url, params),
-  upload: <T = any>(url: string, file: File, params?: any): Promise<T> => {
+  get: <T = any>(url: string, params?: any): Promise<ApiResponse<T>> => service.get(url, params),
+  post: <T = any>(url: string, data?: any, params?: any): Promise<ApiResponse<T>> => service.post(url, data, { params }),
+  put: <T = any>(url: string, data?: any): Promise<ApiResponse<T>> => service.put(url, data),
+  delete: <T = any>(url: string, params?: any): Promise<ApiResponse<T>> => service.delete(url, params),
+  upload: <T = any>(url: string, file: File, params?: any): Promise<ApiResponse<T>> => {
     const formData = new FormData()
     formData.append('file', file)
     return service.post(url, formData, {

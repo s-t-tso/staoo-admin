@@ -183,7 +183,6 @@ export const useSystemStore = defineStore('system', {
         // 生成可访问的路由
         const accessedRoutes = this.generateRoutes(result.menuList)
         this.setAccessedRoutes(accessedRoutes)
-        
         // 动态添加路由到router
         this.addRoutesToRouter(accessedRoutes)
         
@@ -244,58 +243,71 @@ export const useSystemStore = defineStore('system', {
       const Layout = () => import('../layouts/Layout.vue')
       
       // 转换菜单数据为路由配置
-        const convertToRouteConfig = (menu: MenuItem): RouteRecordRaw => {
-          // 对于Vite的动态导入，我们根据项目的实际模块结构进行适配
-          // 项目组件位于modules目录下，按功能模块组织
-          const getComponent = (componentName: string): () => Promise<any> => {
-            try {
-              // 根据项目结构，组件位于modules目录下
-              // 这里需要根据实际的模块和组件名称进行路径映射
-              // 我们假设组件名称遵循一定的约定，可以映射到对应的模块路径
-              return () => {
-                // 简单的路径映射策略，可以根据实际项目结构调整
-                if (componentName === 'NotFound') {
-                  return import('../modules/error/NotFound.vue')
-                } else if (componentName === 'Dashboard') {
-                  return import('../modules/dashboard/Dashboard.vue')
-                } else if (componentName === 'Login') {
-                  return import('../modules/login/Login.vue')
-                } else if (componentName === 'SystemIndex') {
-                  return import('../modules/system/index.vue')
-                } else if (componentName === 'FlowIndex') {
-                  return import('../modules/flow/index.vue')
+      const convertToRouteConfig = (menu: MenuItem): RouteRecordRaw => {
+        // 对于Vite的动态导入，我们根据项目的实际模块结构进行适配
+        // 项目组件位于modules目录下，按功能模块组织
+        const getComponent = (componentName: string): () => Promise<any> => {
+          try {
+            // 根据项目结构，组件位于modules目录下
+            // 这里需要根据实际的模块和组件名称进行路径映射
+            // 我们假设组件名称遵循一定的约定，可以映射到对应的模块路径
+            return () => {
+              // 默认尝试从模块目录导入
+                // 支持嵌套模块路径，如system/role
+                if (componentName.includes('/')) {
+                  // 如果组件名称已经包含路径分隔符，则直接使用
+                  return import(/* @vite-ignore */ `/src/modules/${componentName.toLowerCase()}.vue`)
                 } else {
-                  // 默认尝试从模块目录导入
-                  // 这里可以根据实际的命名约定进行更复杂的映射
-                  return import(`../modules/${componentName.toLowerCase()}/index.vue`)
+                  // 尝试在对应模块目录下查找index.vue
+                  try {
+                    return import(/* @vite-ignore */ `/src/modules/${componentName.toLowerCase()}/index.vue`)
+                  } catch (e) {
+                    // 如果找不到index.vue，则尝试直接导入组件
+                    return import(/* @vite-ignore */ `/src/modules/${componentName.toLowerCase()}.vue`)
+                  }
                 }
-              }
-            } catch (error) {
-              console.error(`Failed to load component: ${componentName}`, error)
-              // 提供一个默认组件
-              return () => import('../modules/error/NotFound.vue')
             }
+          } catch (error) {
+            console.error(`Failed to load component: ${componentName}`, error)
+            // 提供一个默认组件
+            return () => import('../modules/error/NotFound.vue')
           }
-          
-          const routeConfig: RouteRecordRaw = {
-            path: menu.path.startsWith('/') ? menu.path : `/${menu.path}`,
-            name: menu.name,
-            meta: menu.meta,
-            component: menu.component ? getComponent(menu.component) : Layout,
-            children: menu.children ? menu.children.map(child => convertToRouteConfig(child)) : []
-          }
-          
-          if (menu.redirect) {
-            routeConfig['redirect'] = menu.redirect
-          }
-          
-          return routeConfig
         }
+        
+        const routeConfig: RouteRecordRaw = {
+          path: menu.path.startsWith('/') ? menu.path : `/${menu.path}`,
+          name: menu.name,
+          meta: menu.meta,
+          component: menu.component ? getComponent(menu.component) : Layout,
+          children: menu.children ? menu.children.map(child => convertToRouteConfig(child)) : []
+        }
+        
+        if (menu.redirect) {
+          routeConfig['redirect'] = menu.redirect
+        }
+        
+        return routeConfig
+      }
       
-      // 添加路由到router
+      // 添加路由到router前先检查路由是否存在
       routes.forEach(route => {
-        const routeConfig = convertToRouteConfig(route)
-        router.addRoute('Layout', routeConfig)
+        try {
+          const routeConfig = convertToRouteConfig(route)
+          
+          // 检查路由是否已存在（不使用parent属性，避免TypeScript错误）
+          // 使用名称和路径组合来确定路由唯一性
+          const existingRoute = router.getRoutes().find(r => 
+            r.path === routeConfig.path && r.name === routeConfig.name
+          )
+          
+          // 只有在路由不存在时才添加
+          if (!existingRoute) {
+            router.addRoute('Layout', routeConfig)
+          }
+        } catch (error) {
+          console.error(`Failed to add route: ${route.name || route.path}`, error)
+          // 继续处理下一个路由，避免因单个路由错误影响整体功能
+        }
       })
     }
   }

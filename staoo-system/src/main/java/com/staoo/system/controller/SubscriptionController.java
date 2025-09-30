@@ -137,12 +137,12 @@ public class SubscriptionController {
     public AjaxResult<TableResult<DataSubscriptionResponse>> getPage(SubscriptionQueryRequest request) {
         try {
             TableResult<DataSubscription> tableResult = subscriptionService.getPage(request);
-            List<DataSubscriptionResponse> responses = dataSubscriptionMapper.toResponseList(tableResult.getRow());
+            List<DataSubscriptionResponse> responses = dataSubscriptionMapper.toResponseList(tableResult.getList());
             TableResult<DataSubscriptionResponse> result = new TableResult<>();
             result.setTotal(tableResult.getTotal());
             result.setPage(tableResult.getPage());
             result.setPagesize(tableResult.getPagesize());
-            result.setRow(responses);
+            result.setList(responses);
             return AjaxResult.success(result);
         } catch (Exception e) {
             return AjaxResult.error("分页查询订阅列表失败: " + e.getMessage());

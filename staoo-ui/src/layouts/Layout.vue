@@ -176,15 +176,6 @@ const handleLogout = () => {
 onMounted(async () => {
   // 加载token
   userStore.loadToken()
-  
-  // 如果用户已登录且没有加载过菜单数据，则加载动态路由
-  if (userStore.isLoggedIn && systemStore.accessedRoutes.length === 0) {
-    try {
-      await systemStore.loadMenuData()
-    } catch (error) {
-      console.error('加载菜单数据失败:', error)
-    }
-  }
 
   // 更新面包屑
   updateBreadcrumb()

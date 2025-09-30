@@ -38,9 +38,11 @@ export const getMenuList = async (): Promise<MenuAndPermissionResult> => {
     const response: any = await request.get('/system/menu/nav');
     // 确保返回的是正确格式的数据
     // 处理AjaxResult格式：{code: 200, data: {menuList: [...], permissions: [...]}, message: "操作成功"}
-    if (response && response.code === 200 && response.data && response.data.menuList && Array.isArray(response.data.menuList)) {
+    if (response.data && response.data.menuList && Array.isArray(response.data.menuList)) {
+      // 转换API返回的数据结构为MenuItem格式
+      const menuItems = transformMenuData(response.data.menuList);
       return {
-        menuList: response.data.menuList,
+        menuList: menuItems,
         permissions: response.data.permissions || []
       };
     }
@@ -53,6 +55,27 @@ export const getMenuList = async (): Promise<MenuAndPermissionResult> => {
     // 失败时返回模拟数据，确保应用能正常运行
     return getMockMenuAndPermissionResult();
   }
+};
+
+/**
+ * 将API返回的菜单数据转换为MenuItem格式
+ * @param menuData API返回的菜单数据
+ * @returns 转换后的MenuItem数组
+ */
+const transformMenuData = (menuData: any[]): MenuItem[] => {
+  return menuData.map(item => ({
+    id: item.id,
+    parentId: item.parentId,
+    path: item.path || '',
+    name: item.menuName || '',
+    component: item.component || '',
+    meta: {
+      title: item.menuName || '',
+      icon: item.icon || 'Menu',
+      hidden: item.status !== 1 // 假设status=1表示启用状态
+    },
+    children: item.children && item.children.length > 0 ? transformMenuData(item.children) : []
+  }));
 }
 
 /**
@@ -129,9 +152,20 @@ const getMockMenuAndPermissionResult = (): MenuAndPermissionResult => {
             title: '菜单管理',
             hidden: false
           }
+        },
+        {
+          id: 25,
+          parentId: 2,
+          path: 'tenant',
+          name: 'Tenant',
+          component: 'modules/system/tenant/TenantList.vue',
+          meta: {
+            title: '租户管理',
+            hidden: false
+          }
         }
-      ]
-    },
+          ]
+        },
     {
       id: 3,
       parentId: null,

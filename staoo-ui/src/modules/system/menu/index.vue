@@ -7,38 +7,38 @@
           <el-button type="primary" icon="Plus" @click="handleAdd">新增菜单</el-button>
         </div>
       </template>
-      
+
       <!-- 搜索条件 -->
       <div class="search-form">
         <el-input v-model="searchParams.menuName" placeholder="菜单名称" style="width: 300px; margin-right: 10px;"></el-input>
         <el-button type="primary" @click="handleSearch">搜索</el-button>
         <el-button @click="handleReset">重置</el-button>
       </div>
-      
+
       <!-- 数据列表 - 树形表格 -->
       <el-table
         v-loading="loading"
         :data="menuTree"
         style="width: 100%"
-        :row-key="(row: any) => row.id"
+        :list-key="(list: any) => list.id"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
         <el-table-column type="selection" width="55" :selectable="selectable" />
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="menuName" label="菜单名称" width="180">
-          <template #default="{ row }">
+          <template #default="{ list }">
             <div style="display: flex; align-items: center;">
-              <el-icon v-if="row.icon && row.menuType !== 2" style="margin-right: 5px;">
-                <component :is="row.icon" />
+              <el-icon v-if="list.icon && list.menuType !== 2" style="margin-right: 5px;">
+                <component :is="list.icon" />
               </el-icon>
-              {{ row.menuName }}
+              {{ list.menuName }}
             </div>
           </template>
         </el-table-column>
         <el-table-column prop="menuType" label="类型" width="100">
-          <template #default="{ row }">
-            <el-tag v-if="row.menuType === 0" type="primary">目录</el-tag>
-            <el-tag v-else-if="row.menuType === 1" type="success">菜单</el-tag>
+          <template #default="{ list }">
+            <el-tag v-if="list.menuType === 0" type="primary">目录</el-tag>
+            <el-tag v-else-if="list.menuType === 1" type="success">菜单</el-tag>
             <el-tag v-else type="warning">按钮</el-tag>
           </template>
         </el-table-column>
@@ -47,20 +47,20 @@
         <el-table-column prop="perms" label="权限标识" width="200" />
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column prop="status" label="状态" width="80">
-          <template #default="{ row }">
-            <el-switch v-model="row.status" active-color="#13ce66" inactive-color="#ff4949" @change="handleStatusChange(row)" />
+          <template #default="{ list }">
+            <el-switch v-model="list.status" active-color="#13ce66" inactive-color="#ff4949" @change="handleStatusChange(list)" />
           </template>
         </el-table-column>
         <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" link size="small" @click="handleAddSubMenu(row)">添加子菜单</el-button>
-            <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+          <template #default="{ list }">
+            <el-button type="primary" link size="small" @click="handleAddSubMenu(list)">添加子菜单</el-button>
+            <el-button type="primary" link size="small" @click="handleEdit(list)">编辑</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(list)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
-    
+
     <!-- 菜单表单对话框 -->
     <MenuForm
       :visible="menuFormVisible"
@@ -136,18 +136,18 @@ const handleAdd = () => {
 }
 
 // 添加子菜单
-const handleAddSubMenu = (row: any) => {
+const handleAddSubMenu = (list: any) => {
   currentMenuData.value = null
-  currentMenuType.value = row.menuType === 0 ? 1 : 2
-  currentParentMenuId.value = row.id
+  currentMenuType.value = list.menuType === 0 ? 1 : 2
+  currentParentMenuId.value = list.id
   menuFormVisible.value = true
 }
 
 // 编辑菜单
-const handleEdit = (row: any) => {
-  currentMenuData.value = { ...row }
-  currentMenuType.value = row.menuType
-  currentParentMenuId.value = row.parentId || ''
+const handleEdit = (list: any) => {
+  currentMenuData.value = { ...list }
+  currentMenuType.value = list.menuType
+  currentParentMenuId.value = list.parentId || ''
   menuFormVisible.value = true
 }
 
@@ -165,32 +165,32 @@ const handleFormSuccess = () => {
 }
 
 // 切换菜单状态
-const handleStatusChange = async (row: any) => {
+const handleStatusChange = async (list: any) => {
   try {
-    await menuService.updateMenu(row.id, { status: row.status })
+    await menuService.updateMenu(list.id, { status: list.status })
     ElMessage.success('状态更新成功')
   } catch (error) {
-    row.status = !row.status // 回滚状态
+    list.status = !list.status // 回滚状态
     ElMessage.error('状态更新失败')
   }
 }
 
 // 删除菜单
-const handleDelete = async (row: any) => {
+const handleDelete = async (list: any) => {
   try {
     // 检查是否有子菜单
-    if (row.children && row.children.length > 0) {
+    if (list.children && list.children.length > 0) {
       ElMessage.warning('请先删除子菜单')
       return
     }
-    
-    await ElMessageBox.confirm(`确定要删除菜单「${row.menuName}」吗？`, '提示', {
+
+    await ElMessageBox.confirm(`确定要删除菜单「${list.menuName}」吗？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     })
-    
-    await menuService.deleteMenu(row.id)
+
+    await menuService.deleteMenu(list.id)
     ElMessage.success('删除成功')
     fetchMenuList()
   } catch (error) {
@@ -199,8 +199,8 @@ const handleDelete = async (row: any) => {
 }
 
 // 选择器 - 排除禁用项
-const selectable = (row: any) => {
-  return row.status === 1
+const selectable = (list: any) => {
+  return list.status === 1
 }
 
 // 初始化

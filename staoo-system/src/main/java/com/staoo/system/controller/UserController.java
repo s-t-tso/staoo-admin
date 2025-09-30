@@ -75,10 +75,10 @@ public class UserController {
     @GetMapping("/list")
     @Operation(summary = "分页查询用户")
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    public TableResult<UserResponse> getPage(UserQueryRequest query) {
+    public AjaxResult<TableResult<UserResponse>> getPage(UserQueryRequest query) {
         Page<User> tableResult = userService.getPage(query);
         List<UserResponse> responseList = userMapper.toResponseList(tableResult.getResult());
-        return TableResult.build(tableResult.getTotal(), tableResult.getPages(), tableResult.getPageSize(), responseList);
+        return AjaxResult.success(TableResult.build(tableResult.getTotal(), tableResult.getPages(), tableResult.getPageSize(), responseList));
     }
 
     /**

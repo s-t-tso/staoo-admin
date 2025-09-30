@@ -52,6 +52,16 @@ const departmentService = {
   // 移动部门（调整父部门）
   moveDepartment: (id: string, newParentId: string) => {
     return request.put(`/system/department/${id}/move`, { newParentId })
+  },
+  
+  // 批量更新部门状态
+  batchUpdateDepartmentStatus: (ids: string[], status: number) => {
+    return request.put('/system/department/batch/status', { ids, status })
+  },
+  
+  // 检查部门是否有用户
+  checkDepartmentHasUsers: (departmentId: string) => {
+    return request.get(`/system/department/${departmentId}/has-users`)
   }
 }
 

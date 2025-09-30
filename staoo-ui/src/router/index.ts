@@ -32,6 +32,35 @@ const constantRoutes: Array<RouteRecordRaw> = [
           icon: 'Home'
         },
         component: () => import('../modules/dashboard/Dashboard.vue')
+      },
+      // 第三方应用管理
+      {
+        path: 'third-party',
+        name: 'ThirdParty',
+        meta: {
+          title: '第三方应用',
+          icon: 'Link'
+        },
+        children: [
+          {
+            path: 'app',
+            name: 'ThirdPartyApp',
+            meta: {
+              title: '应用管理',
+              icon: 'App'
+            },
+            component: () => import('../modules/third-party/app/index.vue')
+          },
+          {
+            path: 'subscription',
+            name: 'DataSubscription',
+            meta: {
+              title: '数据订阅',
+              icon: 'DocumentCopy'
+            },
+            component: () => import('../modules/third-party/subscription/index.vue')
+          }
+        ]
       }
     ]
   },

@@ -78,10 +78,10 @@ public class TenantController {
     public AjaxResult<TableResult<TenantResponse>> getPage(TenantQueryRequest request) {
         TableResult<Tenant> tableResult = tenantService.getPage(request);
         TableResult<TenantResponse> responseResult = TableResult.build(
-            tableResult.getTotal(), 
-            tableResult.getPage(), 
-            tableResult.getPagesize(), 
-            tenantMapper.toResponseList(tableResult.getRow())
+            tableResult.getTotal(),
+            tableResult.getPage(),
+            tableResult.getPagesize(),
+            tenantMapper.toResponseList(tableResult.getList())
         );
         return AjaxResult.success(responseResult);
     }

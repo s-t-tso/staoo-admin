@@ -4,7 +4,7 @@
       <h1>欢迎使用 Staoo Admin</h1>
       <p>这是一个基于 Vue 3 + TypeScript + Vite 的企业级后台管理系统</p>
     </div>
-    
+
     <div class="dashboard-stats">
       <el-card class="stat-card">
         <div class="stat-content">
@@ -15,7 +15,7 @@
           <el-icon><User /></el-icon>
         </div>
       </el-card>
-      
+
       <el-card class="stat-card">
         <div class="stat-content">
           <div class="stat-number">86</div>
@@ -25,7 +25,7 @@
           <el-icon><Plus /></el-icon>
         </div>
       </el-card>
-      
+
       <el-card class="stat-card">
         <div class="stat-content">
           <div class="stat-number">99.9%</div>
@@ -35,7 +35,7 @@
           <el-icon><Check /></el-icon>
         </div>
       </el-card>
-      
+
       <el-card class="stat-card">
         <div class="stat-content">
           <div class="stat-number">¥28,456</div>
@@ -46,7 +46,7 @@
         </div>
       </el-card>
     </div>
-    
+
     <div class="dashboard-charts">
       <el-card class="chart-card">
         <template #header>
@@ -56,7 +56,7 @@
         </template>
         <div ref="userGrowthChart" class="chart-container"></div>
       </el-card>
-      
+
       <el-card class="chart-card">
         <template #header>
           <div class="card-header">
@@ -66,7 +66,7 @@
         <div ref="systemAccessChart" class="chart-container"></div>
       </el-card>
     </div>
-    
+
     <div class="dashboard-recent">
       <el-card class="recent-card">
         <template #header>
@@ -78,13 +78,7 @@
           <el-table-column prop="time" label="时间" width="180" />
           <el-table-column prop="user" label="用户" width="120" />
           <el-table-column prop="action" label="操作" />
-          <el-table-column prop="status" label="状态" width="80">
-            <template #default="scope">
-              <el-tag :type="scope.row.status === 'success' ? 'success' : 'warning'">
-                {{ scope.row.status === 'success' ? '成功' : '失败' }}
-              </el-tag>
-            </template>
-          </el-table-column>
+          
         </el-table>
       </el-card>
     </div>

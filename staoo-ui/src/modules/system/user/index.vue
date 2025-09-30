@@ -173,32 +173,12 @@ const fetchUserList = async () => {
       pageSize: pagination.pageSize
     }
     const response = await userService.getUserList(params)
-    userList.value = response.data.data?.list || []
-    pagination.total = response.data.data?.total || 0
+    console.log('response', response)
+    userList.value = response.data?.list || []
+    pagination.total = response.data?.total || 0
   } catch (error) {
     ElMessage.error('获取用户列表失败')
-    // 模拟数据，避免页面空白
-    userList.value = [
-      {
-        id: '1',
-        username: 'admin',
-        nickname: '管理员',
-        departmentName: '技术部',
-        roleNames: '超级管理员',
-        status: 1,
-        createTime: '2023-01-01 10:00:00'
-      },
-      {
-        id: '2',
-        username: 'user1',
-        nickname: '用户一',
-        departmentName: '市场部',
-        roleNames: '普通用户',
-        status: 1,
-        createTime: '2023-01-02 10:00:00'
-      }
-    ]
-    pagination.total = 2
+    
   } finally {
     loading.value = false
   }

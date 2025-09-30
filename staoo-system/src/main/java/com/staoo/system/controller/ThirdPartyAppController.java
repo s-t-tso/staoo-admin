@@ -36,7 +36,7 @@ public class ThirdPartyAppController {
 
     @Autowired
     private ThirdPartyAppService thirdPartyAppService;
-    
+
     @Autowired
     private IThirdPartyAppMapper thirdPartyAppMapper;
 
@@ -61,11 +61,11 @@ public class ThirdPartyAppController {
     @GetMapping("/page")
     public AjaxResult<TableResult<ThirdPartyAppResponse>> getPage(ThirdPartyAppQueryRequest request) {
         TableResult<ThirdPartyApp> tableResult = thirdPartyAppService.getPage(request);
-        
+
         // 转换TableResult中的实体列表
-        List<ThirdPartyAppResponse> responseList = thirdPartyAppMapper.toResponseList(tableResult.getRow());
+        List<ThirdPartyAppResponse> responseList = thirdPartyAppMapper.toResponseList(tableResult.getList());
         TableResult<ThirdPartyAppResponse> responseResult = TableResult.build(tableResult.getTotal(), tableResult.getPage(), tableResult.getPagesize(), responseList);
-        
+
         return AjaxResult.success(responseResult);
     }
 

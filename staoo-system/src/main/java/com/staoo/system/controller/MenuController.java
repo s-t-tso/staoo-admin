@@ -103,7 +103,7 @@ public class MenuController {
     @PreAuthorize("hasAnyAuthority('system:menu:query')")
     public AjaxResult<TableResult<MenuResponse>> getPage(MenuQueryRequest request) {
         TableResult<Menu> page = menuService.getPage(request);
-        List<MenuResponse> responseList = menuMapper.toResponseList(page.getRow());
+        List<MenuResponse> responseList = menuMapper.toResponseList(page.getList());
         TableResult<MenuResponse> responsePage = TableResult.build(page.getTotal(), page.getPage(), page.getPagesize(), responseList);
         return AjaxResult.success(responsePage);
     }

@@ -21,7 +21,7 @@ public class TableResult<T> implements Serializable {
     /**
      * 数据列表
      */
-    private List<T> row;
+    private List<T> list;
 
     /**
      * 当前页码
@@ -40,7 +40,7 @@ public class TableResult<T> implements Serializable {
     // 带参构造方法
     public TableResult(Long total, List<T> row) {
         this.total = total;
-        this.row = row;
+        this.list = row;
     }
 
     // 带参构造方法
@@ -48,7 +48,7 @@ public class TableResult<T> implements Serializable {
         this.total = total;
         this.page = page;
         this.pagesize = pagesize;
-        this.row = row;
+        this.list = row;
     }
 
     /**
@@ -107,12 +107,12 @@ public class TableResult<T> implements Serializable {
         this.total = total;
     }
 
-    public List<T> getRow() {
-        return row;
+    public List<T> getList() {
+        return list;
     }
 
-    public void setRow(List<T> row) {
-        this.row = row;
+    public void setList(List<T> list) {
+        this.list = list;
     }
 
     public Integer getPage() {
@@ -135,7 +135,7 @@ public class TableResult<T> implements Serializable {
     public String toString() {
         return "TableResult{" +
                 "total=" + total +
-                ", row.size()=" + (row != null ? row.size() : 0) +
+                ", list.size()=" + (list != null ? list.size() : 0) +
                 ", page=" + page +
                 ", pagesize=" + pagesize +
                 '}';

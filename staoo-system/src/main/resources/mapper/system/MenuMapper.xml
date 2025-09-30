@@ -207,7 +207,7 @@
     <select id="getMenusByRoleId" resultMap="BaseResultMap">
         SELECT DISTINCT
         m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon,
-        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
+        m.order_num, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
         m.update_by, m.update_time, m.remark
         FROM sys_menu m
         INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
@@ -221,7 +221,7 @@
     <select id="getMenusByUserId" resultMap="BaseResultMap">
         SELECT DISTINCT
         m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon,
-        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
+        m.order_num, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
         m.update_by, m.update_time, m.remark
         FROM sys_menu m
         INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
@@ -274,21 +274,21 @@
             SELECT menu_id FROM sys_role_menu WHERE role_id = #{roleId}
         )
         <include refid="Query_Condition" />
-        ORDER BY parent_id, sort
+        ORDER BY parent_id, order_num
     </select>
 
     <!-- 查询用户菜单树结构 -->
     <select id="getUserMenuTree" resultMap="BaseResultMap">
         SELECT DISTINCT
         m.id, m.menu_name, m.parent_id, m.menu_type, m.path, m.component, m.perms, m.icon,
-        m.sort, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
+        m.order_num, m.status, m.visible, m.cacheable, m.create_by, m.create_time,
         m.update_by, m.update_time, m.remark
         FROM sys_menu m
         INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
         INNER JOIN sys_user_role ur ON rm.role_id = ur.role_id
         <include refid="Query_Condition" />
         AND ur.user_id = #{userId}
-        ORDER BY m.parent_id, m.sort
+        ORDER BY m.parent_id, m.order_num
     </select>
 
     <!-- 根据父ID查询菜单数量 -->

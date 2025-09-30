@@ -7,7 +7,7 @@
         新增表单模板
       </el-button>
     </div>
-    
+
     <div class="search-bar">
       <el-input
         v-model="searchForm.formName"
@@ -36,7 +36,7 @@
       </el-button>
       <el-button @click="handleReset" style="margin-left: 10px">重置</el-button>
     </div>
-    
+
     <el-table v-loading="loading" :data="formTemplateList" style="width: 100%">
       <el-table-column prop="id" label="模板ID" width="80" />
       <el-table-column prop="formName" label="表单名称" width="180" />
@@ -44,7 +44,7 @@
       <el-table-column prop="description" label="描述" />
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
-          <el-tag :type="getStatusTagType(scope.row.status)">{{ getStatusLabel(scope.row.status) }}</el-tag>
+          <el-tag :type="getStatusTagType(scope.list.status)">{{ getStatusLabel(scope.list.status) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="version" label="版本" width="80" />
@@ -52,14 +52,14 @@
       <el-table-column prop="updateTime" label="更新时间" width="180" />
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="scope">
-          <el-button type="primary" link size="small" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button v-if="scope.row.status === 'DRAFT'" type="primary" link size="small" @click="handlePublish(scope.row.id)">发布</el-button>
-          <el-button type="primary" link size="small" @click="handleCopy(scope.row)">复制</el-button>
-          <el-button type="danger" link size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+          <el-button type="primary" link size="small" @click="handleEdit(scope.list)">编辑</el-button>
+          <el-button v-if="scope.list.status === 'DRAFT'" type="primary" link size="small" @click="handlePublish(scope.list.id)">发布</el-button>
+          <el-button type="primary" link size="small" @click="handleCopy(scope.list)">复制</el-button>
+          <el-button type="danger" link size="small" @click="handleDelete(scope.list.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
+
     <div class="pagination">
       <el-pagination
         v-model:current-page="pagination.currentPage"
@@ -185,8 +185,8 @@ const handleCreate = () => {
 }
 
 // 编辑
-const handleEdit = (row: any) => {
-  router.push(`/flow/form-template/edit?id=${row.id}`)
+const handleEdit = (list: any) => {
+  router.push(`/flow/form-template/edit?id=${list.id}`)
 }
 
 // 发布
@@ -211,17 +211,17 @@ const handlePublish = async (id: number) => {
 }
 
 // 复制
-const handleCopy = async (row: any) => {
+const handleCopy = async (list: any) => {
   try {
-    const newName = await ElMessageBox.prompt(`请输入新表单名称（原名称：${row.formName}）`, '提示', {
+    const newName = await ElMessageBox.prompt(`请输入新表单名称（原名称：${list.formName}）`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       inputPattern: /^[^\s]+$/, // 不允许空格
       inputErrorMessage: '表单名称不能为空或包含空格'
     })
-    
+
     if (newName.value) {
-      const response = await copyFormTemplate(row.id)
+      const response = await copyFormTemplate(list.id)
       if (response.code === 200) {
         ElMessage.success('复制成功')
         loadFormTemplateList()

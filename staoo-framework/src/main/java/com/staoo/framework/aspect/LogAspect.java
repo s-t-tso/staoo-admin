@@ -198,7 +198,7 @@ public class LogAspect {
                 pageInfo.put("total", tableResult.getTotal());
                 pageInfo.put("page", tableResult.getPage());
                 pageInfo.put("pagesize", tableResult.getPagesize());
-                pageInfo.put("listSize", tableResult.getRow() != null ? tableResult.getRow().size() : 0);
+                pageInfo.put("listSize", tableResult.getList() != null ? tableResult.getList().size() : 0);
                 return JSON.toJSONString(pageInfo);
             }
             return JSON.toJSONString(result);

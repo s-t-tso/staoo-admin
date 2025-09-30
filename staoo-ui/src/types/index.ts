@@ -37,4 +37,34 @@ export interface ApiResponse<T = any> {
     code: number;
     message: string;
     data: T;
+    // 兼容现有代码中使用的msg字段
+    msg?: string;
+}
+
+// 第三方应用类型
+export interface ThirdPartyApp {
+    id: number;
+    appName: string;
+    appKey: string;
+    appSecret: string;
+    description: string;
+    callbackUrl: string;
+    status: number; // 0: 禁用, 1: 启用
+    createTime: string;
+    updateTime: string;
+    accessToken?: string;
+    tokenExpireTime?: string;
+}
+
+// 数据订阅类型
+export interface DataSubscription {
+    id: number;
+    appId: number;
+    dataType: string;
+    frequency: string; // daily, weekly, monthly, realtime
+    filterConditions?: Record<string, any>;
+    status: number; // 0: 禁用, 1: 启用
+    createTime: string;
+    updateTime: string;
+    appName?: string;
 }
